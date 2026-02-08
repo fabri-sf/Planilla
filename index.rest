@@ -1,0 +1,30 @@
+###
+@BASE_URL = http://localhost
+
+
+###
+GET {{ BASE_URL }}/Servicio1/listar2 HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+###
+
+POST {{ BASE_URL }}/Servicio1/listar HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+###
+//Servicio Departamento
+GET {{ BASE_URL }}/ServicioDepartamento/ReadAll HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+
+
+
+{
+  "Usuario": "root"
+}
