@@ -1,20 +1,20 @@
 const express = require('express');
 const Router = express.Router();
 
-const ServicioDepartamento = require('../servicios/ServicioTipoContrato.js');
+const ServicioAuditoria = require('../servicios/ServicioAuditoria.js');
 
 //Por filtro 
 Router.get('/Read', async (solicitud, respuesta, next) => {
-  return respuesta.json(await ServicioDepartamento.Read(solicitud.body));
+  return respuesta.json(await ServicioAuditoria.Read(solicitud.body));
 });
 
 Router.get('/ReadAll', async (req, res) => {
-  res.json(await ServicioDepartamento.ReadAll());
+  res.json(await ServicioAuditoria.ReadAll());
 });
 
 
 Router.post('/Delete', async (solicitud, respuesta, next) => {
-  return respuesta.json(await Servicio1.listar2());
+  return respuesta.json(await ServicioTipoContrato.Delete(solicitud.body));
 });
 
 module.exports = Router;
