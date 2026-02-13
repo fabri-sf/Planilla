@@ -5,7 +5,7 @@ class ServicioDepartamento {
     constructor() { };
 
     async Read(Datos) {
-        return await ejecutarConsulta("SELECT * FROM `mysql`.`user` WHERE `User` =  ?"
+        return await ejecutarConsulta("SELECT * FROM Departamento.`user` WHERE `user` =  ?"
             , [Datos.Usuario]);
     }
 
@@ -15,10 +15,10 @@ class ServicioDepartamento {
         );
     }
 
-    async Delete() {
-        return await ejecutarConsulta("SELECT * FROM `mysql`.`user` WHERE `User` = ?");
+      async Delete(Datos) {
+        return await ejecutarConsulta("DELETE FROM Departamento.`user` WHERE `user` = ?", [Datos.Usuario]);
+    }
     }
 
-}
 
 module.exports = new ServicioDepartamento();

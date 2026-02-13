@@ -16,7 +16,8 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 ###
-//Servicio Departamento
+//SERVICIO DEPARTAMENTO
+//ALL
 GET {{ BASE_URL }}/ServicioDepartamento/ReadAll HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
@@ -24,6 +25,134 @@ Origin: {{ BASE_URL }}
 
 
 
+###
+//SERVICIO ASISTENCIA
+//ALL
+GET {{ BASE_URL }}/ServicioAsistencia/ReadAll HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+###
+GET {{ BASE_URL }}/ServicioAsistencia/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+
+###
+POST {{ BASE_URL }}/ServicioAsistencia/Delete HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+
+###
+//Auditoria
+//ALL
+GET {{ BASE_URL }}/ServicioAuditoria/ReadAll HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} 
+
+### 
+GET {{ BASE_URL }}/ServicioAuditoria/Read HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} { "id": 1 } 
+
+### 
+POST {{ BASE_URL }}/ServicioAuditoria/Delete HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} { "id": 1 }
+
+
+
+//Empleado
+###
+GET {{ BASE_URL }}/ServicioEmpleado/ReadAll HTTP/1.1 
+uthorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} 
+
+### 
+GET {{ BASE_URL }}/ServicioEmpleado/Read HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} { "id": 1 } 
+
+### 
+POST {{ BASE_URL }}/ServicioEmpleado/Delete HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }}
+
+
+
+
+//TipoContrato
+###
+GET {{ BASE_URL }}/ServicioTipoContrato/ReadAll HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} 
+
+### 
+GET {{ BASE_URL }}/ServicioTipoContrato/Read HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} { "id": 1 } 
+
+### 
+POST {{ BASE_URL }}/ServicioTipoContrato/Delete HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }}
+
+
+
+
+//Pago
+###
+GET {{ BASE_URL }}/ServicioPago/ReadAll HTTP/1.1 
+uthorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} 
+
+### 
+GET {{ BASE_URL }}/ServicioPago/Read HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} { "id": 1 } 
+
+### 
+POST {{ BASE_URL }}/ServicioPago/Delete HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }}
+
+
+
+
+//DeduccionPago
+###
+GET {{ BASE_URL }}/ServicioDeduccionPago/ReadAll HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} 
+
+### 
+GET {{ BASE_URL }}/ServicioDeduccionPago/Read HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} { "id": 1 } 
+
+### 
+POST {{ BASE_URL }}/ServicioDeduccionPago/Delete HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }}
 
 {
   "Usuario": "root"
