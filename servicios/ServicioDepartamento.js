@@ -1,11 +1,11 @@
 const { ejecutarConsulta } = require('../db.js');
 
-class ServicioDepartamento {
+class ServicioHistorialSalario {
 
     constructor() { };
 
     async Read(Datos) {
-        return await ejecutarConsulta("SELECT * FROM Departamento.`user` WHERE `user` =  ?"
+        return await ejecutarConsulta("SELECT * FROM HISTORIAL_SALARIO.`user` WHERE `user` =  ?"
             , [Datos.Usuario]);
     }
 
