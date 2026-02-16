@@ -3,7 +3,7 @@ const rutasDelServicioDep = require("./ServicioDepartamento.js");
 
 const rutasDelServicioAsistencia = require("./ServicioAsistencia.js");
 const rutasDelServicioAuditoria = require("./ServicioAuditoria.js");
-const rutasDelServicioDeduccion = require("./Servicio1.js");
+const rutasDelServicioDeduccion = require("./ServicioDeduccionPago.js");
 const rutasDelServicioEmpleado = require("./ServicioEmpleado.js");
 const rutasDelServicioPago = require("./ServicioPago.js");
 const rutasDelServicioTipoContrato = require("./ServicioTipoContrato.js");
@@ -23,7 +23,7 @@ function asignarRutasAExpress(app) {
 
   app.use("/ServicioAsistencia", rutasDelServicioAsistencia);
   app.use("/ServicioAuditoria", rutasDelServicioAuditoria);
-  app.use("/ServicioDeduccion", rutasDelServicioDeduccion);
+  app.use("/ServicioDeduccionPago", rutasDelServicioDeduccion);
   app.use("/ServicioEmpleado", rutasDelServicioEmpleado);
   app.use("/ServicioPago", rutasDelServicioPago);
   app.use("/ServicioTipoContrato", rutasDelServicioTipoContrato);
