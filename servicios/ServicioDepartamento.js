@@ -1,6 +1,6 @@
 const { ejecutarConsulta } = require('../db.js');
 
-class ServicioHistorialSalario {
+class ServicioDepartamento {
 
     constructor() { };
 
@@ -15,9 +15,26 @@ class ServicioHistorialSalario {
         );
     }
 
+    async Create(Datos) {
+    return await ejecutarConsulta(
+        `INSERT INTO DEPARTAMENTO 
+        (codigo, nombre, descripcion, activo) 
+        VALUES (?, ?, ?, ?)`,
+        [
+            Datos.codigo,
+            Datos.nombre,
+            Datos.descripcion,
+            Datos.activo ?? true
+        ]
+    );
+}
+
+
       async Delete(Datos) {
         return await ejecutarConsulta("DELETE FROM Departamento.`user` WHERE `user` = ?", [Datos.Usuario]);
     }
+
+
     }
 
 

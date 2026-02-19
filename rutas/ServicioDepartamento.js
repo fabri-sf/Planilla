@@ -1,7 +1,7 @@
 const express = require('express');
 const Router = express.Router();
 
-const ServicioDepartamento = require('../servicios/ServicioTipoContrato.js');
+const ServicioDepartamento = require('../servicios/ServicioDepartamento.js');
 
 //Por filtro 
 Router.get('/Read', async (solicitud, respuesta, next) => {
@@ -10,6 +10,10 @@ Router.get('/Read', async (solicitud, respuesta, next) => {
 
 Router.get('/ReadAll', async (req, res) => {
   res.json(await ServicioDepartamento.ReadAll());
+});
+
+Router.post('/Create', async (req, res) => {
+  res.json(await ServicioDepartamento.Create(req.body));
 });
 
 

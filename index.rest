@@ -23,6 +23,22 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 Origin: {{ BASE_URL }}
 
+###
+// SERVICIO DEPARTAMENTO
+// CREATE
+POST {{ BASE_URL }}/ServicioDepartamento/Create HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "codigo": "DEP001 pruebaaa",
+  "nombre": "Recursos Humanos 222 prueba",
+  "descripcion": "Departamento encargado del personal prueba",
+  "activo": true
+}
+
+
 
 
 ###
