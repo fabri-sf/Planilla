@@ -23,6 +23,22 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 Origin: {{ BASE_URL }}
 
+###
+// SERVICIO DEPARTAMENTO
+// CREATE
+POST {{ BASE_URL }}/ServicioDepartamento/Create HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "codigo": "DEP001 pruebaaa",
+  "nombre": "Recursos Humanos 222 prueba",
+  "descripcion": "Departamento encargado del personal prueba",
+  "activo": true
+}
+
+
 
 
 ###
@@ -154,6 +170,146 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json 
 Origin: {{ BASE_URL }}
 
+
+//Puesto
+###
+GET {{ BASE_URL }}/ServicioPuesto/ReadAll HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} 
+
+### 
+GET {{ BASE_URL }}/ServicioPuesto/Read HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} { "id": 1 } 
+
+### 
+POST {{ BASE_URL }}/ServicioPuesto/Delete HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }}
+
+
+//Historial Salario
+###
+GET {{ BASE_URL }}/ServicioHistorialSalario/ReadAll HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} 
+
+### 
+GET {{ BASE_URL }}/ServicioHistorialSalario/Read HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} { "id": 1 } 
+
+### 
+POST {{ BASE_URL }}/ServicioHistorialSalario/Delete HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }}
+
+
+//Planilla
+###
+GET {{ BASE_URL }}/ServicioPlanilla/ReadAll HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} 
+
+### 
+GET {{ BASE_URL }}/ServicioPlanilla/Read HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} { "id": 1 } 
+
+### 
+POST {{ BASE_URL }}/ServicioPlanilla/Delete HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }}
+
+
+//TipoDeduccion
+###
+GET {{ BASE_URL }}/ServicioTipoDeduccion/ReadAll HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} 
+
+### 
+GET {{ BASE_URL }}/ServicioTipoDeduccion/Read HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} { "id": 1 } 
+
+### 
+POST {{ BASE_URL }}/ServicioTipoDeduccion/Delete HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }}
+
+
+
+//Tipo Bonificacion
+###
+GET {{ BASE_URL }}/ServicioTipoBonificacion/ReadAll HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} 
+
+### 
+GET {{ BASE_URL }}/ServicioTipoBonificacion/Read HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} { "id": 1 } 
+
+### 
+POST {{ BASE_URL }}/ServicioTipoBonificacion/Delete HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }}
+
+
+//Usuario
+###
+GET {{ BASE_URL }}/ServicioUsuario/ReadAll HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} 
+
+### 
+GET {{ BASE_URL }}/ServicioUsuario/Read HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} { "id": 1 } 
+
+### 
+POST {{ BASE_URL }}/ServicioUsuario/Delete HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }}
+
+
+//Binificacion Pago
+###
+GET {{ BASE_URL }}/ServicioBonificacionPago/ReadAll HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} 
+
+### 
+GET {{ BASE_URL }}/ServicioBonificacionPago/Read HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }} { "id": 1 } 
+
+### 
+POST {{ BASE_URL }}/ServicioBonificacionPago/Delete HTTP/1.1 
+Authorization: Bearer {{ AUTH_TOKEN }} 
+Content-Type: application/json 
+Origin: {{ BASE_URL }}
 {
   "Usuario": "root"
 }
