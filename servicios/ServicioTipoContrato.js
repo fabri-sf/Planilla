@@ -1,24 +1,43 @@
-const { ejecutarConsulta } = require('../db.js');
+const { ejecutarConsulta } = require("../db.js");
 
 class ServicioTipoContrato {
+  constructor() {}
 
-    constructor() { };
+  async Read(Datos) {
+    return await ejecutarConsulta(
+      "SELECT * FROM TIPO_CONTRATO.`user` WHERE `user` =  ?",
+      [Datos.Usuario],
+    );
+  }
 
-    async Read(Datos) {
-        return await ejecutarConsulta("SELECT * FROM TIPO_CONTRATO.`user` WHERE `user` =  ?"
-            , [Datos.Usuario]);
-    }
+  async ReadAll() {
+    return await ejecutarConsulta("SELECT * FROM TIPO_CONTRATO");
+  }
 
-    async ReadAll() {
-        return await ejecutarConsulta(
-            'SELECT * FROM TIPO_CONTRATO'
-        );
-    }
+  async Create(Datos) {
+    return await ejecutarConsulta(
+      "INSERT INTO TIPO_CONTRATO (nombre, horasSemanales, descripcion, activo) VALUES (?, ?, ?, ?)",
+      [
+        Datos.nombre,
+        Datos.horasSemanales,
+        Datos.descripcion,
+        Datos.activo ?? true,
+      ],
+    );
+  }
 
-      async Delete(Datos) {
-        return await ejecutarConsulta("DELETE FROM TIPO_CONTRATO.`user` WHERE `user` = ?", [Datos.Usuario]);
-    }
-    }
+  async Update(Datos) {
+    return await ejecutarConsulta(
+      "UPDATE TIPO_CONTRATO SET nombre = ?, descripcion = ?, activo = ? WHERE id = ?",
+      [Datos.nombre, Datos.descripcion, Datos.activo, Datos.id],
+    );
+  }
 
+  async Delete(Datos) {
+    return await ejecutarConsulta("DELETE FROM TIPO_CONTRATO WHERE id = ?", [
+      Datos.id,
+    ]);
+  }
+}
 
 module.exports = new ServicioTipoContrato();
