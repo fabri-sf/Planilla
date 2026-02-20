@@ -1,41 +1,40 @@
-const { ejecutarConsulta } = require('../db.js');
+const { ejecutarConsulta } = require("../db.js");
 
 class ServicioDepartamento {
+  constructor() {}
 
-    constructor() { };
-
-    async Read(Datos) {
-        return await ejecutarConsulta("SELECT * FROM HISTORIAL_SALARIO.`user` WHERE `user` =  ?"
-            , [Datos.Usuario]);
-    }
-
-    async ReadAll() {
-        return await ejecutarConsulta(
-            'SELECT * FROM Departamento'
-        );
-    }
-
-    async Create(Datos) {
+  async Read(Datos) {
     return await ejecutarConsulta(
-        `INSERT INTO DEPARTAMENTO 
+      "SELECT * FROM HISTORIAL_SALARIO.`user` WHERE `user` =  ?",
+      [Datos.Usuario],
+    );
+  }
+
+  async ReadAll() {
+    return await ejecutarConsulta("SELECT * FROM Departamento");
+  }
+
+  async Create(Datos) {
+    return await ejecutarConsulta(
+      `INSERT INTO DEPARTAMENTO 
         (codigo, nombre, descripcion, activo) 
         VALUES (?, ?, ?, ?)`,
-        [
-            Datos.codigo,
-            Datos.nombre,
-            Datos.descripcion,
-            Datos.activo ?? true
-        ]
+      [Datos.codigo, Datos.nombre, Datos.descripcion, Datos.activo ?? true],
     );
+  }
+
+  async Update(Datos) {
+    return await ejecutarConsulta(
+      "UPDATE DEPARTAMENTO SET codigo = ?, nombre = ?, descripcion = ?, activo = ? WHERE id = ?",
+      [Datos.codigo, Datos.nombre, Datos.descripcion, Datos.activo, Datos.id],
+    );
+  }
+
+  async Delete(Datos) {
+    return await ejecutarConsulta("DELETE FROM DEPARTAMENTO WHERE id = ?", [
+      Datos.id,
+    ]);
+  }
 }
-
-
-      async Delete(Datos) {
-        return await ejecutarConsulta("DELETE FROM Departamento.`user` WHERE `user` = ?", [Datos.Usuario]);
-    }
-
-
-    }
-
 
 module.exports = new ServicioDepartamento();
