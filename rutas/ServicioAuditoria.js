@@ -13,8 +13,5 @@ Router.get('/ReadAll', async (req, res) => {
 });
 
 
-Router.post('/Delete', async (solicitud, respuesta, next) => {
-  return respuesta.json(await ServicioTipoContrato.Delete(solicitud.body));
-});
 
 module.exports = Router;
