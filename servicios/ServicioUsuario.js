@@ -17,6 +17,45 @@ class ServicioUsuario {
         );
     }
 
+        async Create(datos) {
+        return await ejecutarConsulta(
+            `INSERT INTO USUARIO
+            (nombreUsuario, contrasena, correo, rol, empleadoId, activo)
+            VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+                datos.nombreUsuario,
+                datos.contrasena,
+                datos.correo,
+                datos.rol,
+                datos.empleadoId,
+                datos.activo
+            ]
+        );
+    }
+
+    async Update(datos) {
+        return await ejecutarConsulta(
+            `UPDATE USUARIO
+             SET nombreUsuario = ?,
+                 contrasena = ?,
+                 correo = ?,
+                 rol = ?,
+                 empleadoId = ?,
+                 activo = ?
+             WHERE id = ?`,
+            [
+                datos.nombreUsuario,
+                datos.contrasena,
+                datos.correo,
+                datos.rol,
+                datos.empleadoId,
+                datos.activo,
+                datos.id
+            ]
+        );
+    }
+
+
     async Delete(datos) {
         return await ejecutarConsulta(
             "DELETE FROM USUARIO WHERE id = ?",

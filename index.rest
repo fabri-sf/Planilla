@@ -9,7 +9,6 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 ###
-
 POST {{ BASE_URL }}/Servicio1/listar HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
@@ -63,9 +62,6 @@ Origin: {{ BASE_URL }}
   "id": 12
 }
 
-
-
-
 ###
 //SERVICIO ASISTENCIA
 //ALL
@@ -79,7 +75,6 @@ GET {{ BASE_URL }}/ServicioAsistencia/Read HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 Origin: {{ BASE_URL }}
-
 
 ###
 //CREATE
@@ -127,8 +122,6 @@ Origin: {{ BASE_URL }}
   "id": 200
 }
 
-
-
 ###
 //Auditoria
 //ALL
@@ -148,8 +141,6 @@ POST {{ BASE_URL }}/ServicioAuditoria/Delete HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
 Origin: {{ BASE_URL }} { "id": 1 }
-
-
 
 //Empleado
 ###
@@ -185,7 +176,6 @@ Origin: {{ BASE_URL }}
   "departamentoId": 1,
   "tipoContratoId": 1
 }
-
 
 ###
 //UPDATE
@@ -276,8 +266,6 @@ Origin: {{ BASE_URL }}
   "id": 5
 }
 
-
-
 //Pago
 ###
 //Read
@@ -350,9 +338,6 @@ Origin: {{ BASE_URL }}
   "id": 202
 }
 
-
-
-
 //DeduccionPago
 ###
 GET {{ BASE_URL }}/ServicioDeduccionPago/ReadAll HTTP/1.1 
@@ -366,12 +351,40 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json 
 Origin: {{ BASE_URL }} { "id": 1 } 
 
+###
+//CREATE
+POST {{ BASE_URL }}/ServicioDeduccionPago/Create HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "pagoId": 1,
+  "tipoDeduccionId": 2,
+  "monto": 25000.00,
+  "observaciones": "Deducción CCSS prueba"
+}
+
+###
+//UPDATE
+POST {{ BASE_URL }}/ServicioDeduccionPago/Edit HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "id": 1,
+  "pagoId": 1,
+  "tipoDeduccionId": 3,
+  "monto": 30000.00,
+  "observaciones": "Deducción actualizada prueba"
+}
+
 ### 
 POST {{ BASE_URL }}/ServicioDeduccionPago/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
 Origin: {{ BASE_URL }}
-
 
 //Puesto
 ###
@@ -386,6 +399,38 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json 
 Origin: {{ BASE_URL }} { "id": 1 } 
 
+###
+//CREATE
+POST {{ BASE_URL }}/ServicioPuesto/Create HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "codigo": "P001",
+  "nombre": "Desarrollador Backend",
+  "descripcion": "Encargado del desarrollo del servidor",
+  "salarioMin": 800000.00,
+  "salarioMax": 1500000.00,
+  "activo": true
+}
+
+###
+//UPDATE
+POST {{ BASE_URL }}/ServicioPuesto/Update HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "id": 1,
+  "codigo": "P001-EDIT",
+  "nombre": "Desarrollador Backend Senior",
+  "descripcion": "Actualización del puesto",
+  "salarioMin": 900000.00,
+  "salarioMax": 1700000.00,
+  "activo": true
+}
 ### 
 POST {{ BASE_URL }}/ServicioPuesto/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
@@ -406,6 +451,22 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json 
 Origin: {{ BASE_URL }} { "id": 1 } 
 
+
+###
+// SERVICIO HISTORIAL SALARIO
+// CREATE
+POST {{ BASE_URL }}/ServicioHistorialSalario/Create HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "empleadoId": 1,
+  "salarioAnterior": 500000,
+  "salarioNuevo": 600000,
+  "motivo": "Aumento anual",
+  "autorizadoPor": 1
+}
 ### 
 POST {{ BASE_URL }}/ServicioHistorialSalario/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
@@ -426,6 +487,42 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json 
 Origin: {{ BASE_URL }} { "id": 1 } 
 
+###
+//CREATE
+POST {{ BASE_URL }}/ServicioPlanilla/Create HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "periodo": "Junio 2026",
+  "fechaInicio": "2026-06-01",
+  "fechaFin": "2026-06-30",
+  "fechaPago": "2026-07-05",
+  "estado": "borrador",
+  "descripcion": "Planilla mensual de junio",
+  "creadoPor": 1,
+  "aprobadoPor": 2
+}
+
+###
+//UPDATE
+POST {{ BASE_URL }}/ServicioPlanilla/Update HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "id": 1,
+  "periodo": "Junio 2026 Actualizado",
+  "fechaInicio": "2026-06-01",
+  "fechaFin": "2026-06-30",
+  "fechaPago": "2026-07-10",
+  "estado": "procesada",
+  "descripcion": "Planilla actualizada",
+  "creadoPor": 1,
+  "aprobadoPor": 2
+}
 ### 
 POST {{ BASE_URL }}/ServicioPlanilla/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
@@ -446,12 +543,45 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json 
 Origin: {{ BASE_URL }} { "id": 1 } 
 
-### 
-POST {{ BASE_URL }}/ServicioTipoDeduccion/Delete HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
+###
+// CREATE
+POST {{ BASE_URL }}/ServicioTipoDeduccion/Create HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
 Origin: {{ BASE_URL }}
 
+{
+  "codigo": "TD001",
+  "nombre": "CCSS",
+  "porcentaje": 9.50,
+  "montoFijo": 0.00,
+  "obligatorio": true,
+  "activo": true
+}
+###
+// UPDATE
+POST {{ BASE_URL }}/ServicioTipoDeduccion/Update HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "id": 1,
+  "codigo": "TD001-EDIT",
+  "nombre": "CCSS Actualizada",
+  "porcentaje": 10.50,
+  "montoFijo": 0.00,
+  "obligatorio": true,
+  "activo": true
+}
+
+###
+POST {{ BASE_URL }}/ServicioTipoDeduccion/Delete HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "id": 1 }
 
 
 //Tipo Bonificacion
@@ -467,6 +597,33 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json 
 Origin: {{ BASE_URL }} { "id": 1 } 
 
+
+###
+POST {{ BASE_URL }}/ServicioTipoBonificacion/Create HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "codigo": "TB001",
+  "nombre": "Bono Productividad",
+  "descripcion": "Bonificación mensual por metas alcanzadas",
+  "activo": true
+}
+
+###
+POST {{ BASE_URL }}/ServicioTipoBonificacion/Update HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "id": 1,
+  "codigo": "TB001-EDIT",
+  "nombre": "Bono Productividad Senior",
+  "descripcion": "Actualización de bonificación",
+  "activo": true
+}
 ### 
 POST {{ BASE_URL }}/ServicioTipoBonificacion/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
@@ -487,6 +644,36 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json 
 Origin: {{ BASE_URL }} { "id": 1 } 
 
+###
+POST {{ BASE_URL }}/ServicioUsuario/Create HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "nombreUsuario": "fabri.admin",
+  "contrasena": "123456",
+  "correo": "fabri@email.com",
+  "rol": "admin",
+  "empleadoId": null,
+  "activo": true
+}
+
+###
+POST {{ BASE_URL }}/ServicioUsuario/Update HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "id": 1,
+  "nombreUsuario": "fabri.admin.edit",
+  "contrasena": "nuevaClave123",
+  "correo": "fabri@edit.com",
+  "rol": "gerente",
+  "empleadoId": null,
+  "activo": true
+}
 ### 
 POST {{ BASE_URL }}/ServicioUsuario/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 

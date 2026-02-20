@@ -17,9 +17,49 @@ class ServicioPuesto {
         );
     }
 
+   async Create(datos) {
+        return await ejecutarConsulta(
+            `INSERT INTO PUESTO
+            (codigo, nombre, descripcion, salarioMin, salarioMax, activo)
+            VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+                datos.codigo,
+                datos.nombre,
+                datos.descripcion,
+                datos.salarioMin,
+                datos.salarioMax,
+                datos.activo ?? true
+            ]
+        );
+    }
+
+    // UPDATE
+    async Update(datos) {
+        return await ejecutarConsulta(
+            `UPDATE PUESTO
+             SET codigo = ?,
+                 nombre = ?,
+                 descripcion = ?,
+                 salarioMin = ?,
+                 salarioMax = ?,
+                 activo = ?
+             WHERE id = ?`,
+            [
+                datos.codigo,
+                datos.nombre,
+                datos.descripcion,
+                datos.salarioMin,
+                datos.salarioMax,
+                datos.activo,
+                datos.id
+            ]
+        );
+    }
+
+    // DELETE
     async Delete(datos) {
         return await ejecutarConsulta(
-            "DELETE FROM Puesto WHERE id = ?",
+            "DELETE FROM PUESTO WHERE id = ?",
             [datos.id]
         );
     }

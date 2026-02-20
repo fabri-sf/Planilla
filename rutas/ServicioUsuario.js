@@ -10,6 +10,13 @@ Router.get('/Read', async (solicitud, respuesta, next) => {
 
 Router.get('/ReadAll', async (req, res) => {
   res.json(await ServicioUsuario.ReadAll());
+
+});Router.post('/Create', async (req, res) => {
+  res.json(await ServicioUsuario.Create(req.body));
+});
+
+Router.post('/Update', async (req, res) => {
+  res.json(await ServicioUsuario.Update(req.body));
 });
 
 //MODIFICAR LOS DELETE DE TODOS

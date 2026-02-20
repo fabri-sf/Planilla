@@ -17,6 +17,38 @@ class ServicioTipoBonificacion {
         );
     }
 
+      async Create(datos) {
+        return await ejecutarConsulta(
+            `INSERT INTO TIPO_BONIFICACION 
+            (codigo, nombre, descripcion, activo)
+            VALUES (?, ?, ?, ?)`,
+            [
+                datos.codigo,
+                datos.nombre,
+                datos.descripcion,
+                datos.activo
+            ]
+        );
+    }
+
+      async Update(datos) {
+        return await ejecutarConsulta(
+            `UPDATE TIPO_BONIFICACION
+             SET codigo = ?,
+                 nombre = ?,
+                 descripcion = ?,
+                 activo = ?
+             WHERE id = ?`,
+            [
+                datos.codigo,
+                datos.nombre,
+                datos.descripcion,
+                datos.activo,
+                datos.id
+            ]
+        );
+    }
+
     async Delete(datos) {
         return await ejecutarConsulta(
             "DELETE FROM TIPO_BONIFICACION WHERE id = ?",
