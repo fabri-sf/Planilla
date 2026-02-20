@@ -23,6 +23,47 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 Origin: {{ BASE_URL }}
 
+###
+// CREATE
+POST {{ BASE_URL }}/ServicioDepartamento/Create HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "codigo": "DEP001 pruebaaa",
+  "nombre": "Recursos Humanos 222 prueba",
+  "descripcion": "Departamento encargado del personal prueba",
+  "activo": true
+}
+
+###
+//UPDATE
+POST {{ BASE_URL }}/ServicioDepartamento/Update HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "id": 12,
+  "codigo": "DEP001",
+  "nombre": "Recursos Humanos PRUEBA",
+  "descripcion": "Departamento de recursos humanos PRUEBA",
+  "activo": true
+}
+
+###
+//DELETE corregir por relacion empleado constraint
+POST {{ BASE_URL }}/ServicioDepartamento/Delete HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "id": 12
+}
+
+
 
 
 ###
@@ -41,10 +82,51 @@ Origin: {{ BASE_URL }}
 
 
 ###
+//CREATE
+POST {{ BASE_URL }}/ServicioAsistencia/Create HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "empleadoId": 1,
+  "fecha": "2024-02-20",
+  "horaEntrada": "08:00:00",
+  "horaSalida": "17:00:00",
+  "horasTrabajadas": 8.00,
+  "horasExtras": 0,
+  "observaciones": "Jornada regular PRUEBA"
+}
+
+###
+//UPDATE
+POST {{ BASE_URL }}/ServicioAsistencia/Update HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "id": 1,
+  "empleadoId": 1,
+  "fecha": "2024-02-19",
+  "horaEntrada": "08:00:00",
+  "horaSalida": "17:00:00",
+  "horasTrabajadas": 8.00,
+  "horasExtras": 1.00,
+  "observaciones": "Día normal de trabajo PRUEBA"
+}
+
+###
+//DELETE
 POST {{ BASE_URL }}/ServicioAsistencia/Delete HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 Origin: {{ BASE_URL }}
+
+{
+  "id": 200
+}
+
 
 
 ###
@@ -82,17 +164,68 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json 
 Origin: {{ BASE_URL }} { "id": 1 } 
 
+###
+//CREATE
+POST {{ BASE_URL }}/ServicioEmpleado/Create HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "cedula": "987654321",
+  "nombre": "María",
+  "apellido": "González Rodríguez",
+  "email": "maria.gonzalez@empresa.com",
+  "telefono": "88887777",
+  "fechaNacimiento": "1995-05-20",
+  "fechaIngreso": "2021-01-15",
+  "salarioBase": 1800.00,
+  "estado": "activo",
+  "puestoId": 2,
+  "departamentoId": 1,
+  "tipoContratoId": 1
+}
+
+
+###
+//UPDATE
+POST {{ BASE_URL }}/ServicioEmpleado/Update HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "id": 3,
+  "cedula": "103330333",
+  "nombre": "Juan Carlos",
+  "apellido": "Rodriguez Zamora",
+  "email": "PRUEBA2@empresa.com",
+  "telefono": "111111111",
+  "fechaNacimiento": "1990-01-15",
+  "fechaIngreso": "2020-03-01",
+  "salarioBase": 1500.00,
+  "estado": "activo",
+  "puestoId": 1,
+  "departamentoId": 1,
+  "tipoContratoId": 1
+}
+
 ### 
+//DELETE CORREGIR POR RELACION PAGO CONSTRAINT 
 POST {{ BASE_URL }}/ServicioEmpleado/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
 Origin: {{ BASE_URL }}
 
+{
+  "id": 200
+}
 
 
 
 //TipoContrato
 ###
+//Read
 GET {{ BASE_URL }}/ServicioTipoContrato/ReadAll HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
@@ -104,17 +237,50 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json 
 Origin: {{ BASE_URL }} { "id": 1 } 
 
+###
+//CREATE
+POST {{ BASE_URL }}/ServicioTipoContrato/Create HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "nombre": "Tiempo Completo",
+  "horasSemanales": 40,
+  "descripcion": "Contrato de tiempo completo",
+  "activo": true
+}
+
+###
+//Update
+POST {{ BASE_URL }}/ServicioTipoContrato/Update HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "id": 1,
+  "nombre": "Indefinido",
+  "descripcion": "pruebaaaaaaaaaaaa",
+  "activo": true
+}
+
 ### 
+//Delete
 POST {{ BASE_URL }}/ServicioTipoContrato/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
 Origin: {{ BASE_URL }}
 
+{
+  "id": 5
+}
 
 
 
 //Pago
 ###
+//Read
 GET {{ BASE_URL }}/ServicioPago/ReadAll HTTP/1.1 
 uthorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
@@ -126,11 +292,63 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json 
 Origin: {{ BASE_URL }} { "id": 1 } 
 
+
+###
+//CREATE
+POST {{ BASE_URL }}/ServicioPago/Create HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "empleadoId": 1,
+  "planillaId": 2,
+  "salarioBase": 1500.00,
+  "diasTrabajados": 22,
+  "diasEsperados": 22,
+  "horasExtras": 0,
+  "totalBruto": 1500.00,
+  "totalDeducciones": 150.00,
+  "totalBonificaciones": 0,
+  "salarioNeto": 1350.00,
+  "observaciones": "Pago regular del mes prueba"
+}
+
+
+###
+//UPDATE
+POST {{ BASE_URL }}/ServicioPago/Update HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "id": 2,
+  "empleadoId": 2,
+  "planillaId": 1,
+  "salarioBase": 1500.00,
+  "diasTrabajados": 20,
+  "diasEsperados": 22,
+  "horasExtras": 5.00,
+  "totalBruto": 1600.00,
+  "totalDeducciones": 150.00,
+  "totalBonificaciones": 200.00,
+  "salarioNeto": 1650.00,
+  "observaciones": "PRUEBA ACTUALIZACION",
+  "fechaPago": "2030-06-30T00:00:00"
+}
+
+
 ### 
+//DELETE
 POST {{ BASE_URL }}/ServicioPago/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
 Origin: {{ BASE_URL }}
+
+{
+  "id": 202
+}
 
 
 
@@ -289,11 +507,43 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json 
 Origin: {{ BASE_URL }} { "id": 1 } 
 
+###
+//CREATE
+POST {{ BASE_URL }}/ServicioBonificacionPago/Create HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "pagoId": 1,
+  "tipoBonificacionId": 1,
+  "monto": 300.00,
+  "observaciones": "Bonificación por cumplimiento de objetivos PRUEBA"
+}
+
+
+###
+//UPDATE
+POST {{ BASE_URL }}/ServicioBonificacionPago/Update HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "id": 1,
+  "pagoId": 1,
+  "tipoBonificacionId": 1,
+  "monto": 500.00,
+  "observaciones": "Bonificación por desempeño PRUEBA"
+}
+
 ### 
+//DELETE
 POST {{ BASE_URL }}/ServicioBonificacionPago/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
 Origin: {{ BASE_URL }}
+
 {
-  "Usuario": "root"
+  "id": 200
 }

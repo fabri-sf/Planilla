@@ -1,20 +1,27 @@
-const express = require('express');
+const express = require("express");
 const Router = express.Router();
 
-const ServicioDepartamento = require('../servicios/ServicioTipoContrato.js');
+const ServicioDepartamento = require("../servicios/ServicioDepartamento.js");
 
-//Por filtro 
-Router.get('/Read', async (solicitud, respuesta, next) => {
+//Por filtro
+Router.get("/Read", async (solicitud, respuesta, next) => {
   return respuesta.json(await ServicioDepartamento.Read(solicitud.body));
 });
 
-Router.get('/ReadAll', async (req, res) => {
+Router.get("/ReadAll", async (req, res) => {
   res.json(await ServicioDepartamento.ReadAll());
 });
 
+Router.post("/Create", async (req, res) => {
+  res.json(await ServicioDepartamento.Create(req.body));
+});
 
-Router.post('/Delete', async (solicitud, respuesta, next) => {
-  return respuesta.json(await Servicio1.listar2());
+Router.post("/Update", async (solicitud, respuesta, next) => {
+  return respuesta.json(await ServicioDepartamento.Update(solicitud.body));
+});
+
+Router.post("/Delete", async (solicitud, respuesta, next) => {
+  return respuesta.json(await ServicioDepartamento.Delete(solicitud.body));
 });
 
 module.exports = Router;

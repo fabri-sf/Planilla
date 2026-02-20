@@ -15,10 +15,6 @@ class ServicioAuditoria {
         );
     }
 
-    async Delete(Datos) {
-        return await ejecutarConsulta("DELETE FROM AUDITORIA.`user` WHERE `user` = ?", [Datos.Usuario]);
-    }
-
 }
 
 module.exports = new ServicioAuditoria();
