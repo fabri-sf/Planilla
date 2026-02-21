@@ -15,8 +15,26 @@ class ServicioHistorialSalario {
         );
     }
 
-      async Delete(Datos) {
-        return await ejecutarConsulta("DELETE FROM HISTORIAL_SALARIO.`user` WHERE `user` = ?", [Datos.Usuario]);
+       async Create(Datos) {
+        return await ejecutarConsulta(
+            `INSERT INTO HISTORIAL_SALARIO 
+            (empleadoId, salarioAnterior, salarioNuevo, motivo, autorizadoPor)
+            VALUES (?, ?, ?, ?, ?)`,
+            [
+                Datos.empleadoId,
+                Datos.salarioAnterior,
+                Datos.salarioNuevo,
+                Datos.motivo,
+                Datos.autorizadoPor
+            ]
+        );
+    }
+
+   async Delete(Datos) {
+        return await ejecutarConsulta(
+            "DELETE FROM HISTORIAL_SALARIO WHERE id = ?",
+            [Datos.id]
+        );
     }
     }
 

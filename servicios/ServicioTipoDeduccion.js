@@ -17,6 +17,45 @@ class ServicioTipoDeduccion {
         );
     }
 
+        async Create(datos) {
+        return await ejecutarConsulta(
+            `INSERT INTO TIPO_DEDUCCION 
+            (codigo, nombre, porcentaje, montoFijo, obligatorio, activo) 
+            VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+                datos.codigo,
+                datos.nombre,
+                datos.porcentaje,
+                datos.montoFijo,
+                datos.obligatorio,
+                datos.activo
+            ]
+        );
+    }
+
+        async Update(datos) {
+        return await ejecutarConsulta(
+            `UPDATE TIPO_DEDUCCION 
+             SET codigo = ?, 
+                 nombre = ?, 
+                 porcentaje = ?, 
+                 montoFijo = ?, 
+                 obligatorio = ?, 
+                 activo = ?
+             WHERE id = ?`,
+            [
+                datos.codigo,
+                datos.nombre,
+                datos.porcentaje,
+                datos.montoFijo,
+                datos.obligatorio,
+                datos.activo,
+                datos.id
+            ]
+        );
+    }
+
+
     async Delete(datos) {
         return await ejecutarConsulta(
             "DELETE FROM TIPO_DEDUCCION WHERE id = ?",
