@@ -611,6 +611,7 @@ Origin: {{ BASE_URL }}
   "activo": true
 }
 
+//UPDATE
 ###
 POST {{ BASE_URL }}/ServicioTipoBonificacion/Update HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
@@ -651,12 +652,23 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "nombreUsuario": "fabri.admin",
+   "nombreUsuario": "thay",
   "contrasena": "123456",
-  "correo": "fabri@email.com",
-  "rol": "admin",
+  "correo": "thay@gmail.com",
+  "rol": "gerente",
   "empleadoId": null,
   "activo": true
+}
+
+
+### Autenticación
+POST {{ BASE_URL }}/ServicioUsuario/Autenticacion HTTP/1.1
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "correo": "wilson.orozco200@gmail.com",
+  "contrasena": "123456"
 }
 
 ###
@@ -666,10 +678,10 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "id": 1,
-  "nombreUsuario": "fabri.admin.edit",
-  "contrasena": "nuevaClave123",
-  "correo": "fabri@edit.com",
+  "id": 200,
+  "nombreUsuario": "worozcoEdit",
+  "contrasena": "123456",
+  "correo": "wilson.orozco200@gmail.com",
   "rol": "gerente",
   "empleadoId": null,
   "activo": true
@@ -679,6 +691,8 @@ POST {{ BASE_URL }}/ServicioUsuario/Delete HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
 Origin: {{ BASE_URL }}
+
+{ "id": 205 }
 
 
 //Binificacion Pago

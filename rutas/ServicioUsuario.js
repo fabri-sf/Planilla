@@ -24,4 +24,18 @@ Router.post('/Delete', async (solicitud, respuesta, next) => {
   return respuesta.json(await ServicioUsuario.Delete(solicitud.body));
 });
 
+
+//Autenticacion 
+Router.post("/Autenticacion", async (solicitud, respuesta) => {
+  respuesta.json(await ServicioUsuario.Autenticacion(solicitud.body.correo, solicitud.body.contrasena));
+});
+
+Router.post("/validarToken", async (solicitud, respuesta) => {
+  respuesta.json(await ServicioUsuario.ValidarToken(solicitud));
+});
+
+Router.post("/desautenticar", async (solicitud, respuesta) => {
+  respuesta.json(await ServicioUsuario.DesAutenticacion(solicitud.body.CorreoElectronico));
+});
+
 module.exports = Router;
