@@ -21,9 +21,5 @@ Router.post('/Update', async (req, res) => {
   res.json(await ServicioPlanilla.Update(req.body));
 });
 
-//MODIFICAR LOS DELETE DE TODOS
-Router.post('/Delete', async (solicitud, respuesta, next) => {
-  return respuesta.json(await ServicioPlanilla.Delete(solicitud.body));
-});
 
 module.exports = Router;

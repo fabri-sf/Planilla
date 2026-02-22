@@ -25,7 +25,7 @@ class ServicioUsuario {
 
     return await ejecutarConsulta(
       `INSERT INTO USUARIO
-        (nombreUsuario, contrasena, correo, rol, empleadoId, activo, token)
+        (nombreUsuario, contrasena, correo, rol, empleadoId, estado, token)
         VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         datos.nombreUsuario,
@@ -33,7 +33,7 @@ class ServicioUsuario {
         datos.correo,
         datos.rol,
         datos.empleadoId,
-        datos.activo,
+        datos.estado,
         token,
       ],
     );
@@ -49,7 +49,7 @@ class ServicioUsuario {
              correo = ?,
              rol = ?,
              empleadoId = ?,
-             activo = ?
+             estado = ?
          WHERE id = ?`,
       [
         datos.nombreUsuario,
@@ -57,7 +57,7 @@ class ServicioUsuario {
         datos.correo,
         datos.rol,
         datos.empleadoId,
-        datos.activo,
+        datos.estado,
         datos.id,
       ],
     );
@@ -68,14 +68,14 @@ class ServicioUsuario {
       "UPDATE USUARIO SET estado = CASE WHEN estado = 'activo' THEN 'inactivo' ELSE 'activo' END WHERE id = ?",
       [datos.id],
     );
-  }
+}
 
   PalabraSecreta = "MiPalabraSecreta";
 
   async Autenticacion(correo, ClaveSinEncriptar) {
     // Consultar en la base de datos si el usuario y la clave coninciden
     const usuarios = await ejecutarConsulta(
-      "SELECT * FROM USUARIO WHERE correo = ? AND activo = TRUE",
+      "SELECT * FROM USUARIO WHERE correo = ? AND estado = TRUE",
       [correo],
     );
     if (!usuarios || usuarios.length === 0) return false;
@@ -140,6 +140,16 @@ class ServicioUsuario {
     await ejecutarConsulta("UPDATE USUARIO SET token = NULL WHERE correo = ?", [
       correo,
     ]);
+  }
+
+
+  // Método para obtener el ID del usuario a partir del token
+  async obtenerUsuarioId(token) {
+    const resultado = await ejecutarConsulta(
+      "SELECT id FROM USUARIO WHERE token = ?",
+      [token],
+    );
+    return resultado && resultado.length > 0 ? resultado[0].id : null;
   }
 }
 
