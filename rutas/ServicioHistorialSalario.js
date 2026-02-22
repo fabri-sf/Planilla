@@ -12,6 +12,10 @@ Router.get('/ReadAll', async (req, res) => {
   res.json(await ServicioHistorialSalario.ReadAll());
 });
 
+Router.post('/Create', async (req, res) => {
+  res.json(await ServicioHistorialSalario.Create(req.body));
+});
+
 //MODIFICAR LOS DELETE DE TODOS
 Router.post('/Delete', async (solicitud, respuesta, next) => {
   return respuesta.json(await ServicioHistorialSalario.Delete(solicitud.body));

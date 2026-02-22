@@ -56,9 +56,10 @@ class ServicioEmpleado {
   }
 
   async Delete(Datos) {
-    return await ejecutarConsulta("DELETE FROM EMPLEADO WHERE id = ?", [
-      Datos.id,
-    ]);
+    return await ejecutarConsulta(
+      "UPDATE EMPLEADO SET estado = CASE WHEN estado = 'activo' THEN 'inactivo' ELSE 'activo' END WHERE id = ?",
+      [Datos.id],
+    );
   }
 }
 
