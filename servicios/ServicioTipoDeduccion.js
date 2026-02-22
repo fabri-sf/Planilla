@@ -16,7 +16,7 @@ class ServicioTipoDeduccion {
   async Create(datos) {
     return await ejecutarConsulta(
       `INSERT INTO TIPO_DEDUCCION 
-            (codigo, nombre, porcentaje, montoFijo, obligatorio, activo) 
+            (codigo, nombre, porcentaje, montoFijo, obligatorio, estado) 
             VALUES (?, ?, ?, ?, ?, ?)`,
       [
         datos.codigo,
@@ -24,7 +24,7 @@ class ServicioTipoDeduccion {
         datos.porcentaje,
         datos.montoFijo,
         datos.obligatorio,
-        datos.activo,
+        datos.estado,
       ],
     );
   }
@@ -37,7 +37,7 @@ class ServicioTipoDeduccion {
                  porcentaje = ?, 
                  montoFijo = ?, 
                  obligatorio = ?, 
-                 activo = ?
+                 estado = ?
              WHERE id = ?`,
       [
         datos.codigo,
@@ -45,7 +45,7 @@ class ServicioTipoDeduccion {
         datos.porcentaje,
         datos.montoFijo,
         datos.obligatorio,
-        datos.activo,
+        datos.estado,
         datos.id,
       ],
     );
@@ -56,7 +56,7 @@ class ServicioTipoDeduccion {
       "UPDATE TIPO_DEDUCCION SET estado = CASE WHEN estado = 'activo' THEN 'inactivo' ELSE 'activo' END WHERE id = ?",
       [datos.id],
     );
-  }
+}
 }
 
 module.exports = new ServicioTipoDeduccion();

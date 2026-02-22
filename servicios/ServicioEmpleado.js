@@ -1,4 +1,5 @@
 const { ejecutarConsulta } = require("../db.js");
+const ServicioUsuario = require("./ServicioUsuario.js");
 
 class ServicioEmpleado {
   constructor() {}
@@ -15,6 +16,17 @@ class ServicioEmpleado {
   }
 
   async Create(Datos) {
+    const usuarioId = await ServicioUsuario.obtenerUsuarioId(Datos.token);
+
+    await ejecutarConsulta(
+      `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
+         VALUES (?, 'EMPLEADO', 'INSERT', 0, 'todos', NULL, ?, ?)`,
+      [
+        usuarioId,
+        `${Datos.nombre} ${Datos.apellido}`,
+        `Creación empleado: ${Datos.nombre} ${Datos.apellido}`,
+      ],
+    );
     return await ejecutarConsulta(
       "INSERT INTO EMPLEADO (cedula, nombre, apellido, email, telefono, fechaNacimiento, fechaIngreso, salarioBase, estado, puestoId, departamentoId, tipoContratoId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
@@ -35,10 +47,21 @@ class ServicioEmpleado {
   }
 
   async Update(Datos) {
-    return await ejecutarConsulta(
-      "UPDATE EMPLEADO SET cedula = ?, nombre = ?, apellido = ?, email = ?, telefono = ?, fechaNacimiento = ?, fechaIngreso = ?, salarioBase = ?, estado = ?, puestoId = ?, departamentoId = ?, tipoContratoId = ? WHERE id = ?",
+    const usuarioId = await ServicioUsuario.obtenerUsuarioId(Datos.token);
+
+    await ejecutarConsulta(
+      `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
+         VALUES (?, 'EMPLEADO', 'UPDATE', ?, 'todos', NULL, ?, ?)`,
       [
-        Datos.cedula,
+        usuarioId,
+        Datos.id,
+        `${Datos.nombre} ${Datos.apellido}, salario:${Datos.salarioBase}, estado:${Datos.estado}`,
+        `Modificación empleado ID: ${Datos.id}`,
+      ],
+    );
+    return await ejecutarConsulta(
+      "UPDATE EMPLEADO SET nombre = ?, apellido = ?, email = ?, telefono = ?, fechaNacimiento = ?, fechaIngreso = ?, salarioBase = ?, estado = ?, puestoId = ?, departamentoId = ?, tipoContratoId = ? WHERE id = ?",
+      [
         Datos.nombre,
         Datos.apellido,
         Datos.email,
@@ -56,6 +79,26 @@ class ServicioEmpleado {
   }
 
   async Delete(Datos) {
+    const usuarioId = await ServicioUsuario.obtenerUsuarioId(Datos.token);
+
+    const actual = await ejecutarConsulta(
+      "SELECT estado FROM EMPLEADO WHERE id = ?",
+      [Datos.id],
+    );
+    const estadoActual = actual[0].estado;
+    const estadoNuevo = estadoActual === "activo" ? "inactivo" : "activo";
+
+    await ejecutarConsulta(
+      `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
+         VALUES (?, 'EMPLEADO', 'UPDATE', ?, 'estado', ?, ?, ?)`,
+      [
+        usuarioId,
+        Datos.id,
+        estadoActual,
+        estadoNuevo,
+        `Cambio estado empleado ID: ${Datos.id}`,
+      ],
+    );
     return await ejecutarConsulta(
       "UPDATE EMPLEADO SET estado = CASE WHEN estado = 'activo' THEN 'inactivo' ELSE 'activo' END WHERE id = ?",
       [Datos.id],

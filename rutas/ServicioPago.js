@@ -20,8 +20,6 @@ Router.post("/Update", async (solicitud, respuesta, next) => {
   return respuesta.json(await ServicioPago.Update(solicitud.body));
 });
 
-Router.post("/Delete", async (solicitud, respuesta, next) => {
-  return respuesta.json(await ServicioPago.Delete(solicitud.body));
-});
+
 
 module.exports = Router;
