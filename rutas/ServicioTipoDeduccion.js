@@ -21,7 +21,7 @@ Router.post('/Update', async (req, res) => {
 
 //MODIFICAR LOS DELETE DE TODOS
 Router.post('/Delete', async (solicitud, respuesta, next) => {
-  return respuesta.json(await ServicioPuesto.Delete(solicitud.body));
+  return respuesta.json(await ServicioTipoDeduccion.Delete(solicitud.body));
 });
 
 module.exports = Router;

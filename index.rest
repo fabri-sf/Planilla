@@ -52,7 +52,7 @@ Origin: {{ BASE_URL }}
 }
 
 ###
-//DELETE corregir por relacion empleado constraint
+//DELETE 
 POST {{ BASE_URL }}/ServicioDepartamento/Delete HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
@@ -71,6 +71,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 ###
+//Read POR CORREO
 GET {{ BASE_URL }}/ServicioAsistencia/Read HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
@@ -131,12 +132,14 @@ Content-Type: application/json
 Origin: {{ BASE_URL }} 
 
 ### 
+//Read POR CORREO
 GET {{ BASE_URL }}/ServicioAuditoria/Read HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
 Origin: {{ BASE_URL }} { "id": 1 } 
 
 ### 
+//CREATE
 POST {{ BASE_URL }}/ServicioAuditoria/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
@@ -150,6 +153,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }} 
 
 ### 
+//Read POR CORREO
 GET {{ BASE_URL }}/ServicioEmpleado/Read HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
@@ -222,6 +226,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }} 
 
 ### 
+//Read POR CORREO
 GET {{ BASE_URL }}/ServicioTipoContrato/Read HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
@@ -263,7 +268,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "id": 5
+  "id": 4
 }
 
 //Pago
@@ -275,6 +280,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }} 
 
 ### 
+//Read POR CORREO
 GET {{ BASE_URL }}/ServicioPago/Read HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
@@ -340,12 +346,14 @@ Origin: {{ BASE_URL }}
 
 //DeduccionPago
 ###
+//Read
 GET {{ BASE_URL }}/ServicioDeduccionPago/ReadAll HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
 Origin: {{ BASE_URL }} 
 
 ### 
+//Read POR CORREO
 GET {{ BASE_URL }}/ServicioDeduccionPago/Read HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
@@ -381,6 +389,7 @@ Origin: {{ BASE_URL }}
 }
 
 ### 
+//DELETE
 POST {{ BASE_URL }}/ServicioDeduccionPago/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
@@ -394,6 +403,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }} 
 
 ### 
+//Read POR CORREO
 GET {{ BASE_URL }}/ServicioPuesto/Read HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
@@ -432,6 +442,7 @@ Origin: {{ BASE_URL }}
   "activo": true
 }
 ### 
+//DELETE
 POST {{ BASE_URL }}/ServicioPuesto/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
@@ -440,12 +451,14 @@ Origin: {{ BASE_URL }}
 
 //Historial Salario
 ###
+//Read All
 GET {{ BASE_URL }}/ServicioHistorialSalario/ReadAll HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
 Origin: {{ BASE_URL }} 
 
 ### 
+//Read POR CORREO
 GET {{ BASE_URL }}/ServicioHistorialSalario/Read HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
@@ -468,6 +481,7 @@ Origin: {{ BASE_URL }}
   "autorizadoPor": 1
 }
 ### 
+// UPDATE
 POST {{ BASE_URL }}/ServicioHistorialSalario/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
@@ -482,6 +496,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }} 
 
 ### 
+//Read POR CORREO
 GET {{ BASE_URL }}/ServicioPlanilla/Read HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
@@ -524,6 +539,7 @@ Origin: {{ BASE_URL }}
   "aprobadoPor": 2
 }
 ### 
+//DELETE
 POST {{ BASE_URL }}/ServicioPlanilla/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
@@ -538,6 +554,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }} 
 
 ### 
+//Read POR CORREO
 GET {{ BASE_URL }}/ServicioTipoDeduccion/Read HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
@@ -576,6 +593,7 @@ Origin: {{ BASE_URL }}
 }
 
 ###
+//DELETE
 POST {{ BASE_URL }}/ServicioTipoDeduccion/Delete HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
@@ -586,12 +604,14 @@ Origin: {{ BASE_URL }}
 
 //Tipo Bonificacion
 ###
+//Read All
 GET {{ BASE_URL }}/ServicioTipoBonificacion/ReadAll HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
 Origin: {{ BASE_URL }} 
 
 ### 
+//Read POR CORREO
 GET {{ BASE_URL }}/ServicioTipoBonificacion/Read HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
@@ -599,6 +619,7 @@ Origin: {{ BASE_URL }} { "id": 1 }
 
 
 ###
+//CREATE
 POST {{ BASE_URL }}/ServicioTipoBonificacion/Create HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
@@ -626,26 +647,31 @@ Origin: {{ BASE_URL }}
   "activo": true
 }
 ### 
+//DELETE
 POST {{ BASE_URL }}/ServicioTipoBonificacion/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
 Origin: {{ BASE_URL }}
 
+{ "id": 1 }
 
 //Usuario
 ###
+//Read All
 GET {{ BASE_URL }}/ServicioUsuario/ReadAll HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
 Origin: {{ BASE_URL }} 
 
 ### 
+//read por correo
 GET {{ BASE_URL }}/ServicioUsuario/Read HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
 Origin: {{ BASE_URL }} { "id": 1 } 
 
 ###
+//CREATE
 POST {{ BASE_URL }}/ServicioUsuario/Create HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
@@ -672,6 +698,7 @@ Origin: {{ BASE_URL }}
 }
 
 ###
+//UPDATE
 POST {{ BASE_URL }}/ServicioUsuario/Update HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
@@ -687,12 +714,13 @@ Origin: {{ BASE_URL }}
   "activo": true
 }
 ### 
+//DELETE//cambiar nombre a activar/desactivar
 POST {{ BASE_URL }}/ServicioUsuario/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
 Origin: {{ BASE_URL }}
 
-{ "id": 205 }
+{ "id": 200 }
 
 
 //Binificacion Pago
@@ -703,6 +731,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }} 
 
 ### 
+//Read POR CORREO
 GET {{ BASE_URL }}/ServicioBonificacionPago/Read HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
