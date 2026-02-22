@@ -16,7 +16,7 @@ class ServicioPuesto {
   async Create(datos) {
     return await ejecutarConsulta(
       `INSERT INTO PUESTO
-            (codigo, nombre, descripcion, salarioMin, salarioMax, activo)
+            (codigo, nombre, descripcion, salarioMin, salarioMax, estado)
             VALUES (?, ?, ?, ?, ?, ?)`,
       [
         datos.codigo,
@@ -24,7 +24,7 @@ class ServicioPuesto {
         datos.descripcion,
         datos.salarioMin,
         datos.salarioMax,
-        datos.activo ?? true,
+        datos.estado ?? true,
       ],
     );
   }
@@ -38,7 +38,7 @@ class ServicioPuesto {
                  descripcion = ?,
                  salarioMin = ?,
                  salarioMax = ?,
-                 activo = ?
+                 estado = ?
              WHERE id = ?`,
       [
         datos.codigo,
@@ -46,7 +46,7 @@ class ServicioPuesto {
         datos.descripcion,
         datos.salarioMin,
         datos.salarioMax,
-        datos.activo,
+        datos.estado,
         datos.id,
       ],
     );
@@ -58,7 +58,7 @@ class ServicioPuesto {
       "UPDATE PUESTO SET estado = CASE WHEN estado = 'activo' THEN 'inactivo' ELSE 'activo' END WHERE id = ?",
       [datos.id],
     );
-  }
+}
 }
 
 module.exports = new ServicioPuesto();

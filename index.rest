@@ -33,7 +33,7 @@ Origin: {{ BASE_URL }}
   "codigo": "DEP001 pruebaaa",
   "nombre": "Recursos Humanos 222 prueba",
   "descripcion": "Departamento encargado del personal prueba",
-  "activo": true
+  "estado": "activo"
 }
 
 ###
@@ -46,9 +46,9 @@ Origin: {{ BASE_URL }}
 {
   "id": 12,
   "codigo": "DEP001",
-  "nombre": "Recursos Humanos PRUEBA",
+  "nombre": "Recursos  PRUEBA",
   "descripcion": "Departamento de recursos humanos PRUEBA",
-  "activo": true
+  "estado": "activo"
 }
 
 ###
@@ -138,12 +138,8 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json 
 Origin: {{ BASE_URL }} { "id": 1 } 
 
-### 
-//CREATE
-POST {{ BASE_URL }}/ServicioAuditoria/Delete HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 }
+
+
 
 //Empleado
 ###
@@ -167,10 +163,10 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "cedula": "987654321",
-  "nombre": "María",
-  "apellido": "González Rodríguez",
-  "email": "maria.gonzalez@empresa.com",
+  "cedula": "119170345",
+  "nombre": "Thaylin",
+  "apellido": "Barrueta Lopez",
+  "email": "thaylin.barrueta@empresa.com",
   "telefono": "88887777",
   "fechaNacimiento": "1995-05-20",
   "fechaIngreso": "2021-01-15",
@@ -189,15 +185,15 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "id": 3,
-  "cedula": "103330333",
-  "nombre": "Juan Carlos",
-  "apellido": "Rodriguez Zamora",
-  "email": "PRUEBA2@empresa.com",
+  "id": 203,
+  "cedula": "119170345",
+  "nombre": "ThaylinPrueba",
+  "apellido": "Barrueta Lopez",
+  "email": "thaylinueta@empresa.com",
   "telefono": "111111111",
   "fechaNacimiento": "1990-01-15",
   "fechaIngreso": "2020-03-01",
-  "salarioBase": 1500.00,
+  "salarioBase": 9500.00,
   "estado": "activo",
   "puestoId": 1,
   "departamentoId": 1,
@@ -212,7 +208,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "id": 200
+  "id": 3
 }
 
 
@@ -240,10 +236,10 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "nombre": "Tiempo Completo",
+  "nombre": "Tiempo prueba",
   "horasSemanales": 40,
   "descripcion": "Contrato de tiempo completo",
-  "activo": true
+  "estado": "activo"
 }
 
 ###
@@ -254,10 +250,11 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "id": 1,
-  "nombre": "Indefinido",
-  "descripcion": "pruebaaaaaaaaaaaa",
-  "activo": true
+  "id": 8,
+  "nombre": "Tiempo prueba",
+  "horasSemanales": 40,
+  "descripcion": "pruebaa",
+  "estado": "activo"
 }
 
 ### 
@@ -270,6 +267,8 @@ Origin: {{ BASE_URL }}
 {
   "id": 4
 }
+
+
 
 //Pago
 ###
@@ -295,7 +294,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "empleadoId": 1,
+  "empleadoId": 200,
   "planillaId": 2,
   "salarioBase": 1500.00,
   "diasTrabajados": 22,
@@ -305,7 +304,7 @@ Origin: {{ BASE_URL }}
   "totalDeducciones": 150.00,
   "totalBonificaciones": 0,
   "salarioNeto": 1350.00,
-  "observaciones": "Pago regular del mes prueba"
+  "observaciones": "pruebaaaa"
 }
 
 
@@ -328,21 +327,12 @@ Origin: {{ BASE_URL }}
   "totalDeducciones": 150.00,
   "totalBonificaciones": 200.00,
   "salarioNeto": 1650.00,
-  "observaciones": "PRUEBA ACTUALIZACION",
+  "observaciones": "PRUEBAAAAAAAA",
   "fechaPago": "2030-06-30T00:00:00"
 }
 
 
-### 
-//DELETE
-POST {{ BASE_URL }}/ServicioPago/Delete HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }}
 
-{
-  "id": 202
-}
 
 //DeduccionPago
 ###
@@ -370,7 +360,7 @@ Origin: {{ BASE_URL }}
   "pagoId": 1,
   "tipoDeduccionId": 2,
   "monto": 25000.00,
-  "observaciones": "Deducción CCSS prueba"
+  "observaciones": " prueba"
 }
 
 ###
@@ -388,12 +378,7 @@ Origin: {{ BASE_URL }}
   "observaciones": "Deducción actualizada prueba"
 }
 
-### 
-//DELETE
-POST {{ BASE_URL }}/ServicioDeduccionPago/Delete HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }}
+
 
 //Puesto
 ###
@@ -418,11 +403,11 @@ Origin: {{ BASE_URL }}
 
 {
   "codigo": "P001",
-  "nombre": "Desarrollador Backend",
-  "descripcion": "Encargado del desarrollo del servidor",
+  "nombre": "PRUEBA",
+  "descripcion": "PRUEBA",
   "salarioMin": 800000.00,
   "salarioMax": 1500000.00,
-  "activo": true
+  "estado": "activo"
 }
 
 ###
@@ -435,11 +420,11 @@ Origin: {{ BASE_URL }}
 {
   "id": 1,
   "codigo": "P001-EDIT",
-  "nombre": "Desarrollador Backend Senior",
+  "nombre": "PRUEBA EDIT",
   "descripcion": "Actualización del puesto",
   "salarioMin": 900000.00,
   "salarioMax": 1700000.00,
-  "activo": true
+  "estado": "activo"
 }
 ### 
 //DELETE
@@ -448,6 +433,9 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json 
 Origin: {{ BASE_URL }}
 
+{
+  "id": 4
+}
 
 //Historial Salario
 ###
@@ -466,7 +454,6 @@ Origin: {{ BASE_URL }} { "id": 1 }
 
 
 ###
-// SERVICIO HISTORIAL SALARIO
 // CREATE
 POST {{ BASE_URL }}/ServicioHistorialSalario/Create HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
@@ -528,7 +515,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "id": 1,
+  "id": 203,
   "periodo": "Junio 2026 Actualizado",
   "fechaInicio": "2026-06-01",
   "fechaFin": "2026-06-30",
@@ -538,12 +525,6 @@ Origin: {{ BASE_URL }}
   "creadoPor": 1,
   "aprobadoPor": 2
 }
-### 
-//DELETE
-POST {{ BASE_URL }}/ServicioPlanilla/Delete HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }}
 
 
 //TipoDeduccion
@@ -568,28 +549,28 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "codigo": "TD001",
-  "nombre": "CCSS",
+  "codigo": "PRUEBA",
+  "nombre": "PRUEBA",
   "porcentaje": 9.50,
   "montoFijo": 0.00,
   "obligatorio": true,
-  "activo": true
+  "estado": "activo"
 }
 ###
-// UPDATE
+// UPDATE 
 POST {{ BASE_URL }}/ServicioTipoDeduccion/Update HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "id": 1,
+  "id": 13,
   "codigo": "TD001-EDIT",
   "nombre": "CCSS Actualizada",
   "porcentaje": 10.50,
   "montoFijo": 0.00,
   "obligatorio": true,
-  "activo": true
+  "estado": "activo"
 }
 
 ###
@@ -626,10 +607,10 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "codigo": "TB001",
+  "codigo": "POP",
   "nombre": "Bono Productividad",
   "descripcion": "Bonificación mensual por metas alcanzadas",
-  "activo": true
+  "estado": "activo"
 }
 
 //UPDATE
@@ -641,10 +622,10 @@ Origin: {{ BASE_URL }}
 
 {
   "id": 1,
-  "codigo": "TB001-EDIT",
-  "nombre": "Bono Productividad Senior",
+  "codigo": "PRUEBA",
+  "nombre": "PRUEBA",
   "descripcion": "Actualización de bonificación",
-  "activo": true
+  "estado": "activo"
 }
 ### 
 //DELETE
@@ -654,6 +635,9 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 { "id": 1 }
+
+
+
 
 //Usuario
 ###
@@ -680,10 +664,10 @@ Origin: {{ BASE_URL }}
 {
    "nombreUsuario": "thay",
   "contrasena": "123456",
-  "correo": "thay@gmail.com",
+  "correo": "thaylin.barrueta@empresa.com",
   "rol": "gerente",
   "empleadoId": null,
-  "activo": true
+  "estado": "activo"
 }
 
 
@@ -693,7 +677,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "correo": "wilson.orozco200@gmail.com",
+  "correo": "carlos.gonzalez1@gmail.com",
   "contrasena": "123456"
 }
 
@@ -705,22 +689,22 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "id": 200,
-  "nombreUsuario": "worozcoEdit",
+  "id": 1,
+  "nombreUsuario": "edit",
   "contrasena": "123456",
-  "correo": "wilson.orozco200@gmail.com",
+  "correo": "carlos.gonzalez1@gmail.com",
   "rol": "gerente",
-  "empleadoId": null,
-  "activo": true
+  "estado": "activo"
 }
 ### 
-//DELETE//cambiar nombre a activar/desactivar
+//DELETE
 POST {{ BASE_URL }}/ServicioUsuario/Delete HTTP/1.1 
 Authorization: Bearer {{ AUTH_TOKEN }} 
 Content-Type: application/json 
 Origin: {{ BASE_URL }}
 
 { "id": 200 }
+
 
 
 //Binificacion Pago
@@ -745,10 +729,11 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "pagoId": 1,
+  "pagoId": 200,
   "tipoBonificacionId": 1,
   "monto": 300.00,
-  "observaciones": "Bonificación por cumplimiento de objetivos PRUEBA"
+  "observaciones": "PRUEBA", 
+  "estado": "activo"
 }
 
 
@@ -760,11 +745,12 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "id": 1,
+  "id": 234,
   "pagoId": 1,
   "tipoBonificacionId": 1,
-  "monto": 500.00,
-  "observaciones": "Bonificación por desempeño PRUEBA"
+  "monto": 500000.00,
+  "observaciones": " ACTUALIZADA",
+  "estado": "activo"
 }
 
 ### 
@@ -775,5 +761,5 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "id": 200
+  "id": 1
 }

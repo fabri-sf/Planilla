@@ -1,4 +1,5 @@
 const { ejecutarConsulta } = require("../db.js");
+const ServicioUsuario = require("./ServicioUsuario.js");
 
 class ServicioPago {
   constructor() {}
@@ -15,6 +16,18 @@ class ServicioPago {
   }
 
   async Create(Datos) {
+    const usuarioId = await ServicioUsuario.obtenerUsuarioId(Datos.token);
+
+    await ejecutarConsulta(
+      `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
+         VALUES (?, 'PAGO', 'INSERT', 0, 'todos', NULL, ?, ?)`,
+      [
+        usuarioId,
+        `empleadoId:${Datos.empleadoId}, planillaId:${Datos.planillaId}, salarioNeto:${Datos.salarioNeto}`,
+        `Creación pago empleado ID: ${Datos.empleadoId}, planilla ID: ${Datos.planillaId}`,
+      ],
+    );
+
     return await ejecutarConsulta(
       "INSERT INTO PAGO (empleadoId, planillaId, salarioBase, diasTrabajados, diasEsperados, horasExtras, totalBruto, totalDeducciones, totalBonificaciones, salarioNeto, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
@@ -34,6 +47,18 @@ class ServicioPago {
   }
 
   async Update(Datos) {
+    const usuarioId = await ServicioUsuario.obtenerUsuarioId(Datos.token);
+
+    await ejecutarConsulta(
+      `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
+         VALUES (?, 'PAGO', 'UPDATE', ?, 'todos', NULL, ?, ?)`,
+      [
+        usuarioId,
+        Datos.id,
+        `salarioBase:${Datos.salarioBase}, diasTrabajados:${Datos.diasTrabajados}, horasExtras:${Datos.horasExtras}, salarioNeto:${Datos.salarioNeto}`,
+        `Modificación pago ID: ${Datos.id}`,
+      ],
+    );
     return await ejecutarConsulta(
       "UPDATE PAGO SET empleadoId = ?, planillaId = ?, salarioBase = ?, diasTrabajados = ?, diasEsperados = ?, horasExtras = ?, totalBruto = ?, totalDeducciones = ?, totalBonificaciones = ?, salarioNeto = ?, observaciones = ? WHERE id = ?",
       [
@@ -51,10 +76,6 @@ class ServicioPago {
         Datos.id,
       ],
     );
-  }
-
-  async Delete(Datos) {
-    return await ejecutarConsulta("DELETE FROM PAGO WHERE id = ?", [Datos.id]);
   }
 }
 

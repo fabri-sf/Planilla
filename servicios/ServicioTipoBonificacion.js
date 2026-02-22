@@ -17,9 +17,9 @@ class ServicioTipoBonificacion {
   async Create(datos) {
     return await ejecutarConsulta(
       `INSERT INTO TIPO_BONIFICACION 
-            (codigo, nombre, descripcion, activo)
+            (codigo, nombre, descripcion, estado)
             VALUES (?, ?, ?, ?)`,
-      [datos.codigo, datos.nombre, datos.descripcion, datos.activo],
+      [datos.codigo, datos.nombre, datos.descripcion, datos.estado],
     );
   }
 
@@ -29,9 +29,9 @@ class ServicioTipoBonificacion {
              SET codigo = ?,
                  nombre = ?,
                  descripcion = ?,
-                 activo = ?
+                 estado = ?
              WHERE id = ?`,
-      [datos.codigo, datos.nombre, datos.descripcion, datos.activo, datos.id],
+      [datos.codigo, datos.nombre, datos.descripcion, datos.estado, datos.id],
     );
   }
 
