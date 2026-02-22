@@ -34,9 +34,10 @@ class ServicioTipoContrato {
   }
 
   async Delete(Datos) {
-    return await ejecutarConsulta("DELETE FROM TIPO_CONTRATO WHERE id = ?", [
-      Datos.id,
-    ]);
+    return await ejecutarConsulta(
+      "UPDATE TIPO_CONTRATO SET estado = CASE WHEN estado = 'activo' THEN 'inactivo' ELSE 'activo' END WHERE id = ?",
+      [Datos.id],
+    );
   }
 }
 
