@@ -12,9 +12,14 @@ Router.get('/ReadAll', async (req, res) => {
   res.json(await ServicioPlanilla.ReadAll());
 });
 
-//MODIFICAR LOS DELETE DE TODOS
-Router.post('/Delete', async (solicitud, respuesta, next) => {
-  return respuesta.json(await ServicioPlanilla.Delete(solicitud.body));
+Router.post('/Create', async (req, res) => {
+  res.json(await ServicioPlanilla.Create(req.body));
 });
+
+// UPDATE
+Router.post('/Update', async (req, res) => {
+  res.json(await ServicioPlanilla.Update(req.body));
+});
+
 
 module.exports = Router;

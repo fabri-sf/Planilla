@@ -13,6 +13,15 @@ Router.get('/ReadAll', async (req, res) => {
 });
 
 
+Router.post('/Create', async (req, res) => {
+  res.json(await ServicioDeduccionPago.Create(req.body));
+});
+
+// EDIT
+Router.post('/Edit', async (req, res) => {
+  res.json(await ServicioDeduccionPago.Edit(req.body));
+});
+
 Router.post('/Delete', async (solicitud, respuesta, next) => { 
     return respuesta.json(await ServicioDeduccionPago.Delete(solicitud.body)); 
 });

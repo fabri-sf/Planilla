@@ -16,27 +16,28 @@ class ServicioTipoContrato {
 
   async Create(Datos) {
     return await ejecutarConsulta(
-      "INSERT INTO TIPO_CONTRATO (nombre, horasSemanales, descripcion, activo) VALUES (?, ?, ?, ?)",
+      "INSERT INTO TIPO_CONTRATO (nombre, horasSemanales, descripcion, estado) VALUES (?, ?, ?, ?)",
       [
         Datos.nombre,
         Datos.horasSemanales,
         Datos.descripcion,
-        Datos.activo ?? true,
+        Datos.estado ?? true,
       ],
     );
   }
 
   async Update(Datos) {
     return await ejecutarConsulta(
-      "UPDATE TIPO_CONTRATO SET nombre = ?, descripcion = ?, activo = ? WHERE id = ?",
-      [Datos.nombre, Datos.descripcion, Datos.activo, Datos.id],
+      "UPDATE TIPO_CONTRATO SET nombre = ?, descripcion = ?, estado = ? WHERE id = ?",
+      [Datos.nombre, Datos.descripcion, Datos.estado, Datos.id],
     );
   }
 
   async Delete(Datos) {
-    return await ejecutarConsulta("DELETE FROM TIPO_CONTRATO WHERE id = ?", [
-      Datos.id,
-    ]);
+    return await ejecutarConsulta(
+      "UPDATE TIPO_CONTRATO SET estado = CASE WHEN estado = 'activo' THEN 'inactivo' ELSE 'activo' END WHERE id = ?",
+      [Datos.id],
+    );
   }
 }
 

@@ -17,23 +17,24 @@ class ServicioDepartamento {
   async Create(Datos) {
     return await ejecutarConsulta(
       `INSERT INTO DEPARTAMENTO 
-        (codigo, nombre, descripcion, activo) 
+        (codigo, nombre, descripcion, estado) 
         VALUES (?, ?, ?, ?)`,
-      [Datos.codigo, Datos.nombre, Datos.descripcion, Datos.activo ?? true],
+      [Datos.codigo, Datos.nombre, Datos.descripcion, Datos.estado ?? true],
     );
   }
 
   async Update(Datos) {
     return await ejecutarConsulta(
-      "UPDATE DEPARTAMENTO SET codigo = ?, nombre = ?, descripcion = ?, activo = ? WHERE id = ?",
-      [Datos.codigo, Datos.nombre, Datos.descripcion, Datos.activo, Datos.id],
+      "UPDATE DEPARTAMENTO SET codigo = ?, nombre = ?, descripcion = ?, estado = ? WHERE id = ?",
+      [Datos.codigo, Datos.nombre, Datos.descripcion, Datos.estado, Datos.id],
     );
   }
 
   async Delete(Datos) {
-    return await ejecutarConsulta("DELETE FROM DEPARTAMENTO WHERE id = ?", [
-      Datos.id,
-    ]);
+    return await ejecutarConsulta(
+      "UPDATE DEPARTAMENTO SET estado = CASE WHEN estado = 'estado' THEN 'inestado' ELSE 'estado' END WHERE id = ?",
+      [Datos.id],
+    );
   }
 }
 

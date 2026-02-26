@@ -1,20 +1,19 @@
-const { ejecutarConsulta } = require('../db.js');
+const { ejecutarConsulta } = require("../db.js");
+
 
 class ServicioAuditoria {
+  constructor() {}
 
-    constructor() { };
+  async Read(Datos) {
+    return await ejecutarConsulta(
+      "SELECT * FROM AUDITORIA.`user` WHERE `user` =  ?",
+      [Datos.Usuario],
+    );
+  }
 
-    async Read(Datos) {
-        return await ejecutarConsulta("SELECT * FROM AUDITORIA.`user` WHERE `user` =  ?"
-            , [Datos.Usuario]);
-    }
-
-    async ReadAll() {
-        return await ejecutarConsulta(
-            'SELECT * FROM AUDITORIA'
-        );
-    }
-
+  async ReadAll() {
+    return await ejecutarConsulta("SELECT * FROM AUDITORIA");
+  }
 }
 
 module.exports = new ServicioAuditoria();
