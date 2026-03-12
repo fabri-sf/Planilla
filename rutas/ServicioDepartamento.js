@@ -3,25 +3,103 @@ const Router = express.Router();
 
 const ServicioDepartamento = require("../servicios/ServicioDepartamento.js");
 
-//Por filtro
-Router.get("/Read", async (solicitud, respuesta, next) => {
+// ================= READ =================
+/*Router.get("/Read", async (solicitud, respuesta, next) => {
   return respuesta.json(await ServicioDepartamento.Read(solicitud.body));
+});*/
+
+Router.get("/Read", async (solicitud, respuesta, next) => {
+  if (await ServicioDepartamento.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(
+        await ServicioDepartamento.Read(solicitud.body)
+      );
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
 });
 
-Router.get("/ReadAll", async (req, res) => {
+
+// ================= READ ALL =================
+/*Router.get("/ReadAll", async (req, res) => {
   res.json(await ServicioDepartamento.ReadAll());
+});*/
+
+Router.get("/ReadAll", async (solicitud, respuesta, next) => {
+  if (await ServicioDepartamento.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(
+        await ServicioDepartamento.ReadAll()
+      );
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
 });
 
-Router.post("/Create", async (req, res) => {
+
+// ================= CREATE =================
+/*Router.post("/Create", async (req, res) => {
   res.json(await ServicioDepartamento.Create(req.body));
+});*/
+
+Router.post("/Create", async (solicitud, respuesta, next) => {
+  if (await ServicioDepartamento.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(
+        await ServicioDepartamento.Create(solicitud.body)
+      );
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
 });
+
+
+// ================= UPDATE =================
+/*Router.post("/Update", async (solicitud, respuesta, next) => {
+  return respuesta.json(await ServicioDepartamento.Update(solicitud.body));
+});*/
 
 Router.post("/Update", async (solicitud, respuesta, next) => {
-  return respuesta.json(await ServicioDepartamento.Update(solicitud.body));
+  if (await ServicioDepartamento.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(
+        await ServicioDepartamento.Update(solicitud.body)
+      );
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
 });
 
-Router.post("/Delete", async (solicitud, respuesta, next) => {
+
+// ================= DELETE =================
+/*Router.post("/Delete", async (solicitud, respuesta, next) => {
   return respuesta.json(await ServicioDepartamento.Delete(solicitud.body));
+});*/
+
+Router.post("/Delete", async (solicitud, respuesta, next) => {
+  if (await ServicioDepartamento.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(
+        await ServicioDepartamento.Delete(solicitud.body)
+      );
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
 });
 
 module.exports = Router;
