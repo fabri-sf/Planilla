@@ -3,25 +3,102 @@ const Router = express.Router();
 
 const ServicioHistorialSalario = require("../servicios/ServicioHistorialSalario.js");
 
-//Por filtro
-Router.get("/Read", async (solicitud, respuesta, next) => {
+
+/*Router.get("/Read", async (solicitud, respuesta, next) => {
   return respuesta.json(await ServicioHistorialSalario.Read(solicitud.body));
+});*/
+
+Router.get("/Read", async (solicitud, respuesta, next) => {
+  if (await ServicioHistorialSalario.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(
+        await ServicioHistorialSalario.Read(solicitud.body)
+      );
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
 });
 
-Router.get("/ReadAll", async (req, res) => {
+
+
+/*Router.get("/ReadAll", async (req, res) => {
   res.json(await ServicioHistorialSalario.ReadAll());
+});*/
+
+Router.get("/ReadAll", async (solicitud, respuesta, next) => {
+  if (await ServicioHistorialSalario.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(
+        await ServicioHistorialSalario.ReadAll()
+      );
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
 });
 
-Router.post("/Create", async (req, res) => {
+
+
+/*Router.post("/Create", async (req, res) => {
   res.json(await ServicioHistorialSalario.Create(req.body));
-});
-Router.post("/Update", async (solicitud, respuesta, next) => {
-  return respuesta.json(await ServicioHistorialSalario.Update(solicitud.body));
+});*/
+
+Router.post("/Create", async (solicitud, respuesta, next) => {
+  if (await ServicioHistorialSalario.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(
+        await ServicioHistorialSalario.Create(solicitud.body)
+      );
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
 });
 
-//MODIFICAR LOS DELETE DE TODOS
-Router.post("/Delete", async (solicitud, respuesta, next) => {
+
+
+/*Router.post("/Update", async (solicitud, respuesta, next) => {
+  return respuesta.json(await ServicioHistorialSalario.Update(solicitud.body));
+});*/
+
+Router.post("/Update", async (solicitud, respuesta, next) => {
+  if (await ServicioHistorialSalario.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(
+        await ServicioHistorialSalario.Update(solicitud.body)
+      );
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
+});
+
+
+/*Router.post("/Delete", async (solicitud, respuesta, next) => {
   return respuesta.json(await ServicioHistorialSalario.Delete(solicitud.body));
+});*/
+
+Router.post("/Delete", async (solicitud, respuesta, next) => {
+  if (await ServicioHistorialSalario.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(
+        await ServicioHistorialSalario.Delete(solicitud.body)
+      );
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
 });
 
 module.exports = Router;

@@ -1,6 +1,6 @@
 ###
 @BASE_URL = http://localhost
-
+@AUTH_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIxMjEyMTciLCJpYXQiOjE3NzE4NTgzNzUsImV4cCI6MTc3MTg5NDM3NX0.t6QwSYcEDR575yAQz6aXJGeO1xc9ASA7DAwkEuhip_w
 
 ###
 GET {{ BASE_URL }}/Servicio1/listar2 HTTP/1.1
@@ -112,16 +112,7 @@ Origin: {{ BASE_URL }}
   "observaciones": "Día normal de trabajo PRUEBA"
 }
 
-###
-//DELETE
-POST {{ BASE_URL }}/ServicioAsistencia/Delete HTTP/1.1
-Authorization: Bearer {{ AUTH_TOKEN }}
-Content-Type: application/json
-Origin: {{ BASE_URL }}
 
-{
-  "id": 200
-}
 
 ###
 //Auditoria
@@ -662,9 +653,9 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-   "nombreUsuario": "thay",
+   "nombreUsuario": "thay2",
   "contrasena": "123456",
-  "correo": "thaylin.barrueta@empresa.com",
+  "correo": "thaylin.barrueta@empresa2.com",
   "rol": "gerente",
   "empleadoId": null,
   "estado": "activo"
@@ -690,8 +681,9 @@ Origin: {{ BASE_URL }}
 
 {
   "id": 1,
-  "nombreUsuario": "edit",
-  "contrasena": "123456",
+  "nombreUsuario": " carlos edit",
+  "empleadoId": "1",
+  "contrasena": "1234567",
   "correo": "carlos.gonzalez1@gmail.com",
   "rol": "gerente",
   "estado": "activo"

@@ -46,14 +46,6 @@ class ServicioDeduccionPago {
             ]
         );
     }
-
-
-    async Delete(Datos) {
-        return await ejecutarConsulta(
-            "DELETE FROM DEDUCCION_PAGO WHERE id = ?",
-            [Datos.id]
-        );
-    }
     }
 
 

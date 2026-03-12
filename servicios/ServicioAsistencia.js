@@ -45,11 +45,7 @@ class ServicioAsistencia {
     );
   }
 
-  async Delete(Datos) {
-    return await ejecutarConsulta("DELETE FROM ASISTENCIA WHERE id = ?", [
-      Datos.id,
-    ]);
-  }
+
 }
 
 module.exports = new ServicioAsistencia();
