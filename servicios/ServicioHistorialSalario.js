@@ -6,8 +6,8 @@ class ServicioHistorialSalario {
 
   async Read(Datos) {
     return await ejecutarConsulta(
-      "SELECT * FROM Departamento.`user` WHERE `user` =  ?",
-      [Datos.Usuario],
+      "SELECT * FROM HISTORIAL_SALARIO WHERE empleadoId = ?",
+      [Datos.empleadoId],
     );
   }
 
