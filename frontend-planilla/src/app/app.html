@@ -1,0 +1,111 @@
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <div class="header-brand">
+    <img src="assets/logo.png" alt="Logo SalaryCenter" class="header-logo" />
+    <span class="header-brand-name">SalaryCenter</span>
+  </div>
+  <div class="header-right">
+    <button class="btn-outline">Ingresar</button>
+    <button class="btn-primary">Nueva planilla</button>
+
+    <div class="hamburger-wrapper">
+      <button class="hamburger-btn" [class.open]="menuOpen" (click)="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <div class="dropdown-menu" [class.open]="menuOpen">
+        <div class="dropdown-section-title">Recursos humanos</div>
+        <a class="dropdown-item" (click)="navegarOToggle('empleado')"><span class="dropdown-item-icon">👥</span> Empleados</a>
+        <a class="dropdown-item" (click)="navegarOToggle('departamento')"><span class="dropdown-item-icon">🏢</span> Departamentos</a>
+        <a class="dropdown-item" (click)="navegarOToggle('puesto')"><span class="dropdown-item-icon">💼</span> Puestos</a>
+        <a class="dropdown-item" (click)="navegarOToggle('tipocontrato')"><span class="dropdown-item-icon">📄</span> Tipos de contrato</a>
+        <a class="dropdown-item" (click)="navegarOToggle('historialsalario')"><span class="dropdown-item-icon">📈</span> Historial de salario</a>
+
+        <div class="dropdown-divider"></div>
+
+        <div class="dropdown-section-title">Planilla y pagos</div>
+        <a class="dropdown-item" (click)="navegarOToggle('planilla')"><span class="dropdown-item-icon">📋</span> Planillas</a>
+        <a class="dropdown-item" (click)="navegarOToggle('pago')"><span class="dropdown-item-icon">💰</span> Pagos</a>
+        <a class="dropdown-item" (click)="navegarOToggle('tipodeduccion')"><span class="dropdown-item-icon">➖</span> Tipos de deducción</a>
+        <a class="dropdown-item" (click)="navegarOToggle('deduccionpago')"><span class="dropdown-item-icon">🧾</span> Deducciones de pago</a>
+        <a class="dropdown-item" (click)="navegarOToggle('tipobonificacion')"><span class="dropdown-item-icon">⭐</span> Tipos de bonificación</a>
+        <a class="dropdown-item" (click)="navegarOToggle('bonificacionpago')"><span class="dropdown-item-icon">🎁</span> Bonificaciones de pago</a>
+
+        <div class="dropdown-divider"></div>
+
+        <div class="dropdown-section-title">Control y seguridad</div>
+        <a class="dropdown-item" (click)="navegarOToggle('asistencia')"><span class="dropdown-item-icon">🕐</span> Asistencia</a>
+        <a class="dropdown-item" (click)="navegarOToggle('usuario')"><span class="dropdown-item-icon">🔒</span> Usuarios</a>
+        <a class="dropdown-item" (click)="navegarOToggle('auditoria')"><span class="dropdown-item-icon">📊</span> Auditoría</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-circle-1"></div>
+  <div class="hero-circle-2"></div>
+  <div class="hero-badge">Sistema de Planillas</div>
+  <h1>Bienvenido a <span>SalaryCenter</span></h1>
+  <p class="hero-desc">
+    Gestiona empleados, planillas, asistencia, deducciones y bonificaciones de manera sencilla,
+    ordenada y segura. Todo en un solo lugar.
+  </p>
+  <div class="hero-actions">
+    <button class="btn-hero-main">Ver planilla del mes</button>
+    <button class="btn-hero-ghost">Gestionar empleados</button>
+  </div>
+</section>
+
+<!-- ===== STATS BAR ===== -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-number">200+</div>
+    <div class="stat-label">Empleados</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">8</div>
+    <div class="stat-label">Departamentos</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">4</div>
+    <div class="stat-label">Planillas activas</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">100%</div>
+    <div class="stat-label">Pagos registrados</div>
+  </div>
+</div>
+
+<!-- ===== COMPONENTES (router-outlet ANTES del footer) ===== -->
+<router-outlet />
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <img src="assets/logo.png" alt="Logo" class="footer-logo" />
+      <div>
+        <div class="footer-brand-name">SalaryCenter</div>
+        <div class="footer-tagline">Sistema de Planillas</div>
+      </div>
+    </div>
+    <div class="footer-project">
+      <div class="footer-project-name">SalaryCenter</div>
+      <div class="footer-course">Diseño Web usando software libre — ISW-811</div>
+      <div class="footer-year">2025</div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-authors">
+      <span class="footer-author-label">Desarrollado por</span>
+      <span class="footer-author">Thaylin Barrueta</span>
+      <span class="footer-author-sep">·</span>
+      <span class="footer-author">Fabricio Sequeira</span>
+    </div>
+    <span class="footer-copy">© 2025 SalaryCenter. Todos los derechos reservados.</span>
+  </div>
+</footer>

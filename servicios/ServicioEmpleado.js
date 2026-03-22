@@ -5,10 +5,9 @@ class ServicioEmpleado {
   constructor() {}
 
   async Read(Datos) {
-    return await ejecutarConsulta(
-      "SELECT * FROM EMPLEADO.`user` WHERE `user` =  ?",
-      [Datos.Usuario],
-    );
+    return await ejecutarConsulta("SELECT * FROM EMPLEADO WHERE cedula = ?", [
+      Datos.cedula,
+    ]);
   }
 
   async ReadAll() {

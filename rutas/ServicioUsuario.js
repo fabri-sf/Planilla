@@ -3,27 +3,72 @@ const Router = express.Router();
 
 const ServicioUsuario = require('../servicios/ServicioUsuario.js');
 
-//Por filtro 
-Router.get('/Read', async (solicitud, respuesta, next) => {
-  return respuesta.json(await ServicioUsuario.Read(solicitud.body));
+
+
+Router.get("/Read", async (solicitud, respuesta, next) => {
+  if (await ServicioUsuario.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(await Provincias.listar());
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
 });
 
-Router.get('/ReadAll', async (req, res) => {
-  res.json(await ServicioUsuario.ReadAll());
 
-});Router.post('/Create', async (req, res) => {
-  res.json(await ServicioUsuario.Create(req.body));
+Router.get('/ReadAll', async (solicitud, respuesta, next) => {
+  if (await ServicioUsuario.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(await ServicioUsuario.ReadAll());
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
 });
 
-Router.post('/Update', async (req, res) => {
-  res.json(await ServicioUsuario.Update(req.body));
+
+
+Router.get('/Create', async (solicitud, respuesta, next) => {
+  if (await ServicioUsuario.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(await ServicioUsuario.Create(req.body));
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
 });
 
-//MODIFICAR LOS DELETE DE TODOS
-Router.post('/Delete', async (solicitud, respuesta, next) => {
-  return respuesta.json(await ServicioUsuario.Delete(solicitud.body));
+
+Router.get('/Update', async (solicitud, respuesta, next) => {
+  if (await ServicioUsuario.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(await ServicioUsuario.Update(req.body));
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
 });
 
+
+Router.get('/Delete', async (solicitud, respuesta, next) => {
+  if (await ServicioUsuario.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(await ServicioUsuario.Delete(solicitud.body));
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
+});
 
 //Autenticacion 
 Router.post("/Autenticacion", async (solicitud, respuesta) => {
@@ -37,5 +82,7 @@ Router.post("/validarToken", async (solicitud, respuesta) => {
 Router.post("/desautenticar", async (solicitud, respuesta) => {
   respuesta.json(await ServicioUsuario.DesAutenticacion(solicitud.body.CorreoElectronico));
 });
+
+
 
 module.exports = Router;

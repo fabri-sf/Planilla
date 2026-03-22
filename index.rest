@@ -1,6 +1,6 @@
 ###
 @BASE_URL = http://localhost
-
+@AUTH_TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiIxMjEyMTciLCJpYXQiOjE3NzE4NTgzNzUsImV4cCI6MTc3MTg5NDM3NX0.t6QwSYcEDR575yAQz6aXJGeO1xc9ASA7DAwkEuhip_w
 
 ###
 GET {{ BASE_URL }}/Servicio1/listar2 HTTP/1.1
@@ -21,6 +21,15 @@ GET {{ BASE_URL }}/ServicioDepartamento/ReadAll HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 Origin: {{ BASE_URL }}
+
+###
+//READ
+GET {{ BASE_URL }}/ServicioDepartamento/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "nombre": "Recursos" }
 
 ###
 // CREATE
@@ -77,6 +86,8 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 Origin: {{ BASE_URL }}
 
+{ "empleadoId": 1 }
+
 ###
 //CREATE
 POST {{ BASE_URL }}/ServicioAsistencia/Create HTTP/1.1
@@ -112,16 +123,7 @@ Origin: {{ BASE_URL }}
   "observaciones": "Día normal de trabajo PRUEBA"
 }
 
-###
-//DELETE
-POST {{ BASE_URL }}/ServicioAsistencia/Delete HTTP/1.1
-Authorization: Bearer {{ AUTH_TOKEN }}
-Content-Type: application/json
-Origin: {{ BASE_URL }}
 
-{
-  "id": 200
-}
 
 ###
 //Auditoria
@@ -133,12 +135,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioAuditoria/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioAuditoria/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
 
-
+{ "tabla": "EMPLEADO" }
 
 
 //Empleado
@@ -150,10 +152,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioEmpleado/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioEmpleado/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "cedula": "119170345" }
 
 ###
 //CREATE
@@ -223,10 +227,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioTipoContrato/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioTipoContrato/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "nombre": "Tiempo" }
 
 ###
 //CREATE
@@ -280,10 +286,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioPago/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioPago/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "empleadoId": 1 }
 
 
 ###
@@ -344,10 +352,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioDeduccionPago/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioDeduccionPago/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "pagoId": 1 }
 
 ###
 //CREATE
@@ -389,11 +399,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioPuesto/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioPuesto/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
 
+{ "nombre": "Desarrollador" }
 ###
 //CREATE
 POST {{ BASE_URL }}/ServicioPuesto/Create HTTP/1.1
@@ -447,10 +458,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioHistorialSalario/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioHistorialSalario/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "empleadoId": 1 }
 
 
 ###
@@ -484,10 +497,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioPlanilla/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioPlanilla/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "periodo": "Junio 2026" }
 
 ###
 //CREATE
@@ -536,11 +551,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioTipoDeduccion/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioTipoDeduccion/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
 
+{ "nombre": "CCSS" }
 ###
 // CREATE
 POST {{ BASE_URL }}/ServicioTipoDeduccion/Create HTTP/1.1
@@ -593,10 +609,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioTipoBonificacion/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioTipoBonificacion/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "nombre": "Bono" }
 
 
 ###
@@ -649,10 +667,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //read por correo
-GET {{ BASE_URL }}/ServicioUsuario/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioUsuario/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "nombreUsuario": "thay2" }
 
 ###
 //CREATE
@@ -662,9 +682,9 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-   "nombreUsuario": "thay",
+   "nombreUsuario": "thay2",
   "contrasena": "123456",
-  "correo": "thaylin.barrueta@empresa.com",
+  "correo": "thaylin.barrueta@empresa2.com",
   "rol": "gerente",
   "empleadoId": null,
   "estado": "activo"
@@ -690,8 +710,9 @@ Origin: {{ BASE_URL }}
 
 {
   "id": 1,
-  "nombreUsuario": "edit",
-  "contrasena": "123456",
+  "nombreUsuario": " carlos edit",
+  "empleadoId": "1",
+  "contrasena": "1234567",
   "correo": "carlos.gonzalez1@gmail.com",
   "rol": "gerente",
   "estado": "activo"
@@ -716,10 +737,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioBonificacionPago/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioBonificacionPago/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "pagoId": 1 }
 
 ###
 //CREATE

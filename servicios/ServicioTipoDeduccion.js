@@ -4,9 +4,10 @@ class ServicioTipoDeduccion {
   constructor() {}
 
   async Read(datos) {
-    return await ejecutarConsulta("SELECT * FROM TIPO_DEDUCCION WHERE id = ?", [
-      datos.id,
-    ]);
+    return await ejecutarConsulta(
+      "SELECT * FROM TIPO_DEDUCCION WHERE nombre LIKE ?",
+      [`%${datos.nombre}%`],
+    );
   }
 
   async ReadAll() {
@@ -56,7 +57,7 @@ class ServicioTipoDeduccion {
       "UPDATE TIPO_DEDUCCION SET estado = CASE WHEN estado = 'activo' THEN 'inactivo' ELSE 'activo' END WHERE id = ?",
       [datos.id],
     );
-}
+  }
 }
 
 module.exports = new ServicioTipoDeduccion();

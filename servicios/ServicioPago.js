@@ -5,10 +5,9 @@ class ServicioPago {
   constructor() {}
 
   async Read(Datos) {
-    return await ejecutarConsulta(
-      "SELECT * FROM PAGO.`user` WHERE `user` =  ?",
-      [Datos.Usuario],
-    );
+    return await ejecutarConsulta("SELECT * FROM PAGO WHERE empleadoId = ?", [
+      Datos.empleadoId,
+    ]);
   }
 
   async ReadAll() {

@@ -5,8 +5,8 @@ class ServicioTipoContrato {
 
   async Read(Datos) {
     return await ejecutarConsulta(
-      "SELECT * FROM TIPO_CONTRATO.`user` WHERE `user` =  ?",
-      [Datos.Usuario],
+      "SELECT * FROM TIPO_CONTRATO WHERE nombre LIKE ?",
+      [`%${Datos.nombre}%`],
     );
   }
 
@@ -21,15 +21,21 @@ class ServicioTipoContrato {
         Datos.nombre,
         Datos.horasSemanales,
         Datos.descripcion,
-        Datos.estado ?? true,
+        Datos.estado ?? "activo",
       ],
     );
   }
 
   async Update(Datos) {
     return await ejecutarConsulta(
-      "UPDATE TIPO_CONTRATO SET nombre = ?, descripcion = ?, estado = ? WHERE id = ?",
-      [Datos.nombre, Datos.descripcion, Datos.estado, Datos.id],
+      "UPDATE TIPO_CONTRATO SET nombre = ?, horasSemanales = ?, descripcion = ?, estado = ? WHERE id = ?",
+      [
+        Datos.nombre,
+        Datos.horasSemanales,
+        Datos.descripcion,
+        Datos.estado,
+        Datos.id,
+      ],
     );
   }
 

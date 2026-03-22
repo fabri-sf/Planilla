@@ -4,8 +4,8 @@ class ServicioPuesto {
   constructor() {}
 
   async Read(datos) {
-    return await ejecutarConsulta("SELECT * FROM Puesto WHERE id = ?", [
-      datos.id,
+    return await ejecutarConsulta("SELECT * FROM PUESTO WHERE nombre LIKE ?", [
+      `%${datos.nombre}%`,
     ]);
   }
 
@@ -58,7 +58,7 @@ class ServicioPuesto {
       "UPDATE PUESTO SET estado = CASE WHEN estado = 'activo' THEN 'inactivo' ELSE 'activo' END WHERE id = ?",
       [datos.id],
     );
-}
+  }
 }
 
 module.exports = new ServicioPuesto();

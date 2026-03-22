@@ -4,11 +4,11 @@ class ServicioAsistencia {
   constructor() {}
 
   async Read(Datos) {
-    return await ejecutarConsulta(
-      "SELECT * FROM ASISTENCIA.`user` WHERE `user` =  ?",
-      [Datos.Usuario],
-    );
-  }
+  return await ejecutarConsulta(
+    "SELECT * FROM ASISTENCIA WHERE empleadoId = ?",
+    [Datos.empleadoId]
+  );
+}
 
   async ReadAll() {
     return await ejecutarConsulta("SELECT * FROM ASISTENCIA");
@@ -45,11 +45,7 @@ class ServicioAsistencia {
     );
   }
 
-  async Delete(Datos) {
-    return await ejecutarConsulta("DELETE FROM ASISTENCIA WHERE id = ?", [
-      Datos.id,
-    ]);
-  }
+
 }
 
 module.exports = new ServicioAsistencia();

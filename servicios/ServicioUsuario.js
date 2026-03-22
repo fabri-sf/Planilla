@@ -5,14 +5,16 @@ const jwt = require("jsonwebtoken");
 class ServicioUsuario {
   constructor() {}
 
-  async Read(datos) {
-    return await ejecutarConsulta("SELECT * FROM USUARIO WHERE id = ?", [
-      datos.id,
-    ]);
-  }
+ async Read(datos) {
+  return await ejecutarConsulta(
+    "SELECT id, nombreUsuario, correo, rol, empleadoId, estado, ultimoAcceso, creacion FROM USUARIO WHERE nombreUsuario = ?",
+    [datos.nombreUsuario]
+  );
+}
 
   async ReadAll() {
-    return await ejecutarConsulta("SELECT * FROM USUARIO");
+    return await ejecutarConsulta( "SELECT id, nombreUsuario, correo, rol, empleadoId, estado, ultimoAcceso, creacion FROM USUARIO WHERE id = ?",
+   );
   }
 
   async Create(datos) {
