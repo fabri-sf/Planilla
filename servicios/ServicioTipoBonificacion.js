@@ -5,8 +5,8 @@ class ServicioTipoBonificacion {
 
   async Read(datos) {
     return await ejecutarConsulta(
-      "SELECT * FROM TIPO_BONIFICACION WHERE id = ?",
-      [datos.id],
+      "SELECT * FROM TIPO_BONIFICACION WHERE nombre LIKE ?",
+      [`%${datos.nombre}%`],
     );
   }
 

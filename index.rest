@@ -23,6 +23,15 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 ###
+//READ
+GET {{ BASE_URL }}/ServicioDepartamento/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "nombre": "Recursos" }
+
+###
 // CREATE
 POST {{ BASE_URL }}/ServicioDepartamento/Create HTTP/1.1
 Authorization: Bearer {{ AUTH_TOKEN }}
@@ -77,6 +86,8 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 Origin: {{ BASE_URL }}
 
+{ "empleadoId": 1 }
+
 ###
 //CREATE
 POST {{ BASE_URL }}/ServicioAsistencia/Create HTTP/1.1
@@ -124,12 +135,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioAuditoria/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioAuditoria/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
 
-
+{ "tabla": "EMPLEADO" }
 
 
 //Empleado
@@ -141,10 +152,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioEmpleado/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioEmpleado/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "cedula": "119170345" }
 
 ###
 //CREATE
@@ -214,10 +227,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioTipoContrato/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioTipoContrato/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "nombre": "Tiempo" }
 
 ###
 //CREATE
@@ -271,10 +286,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioPago/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioPago/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "empleadoId": 1 }
 
 
 ###
@@ -335,10 +352,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioDeduccionPago/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioDeduccionPago/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "pagoId": 1 }
 
 ###
 //CREATE
@@ -380,11 +399,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioPuesto/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioPuesto/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
 
+{ "nombre": "Desarrollador" }
 ###
 //CREATE
 POST {{ BASE_URL }}/ServicioPuesto/Create HTTP/1.1
@@ -438,10 +458,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioHistorialSalario/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioHistorialSalario/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "empleadoId": 1 }
 
 
 ###
@@ -475,10 +497,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioPlanilla/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioPlanilla/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "periodo": "Junio 2026" }
 
 ###
 //CREATE
@@ -527,11 +551,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioTipoDeduccion/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioTipoDeduccion/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
 
+{ "nombre": "CCSS" }
 ###
 // CREATE
 POST {{ BASE_URL }}/ServicioTipoDeduccion/Create HTTP/1.1
@@ -584,10 +609,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioTipoBonificacion/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioTipoBonificacion/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "nombre": "Bono" }
 
 
 ###
@@ -640,10 +667,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //read por correo
-GET {{ BASE_URL }}/ServicioUsuario/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioUsuario/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "nombreUsuario": "thay2" }
 
 ###
 //CREATE
@@ -708,10 +737,12 @@ Origin: {{ BASE_URL }}
 
 ### 
 //Read POR CORREO
-GET {{ BASE_URL }}/ServicioBonificacionPago/Read HTTP/1.1 
-Authorization: Bearer {{ AUTH_TOKEN }} 
-Content-Type: application/json 
-Origin: {{ BASE_URL }} { "id": 1 } 
+GET {{ BASE_URL }}/ServicioBonificacionPago/Read HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{ "pagoId": 1 }
 
 ###
 //CREATE

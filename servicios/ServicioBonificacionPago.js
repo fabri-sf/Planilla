@@ -3,10 +3,10 @@ const { ejecutarConsulta } = require("../db.js");
 class ServicioBonificacionPago {
   constructor() {}
 
-  async Read(datos) {
+  async Read(Datos) {
     return await ejecutarConsulta(
-      "SELECT * FROM BONIFICACION_PAGO WHERE id = ?",
-      [datos.id],
+      "SELECT * FROM BONIFICACION_PAGO WHERE pagoId = ?",
+      [Datos.pagoId],
     );
   }
 

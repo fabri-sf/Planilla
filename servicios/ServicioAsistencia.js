@@ -4,11 +4,11 @@ class ServicioAsistencia {
   constructor() {}
 
   async Read(Datos) {
-    return await ejecutarConsulta(
-      "SELECT * FROM ASISTENCIA.`user` WHERE `user` =  ?",
-      [Datos.Usuario],
-    );
-  }
+  return await ejecutarConsulta(
+    "SELECT * FROM ASISTENCIA WHERE empleadoId = ?",
+    [Datos.empleadoId]
+  );
+}
 
   async ReadAll() {
     return await ejecutarConsulta("SELECT * FROM ASISTENCIA");

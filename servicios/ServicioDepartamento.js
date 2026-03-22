@@ -4,11 +4,11 @@ class ServicioDepartamento {
   constructor() {}
 
   async Read(Datos) {
-    return await ejecutarConsulta(
-      "SELECT * FROM HISTORIAL_SALARIO.`user` WHERE `user` =  ?",
-      [Datos.Usuario],
-    );
-  }
+  return await ejecutarConsulta(
+    "SELECT * FROM DEPARTAMENTO WHERE nombre LIKE ?",
+    [`%${Datos.nombre}%`]
+  );
+}
 
   async ReadAll() {
     return await ejecutarConsulta("SELECT * FROM Departamento");
@@ -16,10 +16,8 @@ class ServicioDepartamento {
 
   async Create(Datos) {
     return await ejecutarConsulta(
-      `INSERT INTO DEPARTAMENTO 
-        (codigo, nombre, descripcion, estado) 
-        VALUES (?, ?, ?, ?)`,
-      [Datos.codigo, Datos.nombre, Datos.descripcion, Datos.estado ?? true],
+      `INSERT INTO DEPARTAMENTO (codigo, nombre, descripcion, estado) VALUES (?, ?, ?, ?)`,
+      [Datos.codigo, Datos.nombre, Datos.descripcion, Datos.estado ?? "activo"],
     );
   }
 
@@ -32,7 +30,7 @@ class ServicioDepartamento {
 
   async Delete(Datos) {
     return await ejecutarConsulta(
-      "UPDATE DEPARTAMENTO SET estado = CASE WHEN estado = 'estado' THEN 'inestado' ELSE 'estado' END WHERE id = ?",
+      "UPDATE DEPARTAMENTO SET estado = CASE WHEN estado = 'activo' THEN 'inactivo' ELSE 'activo' END WHERE id = ?",
       [Datos.id],
     );
   }

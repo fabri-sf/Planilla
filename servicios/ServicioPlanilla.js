@@ -5,9 +5,10 @@ class ServicioPlanilla {
   constructor() {}
 
   async Read(datos) {
-    return await ejecutarConsulta("SELECT * FROM Planilla WHERE id = ?", [
-      datos.id,
-    ]);
+    return await ejecutarConsulta(
+      "SELECT * FROM PLANILLA WHERE periodo LIKE ?",
+      [`%${datos.periodo}%`],
+    );
   }
 
   async ReadAll() {
@@ -50,25 +51,26 @@ class ServicioPlanilla {
 
     await ejecutarConsulta(
       `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
-         VALUES (?, 'PLANILLA', 'UPDATE', ?, 'todos', NULL, ?, ?)`,
+       VALUES (?, 'PLANILLA', 'UPDATE', ?, 'todos', NULL, ?, ?)`,
       [
         usuarioId,
         datos.id,
-        `estado:${datos.estado}, fechaPago:${datos.fechaPago}`,
+        `periodo:${datos.periodo}, estado:${datos.estado}, fechaPago:${datos.fechaPago}`,
         `Modificación planilla ID: ${datos.id}`,
       ],
     );
+
     return await ejecutarConsulta(
       `UPDATE PLANILLA
-             SET periodo = ?,
-                 fechaInicio = ?,
-                 fechaFin = ?,
-                 fechaPago = ?,
-                 estado = ?,
-                 descripcion = ?,
-                 creadoPor = ?,
-                 aprobadoPor = ?
-             WHERE id = ?`,
+       SET periodo = ?,
+           fechaInicio = ?,
+           fechaFin = ?,
+           fechaPago = ?,
+           estado = ?,
+           descripcion = ?,
+           creadoPor = ?,
+           aprobadoPor = ?
+       WHERE id = ?`,
       [
         datos.periodo,
         datos.fechaInicio,
