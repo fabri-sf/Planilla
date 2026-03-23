@@ -2,14 +2,14 @@ const express = require("express");
 const Router = express.Router();
 
 const ServicioPlanilla = require("../servicios/ServicioPlanilla.js");
-
+const Usuarios = require('../servicios/ServicioUsuario.js');
 
 /*Router.get("/Read", async (solicitud, respuesta, next) => {
   return respuesta.json(await ServicioPlanilla.Read(solicitud.body));
 });*/
 
 Router.get("/Read", async (solicitud, respuesta, next) => {
-  if (await ServicioPlanilla.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json( await ServicioPlanilla.Read(solicitud.body)  );
     } catch (error) {
@@ -27,7 +27,7 @@ Router.get("/Read", async (solicitud, respuesta, next) => {
 });*/
 
 Router.get("/ReadAll", async (solicitud, respuesta, next) => {
-  if (await ServicioPlanilla.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioPlanilla.ReadAll()
@@ -47,7 +47,7 @@ Router.get("/ReadAll", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Create", async (solicitud, respuesta, next) => {
-  if (await ServicioPlanilla.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioPlanilla.Create(solicitud.body)
@@ -66,7 +66,7 @@ Router.post("/Create", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Update", async (solicitud, respuesta, next) => {
-  if (await ServicioPlanilla.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioPlanilla.Update(solicitud.body)

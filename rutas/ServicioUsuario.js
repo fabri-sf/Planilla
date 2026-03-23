@@ -32,10 +32,10 @@ Router.get('/ReadAll', async (solicitud, respuesta, next) => {
 
 
 
-Router.get('/Create', async (solicitud, respuesta, next) => {
+Router.post('/Create', async (solicitud, respuesta, next) => {
   if (await ServicioUsuario.ValidarToken(solicitud.headers.authorization)) {
     try {
-      return respuesta.json(await ServicioUsuario.Create(req.body));
+      return respuesta.json(await ServicioUsuario.Create(solicitud.body));
     } catch (error) {
       console.error(error);
       return respuesta.status(500).json(error);
@@ -45,10 +45,10 @@ Router.get('/Create', async (solicitud, respuesta, next) => {
 });
 
 
-Router.get('/Update', async (solicitud, respuesta, next) => {
+Router.post('/Update', async (solicitud, respuesta, next) => {
   if (await ServicioUsuario.ValidarToken(solicitud.headers.authorization)) {
     try {
-      return respuesta.json(await ServicioUsuario.Update(req.body));
+      return respuesta.json(await ServicioUsuario.Update(solicitud.body));
     } catch (error) {
       console.error(error);
       return respuesta.status(500).json(error);
@@ -58,7 +58,7 @@ Router.get('/Update', async (solicitud, respuesta, next) => {
 });
 
 
-Router.get('/Delete', async (solicitud, respuesta, next) => {
+Router.post('/Delete', async (solicitud, respuesta, next) => {
   if (await ServicioUsuario.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(await ServicioUsuario.Delete(solicitud.body));

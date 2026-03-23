@@ -2,6 +2,7 @@ const express = require("express");
 const Router = express.Router();
 
 const ServicioAsistencia = require("../servicios/ServicioAsistencia.js");
+const Usuarios = require('../servicios/ServicioUsuario.js');
 
 // ================= READ =================
 /*Router.get("/Read", async (solicitud, respuesta, next) => {
@@ -9,7 +10,7 @@ const ServicioAsistencia = require("../servicios/ServicioAsistencia.js");
 });*/
 
 Router.get("/Read", async (solicitud, respuesta, next) => {
-  if (await ServicioAsistencia.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioAsistencia.Read(solicitud.body)
@@ -29,7 +30,7 @@ Router.get("/Read", async (solicitud, respuesta, next) => {
 });*/
 
 Router.get("/ReadAll", async (solicitud, respuesta, next) => {
-  if (await ServicioAsistencia.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioAsistencia.ReadAll()
@@ -49,7 +50,7 @@ Router.get("/ReadAll", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Create", async (solicitud, respuesta, next) => {
-  if (await ServicioAsistencia.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioAsistencia.Create(solicitud.body)
@@ -69,7 +70,7 @@ Router.post("/Create", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Update", async (solicitud, respuesta, next) => {
-  if (await ServicioAsistencia.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioAsistencia.Update(solicitud.body)
@@ -81,8 +82,6 @@ Router.post("/Update", async (solicitud, respuesta, next) => {
   }
   return respuesta.status(401).json();
 });
-
-
 
 
 module.exports = Router;
