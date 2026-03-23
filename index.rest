@@ -56,7 +56,7 @@ Origin: {{ BASE_URL }}
   "id": 12,
   "codigo": "DEP001",
   "nombre": "Recursos  PRUEBA",
-  "descripcion": "Departamento de recursos humanos PRUEBA",
+  "descripcion": "Departamento",
   "estado": "activo"
 }
 
@@ -189,11 +189,11 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "id": 203,
+  "id": 201,
   "cedula": "119170345",
   "nombre": "ThaylinPrueba",
-  "apellido": "Barrueta Lopez",
-  "email": "thaylinueta@empresa.com",
+  "apellido": "Barrueta Lopezzzzzz",
+  "email": "thaylinueta@empresaaaa.com",
   "telefono": "111111111",
   "fechaNacimiento": "1990-01-15",
   "fechaIngreso": "2020-03-01",
@@ -530,7 +530,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "id": 203,
+  "id": 5,
   "periodo": "Junio 2026 Actualizado",
   "fechaInicio": "2026-06-01",
   "fechaFin": "2026-06-30",
@@ -580,7 +580,7 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-  "id": 13,
+  "id": 1,
   "codigo": "TD001-EDIT",
   "nombre": "CCSS Actualizada",
   "porcentaje": 10.50,
@@ -686,7 +686,7 @@ Origin: {{ BASE_URL }}
   "contrasena": "123456",
   "correo": "thaylin.barrueta@empresa2.com",
   "rol": "gerente",
-  "empleadoId": null,
+  "empleadoId": 0,
   "estado": "activo"
 }
 

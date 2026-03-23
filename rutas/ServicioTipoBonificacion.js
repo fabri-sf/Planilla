@@ -2,6 +2,7 @@ const express = require("express");
 const Router = express.Router();
 
 const ServicioTipoBonificacion = require("../servicios/ServicioTipoBonificacion.js");
+const Usuarios = require('../servicios/ServicioUsuario.js');
 
 // ================= READ =================
 /*Router.get("/Read", async (solicitud, respuesta, next) => {
@@ -9,7 +10,7 @@ const ServicioTipoBonificacion = require("../servicios/ServicioTipoBonificacion.
 });*/
 
 Router.get("/Read", async (solicitud, respuesta, next) => {
-  if (await ServicioTipoBonificacion.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(await ServicioTipoBonificacion.Read(solicitud.body));
     } catch (error) {
@@ -27,7 +28,7 @@ Router.get("/Read", async (solicitud, respuesta, next) => {
 });*/
 
 Router.get("/ReadAll", async (solicitud, respuesta, next) => {
-  if (await ServicioTipoBonificacion.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(await ServicioTipoBonificacion.ReadAll());
     } catch (error) {
@@ -45,7 +46,7 @@ Router.get("/ReadAll", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Create", async (solicitud, respuesta, next) => {
-  if (await ServicioTipoBonificacion.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(await ServicioTipoBonificacion.Create(solicitud.body));
     } catch (error) {
@@ -63,7 +64,7 @@ Router.post("/Create", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Update", async (solicitud, respuesta, next) => {
-  if (await ServicioTipoBonificacion.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(await ServicioTipoBonificacion.Update(solicitud.body));
     } catch (error) {
@@ -81,7 +82,7 @@ Router.post("/Update", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Delete", async (solicitud, respuesta, next) => {
-  if (await ServicioTipoBonificacion.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(await ServicioTipoBonificacion.Delete(solicitud.body));
     } catch (error) {

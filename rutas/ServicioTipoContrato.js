@@ -2,6 +2,7 @@ const express = require("express");
 const Router = express.Router();
 
 const ServicioTipoContrato = require("../servicios/ServicioTipoContrato.js");
+const Usuarios = require('../servicios/ServicioUsuario.js');
 
 //Por filtro
 /*Router.get("/Read", async (solicitud, respuesta, next) => {
@@ -9,7 +10,7 @@ const ServicioTipoContrato = require("../servicios/ServicioTipoContrato.js");
 });*/
 
 Router.get("/Read", async (solicitud, respuesta, next) => {
-  if (await ServicioTipoContrato.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
        return respuesta.json(await ServicioTipoContrato.Read(solicitud.body));
     } catch (error) {
@@ -26,7 +27,7 @@ Router.get("/Read", async (solicitud, respuesta, next) => {
 });*/
 
 Router.get("/ReadAll", async (solicitud, respuesta, next) => {
-  if (await ServicioTipoContrato.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
        return respuesta.json(await ServicioTipoContrato.ReadAll());
     } catch (error) {
@@ -41,10 +42,12 @@ Router.get("/ReadAll", async (solicitud, respuesta, next) => {
   res.json(await ServicioTipoContrato.Create(req.body));
 });*/
 
-Router.get("/Create", async (solicitud, respuesta, next) => {
-  if (await ServicioTipoContrato.ValidarToken(solicitud.headers.authorization)) {
+Router.post("/Create", async (solicitud, respuesta, next) => {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
-       return respuesta.json(await ServicioTipoContrato.Create(req.body));
+      return respuesta.json(
+        await ServicioTipoContrato.Create(solicitud.body)
+      );
     } catch (error) {
       console.error(error);
       return respuesta.status(500).json(error);
@@ -54,13 +57,12 @@ Router.get("/Create", async (solicitud, respuesta, next) => {
 });
 
 
-
 /*Router.post("/Update", async (solicitud, respuesta, next) => {
   return respuesta.json(await ServicioTipoContrato.Update(solicitud.body));
 });*/
 
-Router.get("/Update", async (solicitud, respuesta, next) => {
-  if (await ServicioTipoContrato.ValidarToken(solicitud.headers.authorization)) {
+Router.post("/Update", async (solicitud, respuesta, next) => {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
        return respuesta.json(await ServicioTipoContrato.Update(solicitud.body));
     } catch (error) {
@@ -75,8 +77,8 @@ Router.get("/Update", async (solicitud, respuesta, next) => {
   return respuesta.json(await ServicioTipoContrato.Delete(solicitud.body));
 });*/
 
-Router.get("/Delete", async (solicitud, respuesta, next) => {
-  if (await ServicioTipoContrato.ValidarToken(solicitud.headers.authorization)) {
+Router.post("/Delete", async (solicitud, respuesta, next) => {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
        return respuesta.json(await ServicioTipoContrato.Delete(solicitud.body));
     } catch (error) {

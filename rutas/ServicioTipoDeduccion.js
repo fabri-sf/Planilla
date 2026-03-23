@@ -2,6 +2,7 @@ const express = require('express');
 const Router = express.Router();
 
 const ServicioTipoDeduccion = require('../servicios/ServicioTipoDeduccion.js');
+const Usuarios = require('../servicios/ServicioUsuario.js');
 
 //Por filtro 
 /*Router.get('/Read', async (solicitud, respuesta, next) => {
@@ -9,7 +10,7 @@ const ServicioTipoDeduccion = require('../servicios/ServicioTipoDeduccion.js');
 });*/
 
 Router.get("/Read", async (solicitud, respuesta, next) => {
-  if (await ServicioTipoDeduccion.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(await ServicioTipoDeduccion.Read(solicitud.body));
     } catch (error) {
@@ -27,7 +28,7 @@ Router.get("/Read", async (solicitud, respuesta, next) => {
 });*/
 
 Router.get("/ReadAll", async (solicitud, respuesta, next) => {
-  if (await ServicioTipoDeduccion.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return  respuesta.json(await ServicioTipoDeduccion.ReadAll());
     } catch (error) {
@@ -44,10 +45,10 @@ Router.get("/ReadAll", async (solicitud, respuesta, next) => {
   res.json(await ServicioTipoDeduccion.Create(req.body));
 });*/
 
-Router.get("/Create", async (solicitud, respuesta, next) => {
-  if (await ServicioTipoDeduccion.ValidarToken(solicitud.headers.authorization)) {
+Router.post("/Create", async (solicitud, respuesta, next) => {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
-      return respuesta.json(await ServicioTipoDeduccion.Create(req.body));
+      return respuesta.json(await ServicioTipoDeduccion.Create(solicitud.body));
     } catch (error) {
       console.error(error);
       return respuesta.status(500).json(error);
@@ -62,10 +63,10 @@ Router.get("/Create", async (solicitud, respuesta, next) => {
 });*/
 
 
-Router.get("/Update", async (solicitud, respuesta, next) => {
-  if (await ServicioTipoDeduccion.ValidarToken(solicitud.headers.authorization)) {
+Router.post("/Update", async (solicitud, respuesta, next) => {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
-      return respuesta.json(await ServicioTipoDeduccion.Update(req.body));
+      return respuesta.json(await ServicioTipoDeduccion.Update(solicitud.body));
     } catch (error) {
       console.error(error);
       return respuesta.status(500).json(error);
@@ -79,8 +80,8 @@ Router.get("/Update", async (solicitud, respuesta, next) => {
   return respuesta.json(await ServicioTipoDeduccion.Delete(solicitud.body));
 });*/
 
-Router.get("/Delete", async (solicitud, respuesta, next) => {
-  if (await ServicioTipoDeduccion.ValidarToken(solicitud.headers.authorization)) {
+Router.post("/Delete", async (solicitud, respuesta, next) => {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(await ServicioTipoDeduccion.Delete(solicitud.body));
     } catch (error) {

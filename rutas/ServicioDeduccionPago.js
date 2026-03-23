@@ -2,6 +2,7 @@ const express = require("express");
 const Router = express.Router();
 
 const ServicioDeduccionPago = require("../servicios/ServicioDeduccionPago.js");
+const Usuarios = require('../servicios/ServicioUsuario.js');
 
 // ================= READ =================
 /*Router.get("/Read", async (solicitud, respuesta, next) => {
@@ -9,7 +10,7 @@ const ServicioDeduccionPago = require("../servicios/ServicioDeduccionPago.js");
 });*/
 
 Router.get("/Read", async (solicitud, respuesta, next) => {
-  if (await ServicioDeduccionPago.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioDeduccionPago.Read(solicitud.body)
@@ -29,7 +30,7 @@ Router.get("/Read", async (solicitud, respuesta, next) => {
 });*/
 
 Router.get("/ReadAll", async (solicitud, respuesta, next) => {
-  if (await ServicioDeduccionPago.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioDeduccionPago.ReadAll()
@@ -49,7 +50,7 @@ Router.get("/ReadAll", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Create", async (solicitud, respuesta, next) => {
-  if (await ServicioDeduccionPago.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioDeduccionPago.Create(solicitud.body)
@@ -69,7 +70,7 @@ Router.post("/Create", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Edit", async (solicitud, respuesta, next) => {
-  if (await ServicioDeduccionPago.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioDeduccionPago.Edit(solicitud.body)
