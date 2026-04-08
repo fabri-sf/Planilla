@@ -2,6 +2,7 @@ const express = require("express");
 const Router = express.Router();
 
 const ServicioDepartamento = require("../servicios/ServicioDepartamento.js");
+const Usuarios = require('../servicios/ServicioUsuario.js');
 
 // ================= READ =================
 /*Router.get("/Read", async (solicitud, respuesta, next) => {
@@ -9,7 +10,7 @@ const ServicioDepartamento = require("../servicios/ServicioDepartamento.js");
 });*/
 
 Router.get("/Read", async (solicitud, respuesta, next) => {
-  if (await ServicioDepartamento.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioDepartamento.Read(solicitud.body)
@@ -29,7 +30,7 @@ Router.get("/Read", async (solicitud, respuesta, next) => {
 });*/
 
 Router.get("/ReadAll", async (solicitud, respuesta, next) => {
-  if (await ServicioDepartamento.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioDepartamento.ReadAll()
@@ -49,7 +50,7 @@ Router.get("/ReadAll", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Create", async (solicitud, respuesta, next) => {
-  if (await ServicioDepartamento.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioDepartamento.Create(solicitud.body)
@@ -69,7 +70,7 @@ Router.post("/Create", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Update", async (solicitud, respuesta, next) => {
-  if (await ServicioDepartamento.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioDepartamento.Update(solicitud.body)
@@ -89,7 +90,7 @@ Router.post("/Update", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Delete", async (solicitud, respuesta, next) => {
-  if (await ServicioDepartamento.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioDepartamento.Delete(solicitud.body)

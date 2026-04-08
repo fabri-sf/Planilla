@@ -2,14 +2,14 @@ const express = require("express");
 const Router = express.Router();
 
 const ServicioPuesto = require("../servicios/ServicioPuesto.js");
-
+const Usuarios = require('../servicios/ServicioUsuario.js');
 
 /*Router.get("/Read", async (solicitud, respuesta, next) => {
   return respuesta.json(await ServicioPuesto.Read(solicitud.body));
 });*/
 
 Router.get("/Read", async (solicitud, respuesta, next) => {
-  if (await ServicioPuesto.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(await ServicioPuesto.Read(solicitud.body));
     } catch (error) {
@@ -27,7 +27,7 @@ Router.get("/Read", async (solicitud, respuesta, next) => {
 });*/
 
 Router.get("/ReadAll", async (solicitud, respuesta, next) => {
-  if (await ServicioPuesto.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json( await ServicioPuesto.ReadAll()  );
     } catch (error) {
@@ -45,7 +45,7 @@ Router.get("/ReadAll", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Create", async (solicitud, respuesta, next) => {
-  if (await ServicioPuesto.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(  await ServicioPuesto.Create(solicitud.body)  );
     } catch (error) {
@@ -63,7 +63,7 @@ Router.post("/Create", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Update", async (solicitud, respuesta, next) => {
-  if (await ServicioPuesto.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json( await ServicioPuesto.Update(solicitud.body));
     } catch (error) {
@@ -81,7 +81,7 @@ Router.post("/Update", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Delete", async (solicitud, respuesta, next) => {
-  if (await ServicioPuesto.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json( await ServicioPuesto.Delete(solicitud.body) );
     } catch (error) {

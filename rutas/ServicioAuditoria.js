@@ -2,6 +2,7 @@ const express = require("express");
 const Router = express.Router();
 
 const ServicioAuditoria = require("../servicios/ServicioAuditoria.js");
+const Usuarios = require('../servicios/ServicioUsuario.js');
 
 // ================= READ =================
 /*Router.get("/Read", async (solicitud, respuesta, next) => {
@@ -9,7 +10,7 @@ const ServicioAuditoria = require("../servicios/ServicioAuditoria.js");
 });*/
 
 Router.get("/Read", async (solicitud, respuesta, next) => {
-  if (await ServicioAuditoria.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioAuditoria.Read(solicitud.body)
@@ -29,7 +30,7 @@ Router.get("/Read", async (solicitud, respuesta, next) => {
 });*/
 
 Router.get("/ReadAll", async (solicitud, respuesta, next) => {
-  if (await ServicioAuditoria.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioAuditoria.ReadAll()

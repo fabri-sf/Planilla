@@ -2,14 +2,14 @@ const express = require("express");
 const Router = express.Router();
 
 const ServicioHistorialSalario = require("../servicios/ServicioHistorialSalario.js");
-
+const Usuarios = require('../servicios/ServicioUsuario.js');
 
 /*Router.get("/Read", async (solicitud, respuesta, next) => {
   return respuesta.json(await ServicioHistorialSalario.Read(solicitud.body));
 });*/
 
 Router.get("/Read", async (solicitud, respuesta, next) => {
-  if (await ServicioHistorialSalario.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioHistorialSalario.Read(solicitud.body)
@@ -29,7 +29,7 @@ Router.get("/Read", async (solicitud, respuesta, next) => {
 });*/
 
 Router.get("/ReadAll", async (solicitud, respuesta, next) => {
-  if (await ServicioHistorialSalario.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioHistorialSalario.ReadAll()
@@ -49,7 +49,7 @@ Router.get("/ReadAll", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Create", async (solicitud, respuesta, next) => {
-  if (await ServicioHistorialSalario.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioHistorialSalario.Create(solicitud.body)
@@ -69,7 +69,7 @@ Router.post("/Create", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Update", async (solicitud, respuesta, next) => {
-  if (await ServicioHistorialSalario.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioHistorialSalario.Update(solicitud.body)
@@ -88,7 +88,7 @@ Router.post("/Update", async (solicitud, respuesta, next) => {
 });*/
 
 Router.post("/Delete", async (solicitud, respuesta, next) => {
-  if (await ServicioHistorialSalario.ValidarToken(solicitud.headers.authorization)) {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
         await ServicioHistorialSalario.Delete(solicitud.body)
