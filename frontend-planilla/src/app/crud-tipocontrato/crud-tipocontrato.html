@@ -8,8 +8,8 @@
     </div>
   </div>
   <div class="page-header-right">
-    <button class="btn-add">+ Nuevo registro</button>
-    <button class="btn-close" title="Cerrar">✕</button>
+    <button type="button" class="btn-add" (click)="abrirCrear()">+ Nuevo registro</button>
+    <button type="button" class="btn-close" title="Cerrar">✕</button>
   </div>
 </div>
 
@@ -24,16 +24,75 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Horas semanales</th>
-        <th>Descripción</th>
-        <th>Estado</th>
-        <th>Creación</th>
-        <th>Acciones</th>
+        <th>ID</th><th>Nombre</th><th>Horas semanales</th><th>Descripción</th><th>Estado</th><th>Creación</th><th>Acciones</th>
       </tr>
     </thead>
     <tbody>
+      @for (item of lista; track item.id) {
+      <tr>
+        <td>{{ item.id }}</td>
+        <td>{{ item.nombre }}</td>
+        <td>{{ item.horas_semanales }}</td>
+        <td>{{ item.descripcion }}</td>
+        <td><span class="badge" [class.badge-activo]="item.estado==='Activo'" [class.badge-inactivo]="item.estado==='Inactivo'">{{ item.estado }}</span></td>
+        <td>{{ item.creacion }}</td>
+        <td>
+          <div class="actions">
+            <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
+            <button type="button" class="btn-delete" title="Eliminar">🗑️</button>
+          </div>
+        </td>
+      </tr>
+      }
     </tbody>
   </table>
 </div>
+
+<!-- ===== MODAL CREAR / EDITAR ===== -->
+@if (mostrandoModal) {
+<div class="modal-overlay" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-group">
+        <div class="modal-icon">📄</div>
+        <div>
+          <p class="modal-title">{{ modoEditar ? 'Editar tipo de contrato' : 'Nuevo tipo de contrato' }}</p>
+          <p class="modal-subtitle">Gestión de tipos de contrato</p>
+        </div>
+      </div>
+      <button type="button" class="modal-close" (click)="cerrarModal()" title="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="nombre">Nombre <span class="required-mark">*</span></label>
+          <input id="nombre" class="form-input" [class.invalid]="enviado && !form.nombre" [(ngModel)]="form.nombre" placeholder="Ej: Tiempo completo" />
+          @if (enviado && !form.nombre) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="horas_semanales">Horas semanales <span class="required-mark">*</span></label>
+          <input id="horas_semanales" class="form-input" type="number" min="0" max="48" [class.invalid]="enviado && !form.horas_semanales" [(ngModel)]="form.horas_semanales" placeholder="40" />
+          @if (enviado && !form.horas_semanales) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="estado">Estado <span class="required-mark">*</span></label>
+          <select id="estado" class="form-select" title="Estado" [class.invalid]="enviado && !form.estado" [(ngModel)]="form.estado">
+            <option value="">Seleccione...</option>
+            <option>Activo</option>
+            <option>Inactivo</option>
+          </select>
+          @if (enviado && !form.estado) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="descripcion">Descripción</label>
+          <textarea id="descripcion" class="form-textarea" [(ngModel)]="form.descripcion" placeholder="Descripción del tipo de contrato"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
+      <button type="button" class="btn-save" (click)="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>
+}

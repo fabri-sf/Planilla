@@ -5,10 +5,6 @@ const ServicioDepartamento = require("../servicios/ServicioDepartamento.js");
 const Usuarios = require('../servicios/ServicioUsuario.js');
 
 // ================= READ =================
-/*Router.get("/Read", async (solicitud, respuesta, next) => {
-  return respuesta.json(await ServicioDepartamento.Read(solicitud.body));
-});*/
-
 Router.get("/Read", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
@@ -25,10 +21,6 @@ Router.get("/Read", async (solicitud, respuesta, next) => {
 
 
 // ================= READ ALL =================
-/*Router.get("/ReadAll", async (req, res) => {
-  res.json(await ServicioDepartamento.ReadAll());
-});*/
-
 Router.get("/ReadAll", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
@@ -45,10 +37,6 @@ Router.get("/ReadAll", async (solicitud, respuesta, next) => {
 
 
 // ================= CREATE =================
-/*Router.post("/Create", async (req, res) => {
-  res.json(await ServicioDepartamento.Create(req.body));
-});*/
-
 Router.post("/Create", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
@@ -65,10 +53,6 @@ Router.post("/Create", async (solicitud, respuesta, next) => {
 
 
 // ================= UPDATE =================
-/*Router.post("/Update", async (solicitud, respuesta, next) => {
-  return respuesta.json(await ServicioDepartamento.Update(solicitud.body));
-});*/
-
 Router.post("/Update", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
@@ -85,10 +69,6 @@ Router.post("/Update", async (solicitud, respuesta, next) => {
 
 
 // ================= DELETE =================
-/*Router.post("/Delete", async (solicitud, respuesta, next) => {
-  return respuesta.json(await ServicioDepartamento.Delete(solicitud.body));
-});*/
-
 Router.post("/Delete", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
