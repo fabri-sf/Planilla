@@ -8,8 +8,8 @@
     </div>
   </div>
   <div class="page-header-right">
-    <button class="btn-add">+ Nuevo registro</button>
-    <button class="btn-close" title="Cerrar">✕</button>
+    <button type="button" class="btn-add" (click)="abrirCrear()">+ Nuevo registro</button>
+    <button type="button" class="btn-close" title="Cerrar">✕</button>
   </div>
 </div>
 
@@ -24,18 +24,88 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>ID</th>
-        <th>Código</th>
-        <th>Nombre</th>
-        <th>Descripción</th>
-        <th>Salario mínimo</th>
-        <th>Salario máximo</th>
-        <th>Estado</th>
-        <th>Creación</th>
-        <th>Acciones</th>
+        <th>ID</th><th>Código</th><th>Nombre</th><th>Descripción</th>
+        <th>Salario mínimo</th><th>Salario máximo</th><th>Estado</th><th>Creación</th><th>Acciones</th>
       </tr>
     </thead>
     <tbody>
+      @for (item of lista; track item.id) {
+      <tr>
+        <td>{{ item.id }}</td>
+        <td>{{ item.codigo }}</td>
+        <td>{{ item.nombre }}</td>
+        <td>{{ item.descripcion }}</td>
+        <td>₡{{ item.salario_minimo }}</td>
+        <td>₡{{ item.salario_maximo }}</td>
+        <td><span class="badge" [class.badge-activo]="item.estado==='Activo'" [class.badge-inactivo]="item.estado==='Inactivo'">{{ item.estado }}</span></td>
+        <td>{{ item.creacion }}</td>
+        <td>
+          <div class="actions">
+            <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
+            <button type="button" class="btn-delete" title="Eliminar">🗑️</button>
+          </div>
+        </td>
+      </tr>
+      }
     </tbody>
   </table>
 </div>
+
+<!-- ===== MODAL CREAR / EDITAR ===== -->
+@if (mostrandoModal) {
+<div class="modal-overlay" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-group">
+        <div class="modal-icon">💼</div>
+        <div>
+          <p class="modal-title">{{ modoEditar ? 'Editar puesto' : 'Nuevo puesto' }}</p>
+          <p class="modal-subtitle">Gestión de puestos de trabajo</p>
+        </div>
+      </div>
+      <button type="button" class="modal-close" (click)="cerrarModal()" title="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="codigo">Código <span class="required-mark">*</span></label>
+          <input id="codigo" class="form-input" [class.invalid]="enviado && !form.codigo" [(ngModel)]="form.codigo" placeholder="Ej: PUE-001" />
+          @if (enviado && !form.codigo) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="nombre">Nombre <span class="required-mark">*</span></label>
+          <input id="nombre" class="form-input" [class.invalid]="enviado && !form.nombre" [(ngModel)]="form.nombre" placeholder="Nombre del puesto" />
+          @if (enviado && !form.nombre) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="salario_minimo">Salario mínimo <span class="required-mark">*</span></label>
+          <input id="salario_minimo" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salario_minimo" [(ngModel)]="form.salario_minimo" placeholder="0" />
+          @if (enviado && !form.salario_minimo) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="salario_maximo">Salario máximo <span class="required-mark">*</span></label>
+          <input id="salario_maximo" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salario_maximo" [(ngModel)]="form.salario_maximo" placeholder="0" />
+          @if (enviado && !form.salario_maximo) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="estado">Estado <span class="required-mark">*</span></label>
+          <select id="estado" class="form-select" title="Estado" [class.invalid]="enviado && !form.estado" [(ngModel)]="form.estado">
+            <option value="">Seleccione...</option>
+            <option>Activo</option>
+            <option>Inactivo</option>
+          </select>
+          @if (enviado && !form.estado) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="descripcion">Descripción</label>
+          <textarea id="descripcion" class="form-textarea" [(ngModel)]="form.descripcion" placeholder="Descripción del puesto"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
+      <button type="button" class="btn-save" (click)="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>
+}
