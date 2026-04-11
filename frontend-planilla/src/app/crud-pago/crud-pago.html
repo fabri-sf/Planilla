@@ -1,0 +1,135 @@
+<!-- ===== ENCABEZADO ===== -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon">💰</div>
+    <div>
+      <h1 class="page-title">Pagos</h1>
+      <p class="page-subtitle">Gestión de pagos de planilla</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <button type="button" class="btn-add" (click)="abrirCrear()">+ Nuevo registro</button>
+    <button type="button" class="btn-close" title="Cerrar">✕</button>
+  </div>
+</div>
+
+<!-- ===== BUSCADOR ===== -->
+<div class="search-bar">
+  <span class="search-icon">🔍</span>
+  <input type="text" class="search-input" placeholder="Buscar por empleado, id..." />
+</div>
+
+<!-- ===== TABLA ===== -->
+<div class="table-wrapper">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>ID</th><th>Empleado</th><th>Planilla</th><th>Salario base</th>
+        <th>Días trabajados</th><th>Días esperados</th><th>Horas extra</th>
+        <th>Total bruto</th><th>Total deducciones</th><th>Total bonificaciones</th>
+        <th>Salario neto</th><th>Observaciones</th><th>Fecha</th><th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of lista; track item.id) {
+      <tr>
+        <td>{{ item.id }}</td>
+        <td>{{ item.empleado }}</td>
+        <td>{{ item.planilla }}</td>
+        <td>₡{{ item.salario_base }}</td>
+        <td>{{ item.dias_trabajados }}</td>
+        <td>{{ item.dias_esperados }}</td>
+        <td>{{ item.horas_extra }}</td>
+        <td>₡{{ item.total_bruto }}</td>
+        <td>₡{{ item.total_deducciones }}</td>
+        <td>₡{{ item.total_bonificaciones }}</td>
+        <td>₡{{ item.salario_neto }}</td>
+        <td>{{ item.observaciones }}</td>
+        <td>{{ item.fecha }}</td>
+        <td>
+          <div class="actions">
+            <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
+            <button type="button" class="btn-delete" title="Eliminar">🗑️</button>
+          </div>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== MODAL CREAR / EDITAR ===== -->
+@if (mostrandoModal) {
+<div class="modal-overlay" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-group">
+        <div class="modal-icon">💰</div>
+        <div>
+          <p class="modal-title">{{ modoEditar ? 'Editar pago' : 'Nuevo pago' }}</p>
+          <p class="modal-subtitle">Gestión de pagos de planilla</p>
+        </div>
+      </div>
+      <button type="button" class="modal-close" (click)="cerrarModal()" title="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="id_empleado">Empleado <span class="required-mark">*</span></label>
+          <input id="id_empleado" class="form-input" [class.invalid]="enviado && !form.id_empleado" [(ngModel)]="form.id_empleado" placeholder="ID o nombre del empleado" />
+          @if (enviado && !form.id_empleado) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_planilla">Planilla <span class="required-mark">*</span></label>
+          <input id="id_planilla" class="form-input" [class.invalid]="enviado && !form.id_planilla" [(ngModel)]="form.id_planilla" placeholder="ID o período de la planilla" />
+          @if (enviado && !form.id_planilla) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="salario_base">Salario base <span class="required-mark">*</span></label>
+          <input id="salario_base" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salario_base" [(ngModel)]="form.salario_base" placeholder="0" />
+          @if (enviado && !form.salario_base) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="dias_trabajados">Días trabajados <span class="required-mark">*</span></label>
+          <input id="dias_trabajados" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.dias_trabajados" [(ngModel)]="form.dias_trabajados" placeholder="0" />
+          @if (enviado && !form.dias_trabajados) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="dias_esperados">Días esperados <span class="required-mark">*</span></label>
+          <input id="dias_esperados" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.dias_esperados" [(ngModel)]="form.dias_esperados" placeholder="0" />
+          @if (enviado && !form.dias_esperados) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="horas_extra">Horas extra</label>
+          <input id="horas_extra" class="form-input" type="number" min="0" [(ngModel)]="form.horas_extra" placeholder="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="total_bruto">Total bruto</label>
+          <input id="total_bruto" class="form-input" type="number" min="0" [(ngModel)]="form.total_bruto" placeholder="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="total_deducciones">Total deducciones</label>
+          <input id="total_deducciones" class="form-input" type="number" min="0" [(ngModel)]="form.total_deducciones" placeholder="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="total_bonificaciones">Total bonificaciones</label>
+          <input id="total_bonificaciones" class="form-input" type="number" min="0" [(ngModel)]="form.total_bonificaciones" placeholder="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="salario_neto">Salario neto <span class="required-mark">*</span></label>
+          <input id="salario_neto" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salario_neto" [(ngModel)]="form.salario_neto" placeholder="0" />
+          @if (enviado && !form.salario_neto) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="observaciones">Observaciones</label>
+          <textarea id="observaciones" class="form-textarea" [(ngModel)]="form.observaciones" placeholder="Observaciones del pago"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
+      <button type="button" class="btn-save" (click)="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>
+}

@@ -1,0 +1,122 @@
+<!-- ===== ENCABEZADO ===== -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon">📋</div>
+    <div>
+      <h1 class="page-title">Planillas</h1>
+      <p class="page-subtitle">Gestión de planillas</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <button type="button" class="btn-add" (click)="abrirCrear()">+ Nuevo registro</button>
+    <button type="button" class="btn-close" title="Cerrar">✕</button>
+  </div>
+</div>
+
+<!-- ===== BUSCADOR ===== -->
+<div class="search-bar">
+  <span class="search-icon">🔍</span>
+  <input type="text" class="search-input" placeholder="Buscar por período, id..." />
+</div>
+
+<!-- ===== TABLA ===== -->
+<div class="table-wrapper">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>ID</th><th>Período</th><th>Fecha inicio</th><th>Fecha fin</th><th>Fecha pago</th>
+        <th>Estado</th><th>Descripción</th><th>Creado por</th><th>Aprobado por</th><th>Creación</th><th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of lista; track item.id) {
+      <tr>
+        <td>{{ item.id }}</td>
+        <td>{{ item.periodo }}</td>
+        <td>{{ item.fecha_inicio }}</td>
+        <td>{{ item.fecha_fin }}</td>
+        <td>{{ item.fecha_pago }}</td>
+        <td><span class="badge" [class.badge-pagada]="item.estado==='Pagada'" [class.badge-pendiente]="item.estado==='Pendiente'" [class.badge-cerrada]="item.estado==='Cerrada'">{{ item.estado }}</span></td>
+        <td>{{ item.descripcion }}</td>
+        <td>{{ item.creado_por }}</td>
+        <td>{{ item.aprobado_por }}</td>
+        <td>{{ item.creacion }}</td>
+        <td>
+          <div class="actions">
+            <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
+            <button type="button" class="btn-delete" title="Eliminar">🗑️</button>
+          </div>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== MODAL CREAR / EDITAR ===== -->
+@if (mostrandoModal) {
+<div class="modal-overlay" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-group">
+        <div class="modal-icon">📋</div>
+        <div>
+          <p class="modal-title">{{ modoEditar ? 'Editar planilla' : 'Nueva planilla' }}</p>
+          <p class="modal-subtitle">Gestión de planillas</p>
+        </div>
+      </div>
+      <button type="button" class="modal-close" (click)="cerrarModal()" title="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="periodo">Período <span class="required-mark">*</span></label>
+          <input id="periodo" class="form-input" [class.invalid]="enviado && !form.periodo" [(ngModel)]="form.periodo" placeholder="Ej: Enero 2025" />
+          @if (enviado && !form.periodo) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="fecha_inicio">Fecha inicio <span class="required-mark">*</span></label>
+          <input id="fecha_inicio" class="form-input" type="date" title="Fecha inicio" [class.invalid]="enviado && !form.fecha_inicio" [(ngModel)]="form.fecha_inicio" />
+          @if (enviado && !form.fecha_inicio) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="fecha_fin">Fecha fin <span class="required-mark">*</span></label>
+          <input id="fecha_fin" class="form-input" type="date" title="Fecha fin" [class.invalid]="enviado && !form.fecha_fin" [(ngModel)]="form.fecha_fin" />
+          @if (enviado && !form.fecha_fin) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="fecha_pago">Fecha pago <span class="required-mark">*</span></label>
+          <input id="fecha_pago" class="form-input" type="date" title="Fecha pago" [class.invalid]="enviado && !form.fecha_pago" [(ngModel)]="form.fecha_pago" />
+          @if (enviado && !form.fecha_pago) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="estado">Estado <span class="required-mark">*</span></label>
+          <select id="estado" class="form-select" title="Estado" [class.invalid]="enviado && !form.estado" [(ngModel)]="form.estado">
+            <option value="">Seleccione...</option>
+            <option>Pendiente</option>
+            <option>Pagada</option>
+            <option>Cerrada</option>
+          </select>
+          @if (enviado && !form.estado) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="creado_por">Creado por</label>
+          <input id="creado_por" class="form-input" [(ngModel)]="form.creado_por" placeholder="Usuario que crea" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="aprobado_por">Aprobado por</label>
+          <input id="aprobado_por" class="form-input" [(ngModel)]="form.aprobado_por" placeholder="Usuario que aprueba" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="descripcion">Descripción</label>
+          <textarea id="descripcion" class="form-textarea" [(ngModel)]="form.descripcion" placeholder="Descripción de la planilla"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
+      <button type="button" class="btn-save" (click)="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>
+}

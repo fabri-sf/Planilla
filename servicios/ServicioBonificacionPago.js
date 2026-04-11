@@ -3,10 +3,10 @@ const { ejecutarConsulta } = require("../db.js");
 class ServicioBonificacionPago {
   constructor() {}
 
-  async Read(datos) {
+  async Read(Datos) {
     return await ejecutarConsulta(
-      "SELECT * FROM BONIFICACION_PAGO WHERE id = ?",
-      [datos.id],
+      "SELECT * FROM BONIFICACION_PAGO WHERE pagoId = ?",
+      [Datos.pagoId],
     );
   }
 
@@ -41,7 +41,7 @@ class ServicioBonificacionPago {
 
   async Delete(datos) {
     return await ejecutarConsulta(
-      "DELETE FROM BONIFICACION_PAGO WHERE id = ?",
+      "UPDATE BONIFICACION_PAGO SET estado = CASE WHEN estado = 'activo' THEN 'inactivo' ELSE 'activo' END WHERE id = ?",
       [datos.id],
     );
   }

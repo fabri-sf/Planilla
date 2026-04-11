@@ -4,11 +4,11 @@ class ServicioDepartamento {
   constructor() {}
 
   async Read(Datos) {
-    return await ejecutarConsulta(
-      "SELECT * FROM HISTORIAL_SALARIO.`user` WHERE `user` =  ?",
-      [Datos.Usuario],
-    );
-  }
+  return await ejecutarConsulta(
+    "SELECT * FROM DEPARTAMENTO WHERE nombre LIKE ?",
+    [`%${Datos.nombre}%`]
+  );
+}
 
   async ReadAll() {
     return await ejecutarConsulta("SELECT * FROM Departamento");
@@ -16,24 +16,23 @@ class ServicioDepartamento {
 
   async Create(Datos) {
     return await ejecutarConsulta(
-      `INSERT INTO DEPARTAMENTO 
-        (codigo, nombre, descripcion, activo) 
-        VALUES (?, ?, ?, ?)`,
-      [Datos.codigo, Datos.nombre, Datos.descripcion, Datos.activo ?? true],
+      `INSERT INTO DEPARTAMENTO (codigo, nombre, descripcion, estado) VALUES (?, ?, ?, ?)`,
+      [Datos.codigo, Datos.nombre, Datos.descripcion, Datos.estado ?? "activo"],
     );
   }
 
   async Update(Datos) {
     return await ejecutarConsulta(
-      "UPDATE DEPARTAMENTO SET codigo = ?, nombre = ?, descripcion = ?, activo = ? WHERE id = ?",
-      [Datos.codigo, Datos.nombre, Datos.descripcion, Datos.activo, Datos.id],
+      "UPDATE DEPARTAMENTO SET codigo = ?, nombre = ?, descripcion = ?, estado = ? WHERE id = ?",
+      [Datos.codigo, Datos.nombre, Datos.descripcion, Datos.estado, Datos.id],
     );
   }
 
   async Delete(Datos) {
-    return await ejecutarConsulta("DELETE FROM DEPARTAMENTO WHERE id = ?", [
-      Datos.id,
-    ]);
+    return await ejecutarConsulta(
+      "UPDATE DEPARTAMENTO SET estado = CASE WHEN estado = 'activo' THEN 'inactivo' ELSE 'activo' END WHERE id = ?",
+      [Datos.id],
+    );
   }
 }
 

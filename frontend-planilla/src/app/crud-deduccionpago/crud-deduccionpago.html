@@ -1,0 +1,93 @@
+<!-- ===== ENCABEZADO ===== -->
+<div class="page-header">
+  <div class="page-header-left">
+    <div class="page-icon">🧾</div>
+    <div>
+      <h1 class="page-title">Deducciones de pago</h1>
+      <p class="page-subtitle">Gestión de deducciones por pago</p>
+    </div>
+  </div>
+  <div class="page-header-right">
+    <button type="button" class="btn-add" (click)="abrirCrear()">+ Nuevo registro</button>
+    <button type="button" class="btn-close" title="Cerrar">✕</button>
+  </div>
+</div>
+
+<!-- ===== BUSCADOR ===== -->
+<div class="search-bar">
+  <span class="search-icon">🔍</span>
+  <input type="text" class="search-input" placeholder="Buscar por pago, tipo u id..." />
+</div>
+
+<!-- ===== TABLA ===== -->
+<div class="table-wrapper">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>ID</th><th>Pago</th><th>Tipo deducción</th><th>Monto</th><th>Observaciones</th><th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of lista; track item.id) {
+      <tr>
+        <td>{{ item.id }}</td>
+        <td>{{ item.pago }}</td>
+        <td>{{ item.tipo_deduccion }}</td>
+        <td>₡{{ item.monto }}</td>
+        <td>{{ item.observaciones }}</td>
+        <td>
+          <div class="actions">
+            <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
+            <button type="button" class="btn-delete" title="Eliminar">🗑️</button>
+          </div>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== MODAL CREAR / EDITAR ===== -->
+@if (mostrandoModal) {
+<div class="modal-overlay" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-group">
+        <div class="modal-icon">🧾</div>
+        <div>
+          <p class="modal-title">{{ modoEditar ? 'Editar deducción de pago' : 'Nueva deducción de pago' }}</p>
+          <p class="modal-subtitle">Gestión de deducciones por pago</p>
+        </div>
+      </div>
+      <button type="button" class="modal-close" (click)="cerrarModal()" title="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="id_pago">Pago <span class="required-mark">*</span></label>
+          <input id="id_pago" class="form-input" [class.invalid]="enviado && !form.id_pago" [(ngModel)]="form.id_pago" placeholder="ID del pago" />
+          @if (enviado && !form.id_pago) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_tipodeduccion">Tipo de deducción <span class="required-mark">*</span></label>
+          <input id="id_tipodeduccion" class="form-input" [class.invalid]="enviado && !form.id_tipodeduccion" [(ngModel)]="form.id_tipodeduccion" placeholder="ID o nombre del tipo" />
+          @if (enviado && !form.id_tipodeduccion) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="monto">Monto (₡) <span class="required-mark">*</span></label>
+          <input id="monto" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.monto" [(ngModel)]="form.monto" placeholder="0" />
+          @if (enviado && !form.monto) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="observaciones">Observaciones</label>
+          <textarea id="observaciones" class="form-textarea" [(ngModel)]="form.observaciones" placeholder="Observaciones de la deducción"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
+      <button type="button" class="btn-save" (click)="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>
+}

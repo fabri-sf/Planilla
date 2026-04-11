@@ -1,0 +1,93 @@
+/* You can add global styles to this file, and also import other style files */ 
+:root {
+ 
+  /* --- Colores principales --- */
+  --color-primary:        #4f8ef7;   /* Azul principal — botones, links, acentos */
+  --color-primary-dark:   #3a7be0;   /* Azul hover */
+  --color-primary-light:  #e6f1fb;   /* Azul fondo suave — badges, fondos de icono */
+  --color-brand:          #1a2d5a;   /* Azul oscuro — header, títulos principales */
+  --color-brand-mid:      #1e3a70;   /* Azul medio — gradientes */
+  --color-brand-light:    #2b5096;   /* Azul claro — gradientes */
+  --color-brand-darker:   #111e3a;   /* Azul muy oscuro — footer */
+  /* --- Fondos --- */
+  --bg-page:              #f4f6fb;   /* Fondo general de la página */
+  --bg-white:             #ffffff;   /* Fondo de tarjetas y paneles */
+  --bg-header:            var(--color-brand);
+  --bg-footer:            var(--color-brand-darker);
+  /* --- Texto --- */
+  --text-primary:         #1a2d5a;   /* Títulos y texto principal */
+  --text-secondary:       #3a4560;   /* Texto de cuerpo */
+  --text-muted:           #7a84a0;   /* Texto secundario / descripciones */
+  --text-hint:            #8a93a8;   /* Labels, placeholders */
+  --text-white:           #ffffff;
+  --text-white-soft:      rgba(255, 255, 255, 0.65);
+  --text-white-muted:     rgba(255, 255, 255, 0.4);
+  /* --- Bordes --- */
+  --border-default:       #e0e4f0;   /* Bordes de tarjetas y paneles */
+  --border-light:         #e4e9f5;   /* Bordes suaves */
+  --border-stats:         #e8ecf5;   /* Bordes de la barra de estadísticas */
+  --border-separator:     #f0f2f8;   /* Separadores internos */
+
+  /* --- Estados / Semánticos --- */
+  --color-success:        #639922;   /* Verde — activo, aprobado */
+  --color-success-bg:     #eaf3de;
+  --color-success-text:   #3b6d11;
+  --color-warning:        #ba7517;   /* Ámbar — pendiente, borrador */
+  --color-warning-bg:     #faeeda;
+  --color-warning-text:   #854f0b;
+  --color-danger:         #e24b4a;   /* Rojo — inactivo, error, suspendido */
+  --color-danger-bg:      #fcebeb;
+  --color-danger-text:    #a32d2d;
+  --color-info:           #185fa5;   /* Azul info */
+  --color-info-bg:        #e6f1fb;
+  --color-info-text:      #0c447c;
+  /* --- Colores de íconos / secciones --- */
+  --icon-bg-blue:         #e6f1fb;
+  --icon-bg-green:        #eaf3de;
+  --icon-bg-amber:        #faeeda;
+  --icon-bg-purple:       #eeedfe;
+  --icon-bg-teal:         #e1f5ee;
+  --icon-bg-red:          #fcebeb;
+ 
+  /* --- Sombras --- */
+  --shadow-sm:   0 2px 8px  rgba(26, 45, 90, 0.08);
+  --shadow-md:   0 4px 16px rgba(26, 45, 90, 0.12);
+  --shadow-lg:   0 8px 32px rgba(26, 45, 90, 0.18);
+  --shadow-card: 0 6px 24px rgba(26, 45, 90, 0.10);
+ 
+  /* --- Bordes redondeados --- */
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   14px;
+  --radius-pill: 20px;
+ 
+  /* --- Tipografía --- */
+  --font-base:   "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+  --font-size-xs:   11px;
+  --font-size-sm:   13px;
+  --font-size-md:   15px;
+  --font-size-base: 16px;
+  --font-size-lg:   18px;
+  --font-size-xl:   22px;
+  --font-size-2xl:  26px;
+  --font-size-3xl:  32px;
+  --font-size-hero: 40px;
+ 
+  /* --- Espaciado --- */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+ 
+  /* --- Transiciones --- */
+  --transition-fast:   0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow:   0.3s ease;
+ 
+  /* --- Altura del header (útil para calcular offsets) --- */
+  --header-height: 64px;
+}
