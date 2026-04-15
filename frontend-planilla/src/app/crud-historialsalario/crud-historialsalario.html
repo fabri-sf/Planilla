@@ -8,8 +8,8 @@
     </div>
   </div>
   <div class="page-header-right">
-    <button class="btn-add">+ Nuevo registro</button>
-    <button class="btn-close" title="Cerrar">✕</button>
+    <button type="button" class="btn-add" (click)="abrirCrear()">+ Nuevo registro</button>
+    <button type="button" class="btn-close" title="Cerrar">✕</button>
   </div>
 </div>
 
@@ -35,6 +35,71 @@
       </tr>
     </thead>
     <tbody>
+      @for (item of lista(); track item.id) {
+      <tr>
+        <td>{{ item.id }}</td>
+        <td>{{ item.empleadoId }}</td>
+        <td>₡{{ item.salarioAnterior }}</td>
+        <td>₡{{ item.salarioNuevo }}</td>
+        <td>{{ item.fechaCambio }}</td>
+        <td>{{ item.motivo }}</td>
+        <td>{{ item.autorizadoPor }}</td>
+        <td>
+          <div class="actions">
+            <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
+          </div>
+        </td>
+      </tr>
+      }
     </tbody>
   </table>
 </div>
+
+<!-- ===== MODAL CREAR / EDITAR ===== -->
+@if (mostrandoModal) {
+<div class="modal-overlay" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-group">
+        <div class="modal-icon">📈</div>
+        <div>
+          <p class="modal-title">{{ modoEditar ? 'Editar historial' : 'Nuevo historial' }}</p>
+          <p class="modal-subtitle">Gestión de cambios salariales</p>
+        </div>
+      </div>
+      <button type="button" class="modal-close" (click)="cerrarModal()" title="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="empleadoId">ID Empleado <span class="required-mark">*</span></label>
+          <input id="empleadoId" class="form-input" type="number" [class.invalid]="enviado && !form.empleadoId" [(ngModel)]="form.empleadoId" placeholder="ID del empleado" />
+          @if (enviado && !form.empleadoId) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="salarioAnterior">Salario anterior <span class="required-mark">*</span></label>
+          <input id="salarioAnterior" class="form-input" type="number" [class.invalid]="enviado && !form.salarioAnterior" [(ngModel)]="form.salarioAnterior" placeholder="0.00" />
+          @if (enviado && !form.salarioAnterior) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="salarioNuevo">Salario nuevo <span class="required-mark">*</span></label>
+          <input id="salarioNuevo" class="form-input" type="number" [class.invalid]="enviado && !form.salarioNuevo" [(ngModel)]="form.salarioNuevo" placeholder="0.00" />
+          @if (enviado && !form.salarioNuevo) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="autorizadoPor">Autorizado por</label>
+          <input id="autorizadoPor" class="form-input" type="number" [(ngModel)]="form.autorizadoPor" placeholder="ID del autorizador" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="motivo">Motivo</label>
+          <textarea id="motivo" class="form-textarea" [(ngModel)]="form.motivo" placeholder="Motivo del cambio salarial"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
+      <button type="button" class="btn-save" (click)="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>
+}

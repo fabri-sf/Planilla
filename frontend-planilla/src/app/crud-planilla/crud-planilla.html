@@ -29,17 +29,17 @@
       </tr>
     </thead>
     <tbody>
-      @for (item of lista; track item.id) {
+      @for (item of lista(); track item.id) {
       <tr>
         <td>{{ item.id }}</td>
         <td>{{ item.periodo }}</td>
-        <td>{{ item.fecha_inicio }}</td>
-        <td>{{ item.fecha_fin }}</td>
-        <td>{{ item.fecha_pago }}</td>
-        <td><span class="badge" [class.badge-pagada]="item.estado==='Pagada'" [class.badge-pendiente]="item.estado==='Pendiente'" [class.badge-cerrada]="item.estado==='Cerrada'">{{ item.estado }}</span></td>
+        <td>{{ item.fechaInicio }}</td>
+        <td>{{ item.fechaFin }}</td>
+        <td>{{ item.fechaPago }}</td>
+        <td><span class="badge" [class.badge-pagada]="item.estado==='pagada'" [class.badge-pendiente]="item.estado==='borrador'" [class.badge-cerrada]="item.estado==='cerrada'">{{ item.estado }}</span></td>
         <td>{{ item.descripcion }}</td>
-        <td>{{ item.creado_por }}</td>
-        <td>{{ item.aprobado_por }}</td>
+        <td>{{ item.creadoPor }}</td>
+        <td>{{ item.aprobadoPor }}</td>
         <td>{{ item.creacion }}</td>
         <td>
           <div class="actions">
@@ -75,37 +75,39 @@
           @if (enviado && !form.periodo) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="fecha_inicio">Fecha inicio <span class="required-mark">*</span></label>
-          <input id="fecha_inicio" class="form-input" type="date" title="Fecha inicio" [class.invalid]="enviado && !form.fecha_inicio" [(ngModel)]="form.fecha_inicio" />
-          @if (enviado && !form.fecha_inicio) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="fechaInicio">Fecha inicio <span class="required-mark">*</span></label>
+          <input id="fechaInicio" class="form-input" type="date" title="Fecha inicio" [class.invalid]="enviado && !form.fechaInicio" [(ngModel)]="form.fechaInicio" />
+          @if (enviado && !form.fechaInicio) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="fecha_fin">Fecha fin <span class="required-mark">*</span></label>
-          <input id="fecha_fin" class="form-input" type="date" title="Fecha fin" [class.invalid]="enviado && !form.fecha_fin" [(ngModel)]="form.fecha_fin" />
-          @if (enviado && !form.fecha_fin) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="fechaFin">Fecha fin <span class="required-mark">*</span></label>
+          <input id="fechaFin" class="form-input" type="date" title="Fecha fin" [class.invalid]="enviado && !form.fechaFin" [(ngModel)]="form.fechaFin" />
+          @if (enviado && !form.fechaFin) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="fecha_pago">Fecha pago <span class="required-mark">*</span></label>
-          <input id="fecha_pago" class="form-input" type="date" title="Fecha pago" [class.invalid]="enviado && !form.fecha_pago" [(ngModel)]="form.fecha_pago" />
-          @if (enviado && !form.fecha_pago) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="fechaPago">Fecha pago <span class="required-mark">*</span></label>
+          <input id="fechaPago" class="form-input" type="date" title="Fecha pago" [class.invalid]="enviado && !form.fechaPago" [(ngModel)]="form.fechaPago" />
+          @if (enviado && !form.fechaPago) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
           <label class="form-label" for="estado">Estado <span class="required-mark">*</span></label>
           <select id="estado" class="form-select" title="Estado" [class.invalid]="enviado && !form.estado" [(ngModel)]="form.estado">
             <option value="">Seleccione...</option>
-            <option>Pendiente</option>
-            <option>Pagada</option>
-            <option>Cerrada</option>
+            <option value="borrador">borrador</option>
+            <option value="procesada">procesada</option>
+            <option value="aprobada">aprobada</option>
+            <option value="pagada">pagada</option>
+            <option value="cerrada">cerrada</option>
           </select>
           @if (enviado && !form.estado) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="creado_por">Creado por</label>
-          <input id="creado_por" class="form-input" [(ngModel)]="form.creado_por" placeholder="Usuario que crea" />
+          <label class="form-label" for="creadoPor">Creado por</label>
+          <input id="creadoPor" class="form-input" type="number" [(ngModel)]="form.creadoPor" placeholder="ID del usuario que crea" />
         </div>
         <div class="form-group">
-          <label class="form-label" for="aprobado_por">Aprobado por</label>
-          <input id="aprobado_por" class="form-input" [(ngModel)]="form.aprobado_por" placeholder="Usuario que aprueba" />
+          <label class="form-label" for="aprobadoPor">Aprobado por</label>
+          <input id="aprobadoPor" class="form-input" type="number" [(ngModel)]="form.aprobadoPor" placeholder="ID del usuario que aprueba" />
         </div>
         <div class="form-group">
           <label class="form-label" for="descripcion">Descripción</label>

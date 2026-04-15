@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 interface Planilla {
-  id: number; periodo: string; fecha_inicio: string; fecha_fin: string;
-  fecha_pago: string; estado: string; descripcion: string;
-  creado_por: string; aprobado_por: string; creacion: string;
+  id: number; periodo: string; fechaInicio: string; fechaFin: string;
+  fechaPago: string; estado: string; descripcion: string;
+  creadoPor: number; aprobadoPor: number; creacion: string;
 }
 
 @Component({
@@ -13,30 +14,50 @@ interface Planilla {
   templateUrl: './crud-planilla.html',
   styleUrl: './crud-planilla.css',
 })
-export class CrudPlanilla {
-  mostrandoModal = false;
-  modoEditar = false;
-  enviado = false;
+export class CrudPlanilla implements OnInit {
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = 'http://localhost/ServicioPlanilla/';
 
-  lista: Planilla[] = [];
-  form: any = this.formVacio();
+  protected readonly lista = signal<Planilla[]>([]);
+  protected mostrandoModal = false;
+  protected modoEditar = false;
+  protected enviado = false;
+  protected form = this.formVacio();
 
-  formVacio() {
-    return { periodo: '', fecha_inicio: '', fecha_fin: '', fecha_pago: '', estado: '', descripcion: '', creado_por: '', aprobado_por: '' };
+  ngOnInit() { this.loadPlanillas(); }
+
+  protected loadPlanillas() {
+    this.http.get<Planilla[]>(this.apiUrl + 'ReadAll').subscribe({
+      next: (data) => this.lista.set(data),
+      error: (err) => console.error('Error loading planillas', err),
+    });
   }
 
-  camposRequeridos() { return ['periodo', 'fecha_inicio', 'fecha_fin', 'fecha_pago', 'estado']; }
-
-  formValido(): boolean {
-    return this.camposRequeridos().every(c => this.form[c] !== '' && this.form[c] !== null);
+  protected formVacio() {
+    return { periodo: '', fechaInicio: '', fechaFin: '', fechaPago: '', estado: '', descripcion: '', creadoPor: 0, aprobadoPor: 0 };
   }
 
-  abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
-  abrirEditar(item: Planilla) { this.form = { ...item }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
-  cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
+  protected formValido(): boolean {
+    return this.form.periodo !== '' && this.form.fechaInicio !== '' && this.form.fechaFin !== '' && this.form.fechaPago !== '' && this.form.estado !== '';
+  }
 
-  guardar() {
+  protected abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
+  protected abrirEditar(item: Planilla) { this.form = { ...item }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
+  protected cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
+
+  protected guardar() {
     this.enviado = true;
-    if (this.formValido()) { this.cerrarModal(); }
+    if (!this.formValido()) return;
+    if (this.modoEditar) {
+      this.http.post(this.apiUrl + 'Update', this.form).subscribe({
+        next: () => { this.loadPlanillas(); this.cerrarModal(); },
+        error: (err) => console.error('Error updating planilla', err),
+      });
+    } else {
+      this.http.post(this.apiUrl + 'Create', this.form).subscribe({
+        next: () => { this.loadPlanillas(); this.cerrarModal(); },
+        error: (err) => console.error('Error creating planilla', err),
+      });
+    }
   }
 }

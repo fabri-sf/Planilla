@@ -31,7 +31,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (item of lista; track item.id) {
+      @for (item of lista(); track item.id) {
       <tr>
         <td>{{ item.id }}</td>
         <td>{{ item.cedula }}</td>
@@ -39,17 +39,17 @@
         <td>{{ item.apellido }}</td>
         <td>{{ item.email }}</td>
         <td>{{ item.telefono }}</td>
-        <td>{{ item.fecha_nacimiento }}</td>
-        <td>{{ item.fecha_ingreso }}</td>
-        <td>₡{{ item.salario_base }}</td>
-        <td><span class="badge" [class.badge-activo]="item.estado==='Activo'" [class.badge-inactivo]="item.estado==='Inactivo'" [class.badge-suspendido]="item.estado==='Suspendido'">{{ item.estado }}</span></td>
-        <td>{{ item.puesto }}</td>
-        <td>{{ item.departamento }}</td>
-        <td>{{ item.tipocontrato }}</td>
+        <td>{{ item.fechaNacimiento }}</td>
+        <td>{{ item.fechaIngreso }}</td>
+        <td>₡{{ item.salarioBase }}</td>
+        <td><span class="badge" [class.badge-activo]="item.estado==='activo'" [class.badge-inactivo]="item.estado==='inactivo'" [class.badge-suspendido]="item.estado==='suspendido'">{{ item.estado }}</span></td>
+        <td>{{ item.puestoId }}</td>
+        <td>{{ item.departamentoId }}</td>
+        <td>{{ item.tipoContratoId }}</td>
         <td>
           <div class="actions">
             <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
-            <button type="button" class="btn-delete" title="Eliminar">🗑️</button>
+            <button type="button" class="btn-delete" title="Eliminar" (click)="eliminar(item.id)">🗑️</button>
           </div>
         </td>
       </tr>
@@ -99,40 +99,40 @@
           <input id="telefono" class="form-input" [(ngModel)]="form.telefono" placeholder="8888-0000" />
         </div>
         <div class="form-group">
-          <label class="form-label" for="fecha_nacimiento">Fecha de nacimiento</label>
-          <input id="fecha_nacimiento" class="form-input" type="date" title="Fecha de nacimiento" [(ngModel)]="form.fecha_nacimiento" />
+          <label class="form-label" for="fechaNacimiento">Fecha de nacimiento</label>
+          <input id="fechaNacimiento" class="form-input" type="date" title="Fecha de nacimiento" [(ngModel)]="form.fechaNacimiento" />
         </div>
         <div class="form-group">
-          <label class="form-label" for="fecha_ingreso">Fecha de ingreso <span class="required-mark">*</span></label>
-          <input id="fecha_ingreso" class="form-input" type="date" title="Fecha de ingreso" [class.invalid]="enviado && !form.fecha_ingreso" [(ngModel)]="form.fecha_ingreso" />
-          @if (enviado && !form.fecha_ingreso) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="fechaIngreso">Fecha de ingreso <span class="required-mark">*</span></label>
+          <input id="fechaIngreso" class="form-input" type="date" title="Fecha de ingreso" [class.invalid]="enviado && !form.fechaIngreso" [(ngModel)]="form.fechaIngreso" />
+          @if (enviado && !form.fechaIngreso) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="salario_base">Salario base <span class="required-mark">*</span></label>
-          <input id="salario_base" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salario_base" [(ngModel)]="form.salario_base" placeholder="0" />
-          @if (enviado && !form.salario_base) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="salarioBase">Salario base <span class="required-mark">*</span></label>
+          <input id="salarioBase" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salarioBase" [(ngModel)]="form.salarioBase" placeholder="0" />
+          @if (enviado && !form.salarioBase) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
           <label class="form-label" for="estado">Estado <span class="required-mark">*</span></label>
           <select id="estado" class="form-select" title="Estado" [class.invalid]="enviado && !form.estado" [(ngModel)]="form.estado">
             <option value="">Seleccione...</option>
-            <option>Activo</option>
-            <option>Inactivo</option>
-            <option>Suspendido</option>
+            <option value="activo">activo</option>
+            <option value="inactivo">inactivo</option>
+            <option value="suspendido">suspendido</option>
           </select>
           @if (enviado && !form.estado) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="id_puesto">Puesto</label>
-          <input id="id_puesto" class="form-input" [(ngModel)]="form.id_puesto" placeholder="ID o nombre del puesto" />
+          <label class="form-label" for="puestoId">Puesto ID</label>
+          <input id="puestoId" class="form-input" type="number" [(ngModel)]="form.puestoId" placeholder="ID del puesto" />
         </div>
         <div class="form-group">
-          <label class="form-label" for="id_departamento">Departamento</label>
-          <input id="id_departamento" class="form-input" [(ngModel)]="form.id_departamento" placeholder="ID o nombre del departamento" />
+          <label class="form-label" for="departamentoId">Departamento ID</label>
+          <input id="departamentoId" class="form-input" type="number" [(ngModel)]="form.departamentoId" placeholder="ID del departamento" />
         </div>
         <div class="form-group">
-          <label class="form-label" for="id_tipocontrato">Tipo de contrato</label>
-          <input id="id_tipocontrato" class="form-input" [(ngModel)]="form.id_tipocontrato" placeholder="ID o tipo de contrato" />
+          <label class="form-label" for="tipoContratoId">Tipo de contrato ID</label>
+          <input id="tipoContratoId" class="form-input" type="number" [(ngModel)]="form.tipoContratoId" placeholder="ID del tipo de contrato" />
         </div>
       </div>
     </div>

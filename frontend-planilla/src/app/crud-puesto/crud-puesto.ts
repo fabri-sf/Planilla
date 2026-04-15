@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 interface Puesto {
   id: number; codigo: string; nombre: string; descripcion: string;
-  salario_minimo: number; salario_maximo: number; estado: string; creacion: string;
+  salarioMin: number; salarioMax: number; estado: string; creacion: string;
 }
 
 @Component({
@@ -12,30 +13,59 @@ interface Puesto {
   templateUrl: './crud-puesto.html',
   styleUrl: './crud-puesto.css',
 })
-export class CrudPuesto {
-  mostrandoModal = false;
-  modoEditar = false;
-  enviado = false;
+export class CrudPuesto implements OnInit {
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = 'http://localhost/ServicioPuesto/';
 
-  lista: Puesto[] = [];
-  form: any = this.formVacio();
+  protected readonly lista = signal<Puesto[]>([]);
+  protected mostrandoModal = false;
+  protected modoEditar = false;
+  protected enviado = false;
+  protected form = this.formVacio();
 
-  formVacio() {
-    return { codigo: '', nombre: '', descripcion: '', salario_minimo: '', salario_maximo: '', estado: '' };
+  ngOnInit() { this.loadPuestos(); }
+
+  protected loadPuestos() {
+    this.http.get<Puesto[]>(this.apiUrl + 'ReadAll').subscribe({
+      next: (data) => this.lista.set(data),
+      error: (err) => console.error('Error loading puestos', err),
+    });
   }
 
-  camposRequeridos() { return ['codigo', 'nombre', 'salario_minimo', 'salario_maximo', 'estado']; }
-
-  formValido(): boolean {
-    return this.camposRequeridos().every(c => this.form[c] !== '' && this.form[c] !== null);
+  protected formVacio() {
+    return { codigo: '', nombre: '', descripcion: '', salarioMin: 0, salarioMax: 0, estado: '' };
   }
 
-  abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
-  abrirEditar(item: Puesto) { this.form = { ...item }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
-  cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
+  protected formValido(): boolean {
+    return this.form.codigo !== '' && this.form.nombre !== '' && this.form.salarioMin > 0 && this.form.salarioMax > 0 && this.form.estado !== '';
+  }
 
-  guardar() {
+  protected abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
+  protected abrirEditar(item: Puesto) { this.form = { ...item }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
+  protected cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
+
+  protected guardar() {
     this.enviado = true;
-    if (this.formValido()) { this.cerrarModal(); }
+    if (!this.formValido()) return;
+    if (this.modoEditar) {
+      this.http.post(this.apiUrl + 'Update', this.form).subscribe({
+        next: () => { this.loadPuestos(); this.cerrarModal(); },
+        error: (err) => console.error('Error updating puesto', err),
+      });
+    } else {
+      this.http.post(this.apiUrl + 'Create', this.form).subscribe({
+        next: () => { this.loadPuestos(); this.cerrarModal(); },
+        error: (err) => console.error('Error creating puesto', err),
+      });
+    }
+  }
+
+  protected eliminar(id: number) {
+    if (confirm('¿Estás seguro de eliminar este puesto?')) {
+      this.http.post(this.apiUrl + 'Delete', { id }).subscribe({
+        next: () => this.loadPuestos(),
+        error: (err) => console.error('Error deleting puesto', err),
+      });
+    }
   }
 }

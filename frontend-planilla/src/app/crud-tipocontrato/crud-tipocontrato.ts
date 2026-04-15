@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 interface TipoContrato {
-  id: number; nombre: string; horas_semanales: number;
+  id: number; nombre: string; horasSemanales: number;
   descripcion: string; estado: string; creacion: string;
 }
 
@@ -12,30 +13,59 @@ interface TipoContrato {
   templateUrl: './crud-tipocontrato.html',
   styleUrl: './crud-tipocontrato.css',
 })
-export class CrudTipocontrato {
-  mostrandoModal = false;
-  modoEditar = false;
-  enviado = false;
+export class CrudTipocontrato implements OnInit {
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = 'http://localhost/ServicioTipoContrato/';
 
-  lista: TipoContrato[] = [];
-  form: any = this.formVacio();
+  protected readonly lista = signal<TipoContrato[]>([]);
+  protected mostrandoModal = false;
+  protected modoEditar = false;
+  protected enviado = false;
+  protected form = this.formVacio();
 
-  formVacio() {
-    return { nombre: '', horas_semanales: '', descripcion: '', estado: '' };
+  ngOnInit() { this.loadTiposContrato(); }
+
+  protected loadTiposContrato() {
+    this.http.get<TipoContrato[]>(this.apiUrl + 'ReadAll').subscribe({
+      next: (data) => this.lista.set(data),
+      error: (err) => console.error('Error loading tipos de contrato', err),
+    });
   }
 
-  camposRequeridos() { return ['nombre', 'horas_semanales', 'estado']; }
-
-  formValido(): boolean {
-    return this.camposRequeridos().every(c => this.form[c] !== '' && this.form[c] !== null);
+  protected formVacio() {
+    return { nombre: '', horasSemanales: 0, descripcion: '', estado: '' };
   }
 
-  abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
-  abrirEditar(item: TipoContrato) { this.form = { ...item }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
-  cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
+  protected formValido(): boolean {
+    return this.form.nombre !== '' && this.form.horasSemanales > 0 && this.form.estado !== '';
+  }
 
-  guardar() {
+  protected abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
+  protected abrirEditar(item: TipoContrato) { this.form = { ...item }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
+  protected cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
+
+  protected guardar() {
     this.enviado = true;
-    if (this.formValido()) { this.cerrarModal(); }
+    if (!this.formValido()) return;
+    if (this.modoEditar) {
+      this.http.post(this.apiUrl + 'Update', this.form).subscribe({
+        next: () => { this.loadTiposContrato(); this.cerrarModal(); },
+        error: (err) => console.error('Error updating tipo contrato', err),
+      });
+    } else {
+      this.http.post(this.apiUrl + 'Create', this.form).subscribe({
+        next: () => { this.loadTiposContrato(); this.cerrarModal(); },
+        error: (err) => console.error('Error creating tipo contrato', err),
+      });
+    }
+  }
+
+  protected eliminar(id: number) {
+    if (confirm('¿Estás seguro de eliminar este tipo de contrato?')) {
+      this.http.post(this.apiUrl + 'Delete', { id }).subscribe({
+        next: () => this.loadTiposContrato(),
+        error: (err) => console.error('Error deleting tipo contrato', err),
+      });
+    }
   }
 }

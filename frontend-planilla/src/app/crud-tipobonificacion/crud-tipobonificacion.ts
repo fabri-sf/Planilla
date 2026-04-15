@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 interface TipoBonificacion {
@@ -12,30 +13,59 @@ interface TipoBonificacion {
   templateUrl: './crud-tipobonificacion.html',
   styleUrl: './crud-tipobonificacion.css',
 })
-export class CrudTipobonificacion {
-  mostrandoModal = false;
-  modoEditar = false;
-  enviado = false;
+export class CrudTipobonificacion implements OnInit {
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = 'http://localhost/ServicioTipoBonificacion/';
 
-  lista: TipoBonificacion[] = [];
-  form: any = this.formVacio();
+  protected readonly lista = signal<TipoBonificacion[]>([]);
+  protected mostrandoModal = false;
+  protected modoEditar = false;
+  protected enviado = false;
+  protected form = this.formVacio();
 
-  formVacio() {
+  ngOnInit() { this.loadTiposBonificaciones(); }
+
+  protected loadTiposBonificaciones() {
+    this.http.get<TipoBonificacion[]>(this.apiUrl + 'ReadAll').subscribe({
+      next: (data) => this.lista.set(data),
+      error: (err) => console.error('Error loading tipos de bonificacion', err),
+    });
+  }
+
+  protected formVacio() {
     return { codigo: '', nombre: '', descripcion: '', estado: '' };
   }
 
-  camposRequeridos() { return ['codigo', 'nombre', 'estado']; }
-
-  formValido(): boolean {
-    return this.camposRequeridos().every(c => this.form[c] !== '' && this.form[c] !== null);
+  protected formValido(): boolean {
+    return this.form.codigo !== '' && this.form.nombre !== '' && this.form.estado !== '';
   }
 
-  abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
-  abrirEditar(item: TipoBonificacion) { this.form = { ...item }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
-  cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
+  protected abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
+  protected abrirEditar(item: TipoBonificacion) { this.form = { ...item }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
+  protected cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
 
-  guardar() {
+  protected guardar() {
     this.enviado = true;
-    if (this.formValido()) { this.cerrarModal(); }
+    if (!this.formValido()) return;
+    if (this.modoEditar) {
+      this.http.post(this.apiUrl + 'Update', this.form).subscribe({
+        next: () => { this.loadTiposBonificaciones(); this.cerrarModal(); },
+        error: (err) => console.error('Error updating tipo bonificacion', err),
+      });
+    } else {
+      this.http.post(this.apiUrl + 'Create', this.form).subscribe({
+        next: () => { this.loadTiposBonificaciones(); this.cerrarModal(); },
+        error: (err) => console.error('Error creating tipo bonificacion', err),
+      });
+    }
+  }
+
+  protected eliminar(id: number) {
+    if (confirm('¿Estás seguro de eliminar este tipo de bonificación?')) {
+      this.http.post(this.apiUrl + 'Delete', { id }).subscribe({
+        next: () => this.loadTiposBonificaciones(),
+        error: (err) => console.error('Error deleting tipo bonificacion', err),
+      });
+    }
   }
 }

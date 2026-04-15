@@ -8,7 +8,8 @@
     </div>
   </div>
   <div class="page-header-right">
-    <button class="btn-close" title="Cerrar">✕</button>
+    <button type="button" class="btn-add" (click)="abrirCrear()">+ Nuevo registro</button>
+    <button type="button" class="btn-close" title="Cerrar">✕</button>
   </div>
 </div>
 
@@ -24,17 +25,91 @@
     <thead>
       <tr>
         <th>ID</th>
-        <th>Empleado</th>
+        <th>Empleado ID</th>
         <th>Fecha</th>
-        <th>Hora entrada</th>
-        <th>Hora salida</th>
-        <th>Horas trabajadas</th>
-        <th>Horas extra</th>
+        <th>Hora Entrada</th>
+        <th>Hora Salida</th>
+        <th>Horas Trabajadas</th>
+        <th>Horas Extra</th>
         <th>Observaciones</th>
         <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
+      @for (item of lista(); track item.id) {
+      <tr>
+        <td>{{ item.id }}</td>
+        <td>{{ item.empleadoId }}</td>
+        <td>{{ item.fecha }}</td>
+        <td>{{ item.horaEntrada }}</td>
+        <td>{{ item.horaSalida }}</td>
+        <td>{{ item.horasTrabajadas }}</td>
+        <td>{{ item.horasExtras }}</td>
+        <td>{{ item.observaciones }}</td>
+        <td>
+          <div class="actions">
+            <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
+            <button type="button" class="btn-delete" title="Eliminar" (click)="eliminar(item.id)">🗑️</button>
+          </div>
+        </td>
+      </tr>
+      }
     </tbody>
   </table>
 </div>
+
+<!-- ===== MODAL CREAR / EDITAR ===== -->
+@if (mostrandoModal) {
+<div class="modal-overlay" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-group">
+        <div class="modal-icon">🕐</div>
+        <div>
+          <p class="modal-title">{{ modoEditar ? 'Editar asistencia' : 'Nueva asistencia' }}</p>
+          <p class="modal-subtitle">Gestión de registros de asistencia</p>
+        </div>
+      </div>
+      <button type="button" class="modal-close" (click)="cerrarModal()" title="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="empleadoId">Empleado ID <span class="required-mark">*</span></label>
+          <input id="empleadoId" type="number" class="form-input" [(ngModel)]="form.empleadoId" placeholder="ID del empleado" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="fecha">Fecha <span class="required-mark">*</span></label>
+          <input id="fecha" type="date" class="form-input" [(ngModel)]="form.fecha" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="horaEntrada">Hora Entrada <span class="required-mark">*</span></label>
+          <input id="horaEntrada" type="time" class="form-input" [(ngModel)]="form.horaEntrada" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="horaSalida">Hora Salida</label>
+          <input id="horaSalida" type="time" class="form-input" [(ngModel)]="form.horaSalida" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="horasTrabajadas">Horas Trabajadas</label>
+          <input id="horasTrabajadas" type="number" step="0.01" class="form-input" [(ngModel)]="form.horasTrabajadas" placeholder="Ej: 8.00" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="horasExtras">Horas Extra</label>
+          <input id="horasExtras" type="number" step="0.01" class="form-input" [(ngModel)]="form.horasExtras" placeholder="Ej: 0.00" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="observaciones">Observaciones</label>
+          <textarea id="observaciones" class="form-textarea" [(ngModel)]="form.observaciones" placeholder="Observaciones opcionales"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
+      <button type="button" class="btn-save" (click)="guardar()">
+        {{ modoEditar ? 'Guardar cambios' : 'Crear registro' }}
+      </button>
+    </div>
+  </div>
+</div>
+}

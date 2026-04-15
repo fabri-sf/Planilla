@@ -29,20 +29,20 @@
       </tr>
     </thead>
     <tbody>
-      @for (item of lista; track item.id) {
+      @for (item of lista(); track item.id) {
       <tr>
         <td>{{ item.id }}</td>
         <td>{{ item.codigo }}</td>
         <td>{{ item.nombre }}</td>
         <td>{{ item.porcentaje }}%</td>
-        <td>₡{{ item.monto_fijo }}</td>
+        <td>₡{{ item.montoFijo }}</td>
         <td><span class="badge" [class.badge-activo]="item.obligatorio" [class.badge-inactivo]="!item.obligatorio">{{ item.obligatorio ? 'Sí' : 'No' }}</span></td>
-        <td><span class="badge" [class.badge-activo]="item.estado==='Activo'" [class.badge-inactivo]="item.estado==='Inactivo'">{{ item.estado }}</span></td>
+        <td><span class="badge" [class.badge-activo]="item.estado==='activo'" [class.badge-inactivo]="item.estado==='inactivo'">{{ item.estado }}</span></td>
         <td>{{ item.creacion }}</td>
         <td>
           <div class="actions">
             <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
-            <button type="button" class="btn-delete" title="Eliminar">🗑️</button>
+            <button type="button" class="btn-delete" title="Eliminar" (click)="eliminar(item.id)">🗑️</button>
           </div>
         </td>
       </tr>
@@ -82,15 +82,15 @@
           <input id="porcentaje" class="form-input" type="number" min="0" max="100" [(ngModel)]="form.porcentaje" placeholder="0" />
         </div>
         <div class="form-group">
-          <label class="form-label" for="monto_fijo">Monto fijo (₡)</label>
-          <input id="monto_fijo" class="form-input" type="number" min="0" [(ngModel)]="form.monto_fijo" placeholder="0" />
+          <label class="form-label" for="montoFijo">Monto fijo (₡)</label>
+          <input id="montoFijo" class="form-input" type="number" min="0" [(ngModel)]="form.montoFijo" placeholder="0" />
         </div>
         <div class="form-group">
           <label class="form-label" for="estado">Estado <span class="required-mark">*</span></label>
           <select id="estado" class="form-select" title="Estado" [class.invalid]="enviado && !form.estado" [(ngModel)]="form.estado">
             <option value="">Seleccione...</option>
-            <option>Activo</option>
-            <option>Inactivo</option>
+            <option value="activo">activo</option>
+            <option value="inactivo">inactivo</option>
           </select>
           @if (enviado && !form.estado) { <span class="form-error">Campo obligatorio</span> }
         </div>

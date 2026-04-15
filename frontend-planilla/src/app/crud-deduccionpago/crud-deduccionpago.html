@@ -24,21 +24,26 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>ID</th><th>Pago</th><th>Tipo deducción</th><th>Monto</th><th>Observaciones</th><th>Acciones</th>
+        <th>ID</th>
+        <th>Pago ID</th>
+        <th>Tipo Deducción ID</th>
+        <th>Monto</th>
+        <th>Observaciones</th>
+        <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
-      @for (item of lista; track item.id) {
+      @for (item of lista(); track item.id) {
       <tr>
         <td>{{ item.id }}</td>
-        <td>{{ item.pago }}</td>
-        <td>{{ item.tipo_deduccion }}</td>
+        <td>{{ item.pagoId }}</td>
+        <td>{{ item.tipoDeduccionId }}</td>
         <td>₡{{ item.monto }}</td>
         <td>{{ item.observaciones }}</td>
         <td>
           <div class="actions">
             <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
-            <button type="button" class="btn-delete" title="Eliminar">🗑️</button>
+             <button type="button" class="btn-delete" title="Eliminar" (click)="eliminar(item.id)">🗑️</button>
           </div>
         </td>
       </tr>
@@ -64,18 +69,18 @@
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-group">
-          <label class="form-label" for="id_pago">Pago <span class="required-mark">*</span></label>
-          <input id="id_pago" class="form-input" [class.invalid]="enviado && !form.id_pago" [(ngModel)]="form.id_pago" placeholder="ID del pago" />
-          @if (enviado && !form.id_pago) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="pagoId">Pago ID <span class="required-mark">*</span></label>
+          <input id="pagoId" type="number" class="form-input" [class.invalid]="enviado && !form.pagoId" [(ngModel)]="form.pagoId" placeholder="ID del pago" />
+          @if (enviado && !form.pagoId) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="id_tipodeduccion">Tipo de deducción <span class="required-mark">*</span></label>
-          <input id="id_tipodeduccion" class="form-input" [class.invalid]="enviado && !form.id_tipodeduccion" [(ngModel)]="form.id_tipodeduccion" placeholder="ID o nombre del tipo" />
-          @if (enviado && !form.id_tipodeduccion) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="tipoDeduccionId">Tipo Deducción ID <span class="required-mark">*</span></label>
+          <input id="tipoDeduccionId" type="number" class="form-input" [class.invalid]="enviado && !form.tipoDeduccionId" [(ngModel)]="form.tipoDeduccionId" placeholder="ID del tipo de deducción" />
+          @if (enviado && !form.tipoDeduccionId) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
           <label class="form-label" for="monto">Monto (₡) <span class="required-mark">*</span></label>
-          <input id="monto" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.monto" [(ngModel)]="form.monto" placeholder="0" />
+          <input id="monto" type="number" min="0" class="form-input" [class.invalid]="enviado && !form.monto" [(ngModel)]="form.monto" placeholder="0" />
           @if (enviado && !form.monto) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
@@ -86,7 +91,9 @@
     </div>
     <div class="modal-footer">
       <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
-      <button type="button" class="btn-save" (click)="guardar()">Guardar</button>
+      <button type="button" class="btn-save" (click)="guardar()">
+        {{ modoEditar ? 'Guardar cambios' : 'Crear registro' }}
+      </button>
     </div>
   </div>
 </div>

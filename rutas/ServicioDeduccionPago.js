@@ -85,4 +85,23 @@ Router.post("/Edit", async (solicitud, respuesta, next) => {
 
 
 
+// ================= DELETE =================
+/*Router.post("/Delete", async (solicitud, respuesta, next) => {
+  return respuesta.json(await ServicioDeduccionPago.Delete(solicitud.body));
+});*/
+
+Router.post("/Delete", async (solicitud, respuesta, next) => {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(
+        await ServicioDeduccionPago.Delete(solicitud.body)
+      );
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
+});
+
 module.exports = Router;
