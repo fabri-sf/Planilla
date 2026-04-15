@@ -29,20 +29,20 @@
       </tr>
     </thead>
     <tbody>
-      @for (item of lista; track item.id) {
+      @for (item of lista(); track item.id) {
       <tr>
         <td>{{ item.id }}</td>
         <td>{{ item.codigo }}</td>
         <td>{{ item.nombre }}</td>
         <td>{{ item.descripcion }}</td>
-        <td>₡{{ item.salario_minimo }}</td>
-        <td>₡{{ item.salario_maximo }}</td>
-        <td><span class="badge" [class.badge-activo]="item.estado==='Activo'" [class.badge-inactivo]="item.estado==='Inactivo'">{{ item.estado }}</span></td>
+        <td>₡{{ item.salarioMin }}</td>
+        <td>₡{{ item.salarioMax }}</td>
+        <td><span class="badge" [class.badge-activo]="item.estado==='activo'" [class.badge-inactivo]="item.estado==='inactivo'">{{ item.estado }}</span></td>
         <td>{{ item.creacion }}</td>
         <td>
           <div class="actions">
             <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
-            <button type="button" class="btn-delete" title="Eliminar">🗑️</button>
+            <button type="button" class="btn-delete" title="Eliminar" (click)="eliminar(item.id)">🗑️</button>
           </div>
         </td>
       </tr>
@@ -78,21 +78,21 @@
           @if (enviado && !form.nombre) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="salario_minimo">Salario mínimo <span class="required-mark">*</span></label>
-          <input id="salario_minimo" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salario_minimo" [(ngModel)]="form.salario_minimo" placeholder="0" />
-          @if (enviado && !form.salario_minimo) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="salarioMin">Salario mínimo <span class="required-mark">*</span></label>
+          <input id="salarioMin" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salarioMin" [(ngModel)]="form.salarioMin" placeholder="0" />
+          @if (enviado && !form.salarioMin) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="salario_maximo">Salario máximo <span class="required-mark">*</span></label>
-          <input id="salario_maximo" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salario_maximo" [(ngModel)]="form.salario_maximo" placeholder="0" />
-          @if (enviado && !form.salario_maximo) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="salarioMax">Salario máximo <span class="required-mark">*</span></label>
+          <input id="salarioMax" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salarioMax" [(ngModel)]="form.salarioMax" placeholder="0" />
+          @if (enviado && !form.salarioMax) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
           <label class="form-label" for="estado">Estado <span class="required-mark">*</span></label>
           <select id="estado" class="form-select" title="Estado" [class.invalid]="enviado && !form.estado" [(ngModel)]="form.estado">
             <option value="">Seleccione...</option>
-            <option>Activo</option>
-            <option>Inactivo</option>
+            <option value="activo">activo</option>
+            <option value="inactivo">inactivo</option>
           </select>
           @if (enviado && !form.estado) { <span class="form-error">Campo obligatorio</span> }
         </div>

@@ -24,26 +24,26 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>ID</th><th>Empleado</th><th>Planilla</th><th>Salario base</th>
+        <th>ID</th><th>Empleado ID</th><th>Planilla ID</th><th>Salario base</th>
         <th>Días trabajados</th><th>Días esperados</th><th>Horas extra</th>
         <th>Total bruto</th><th>Total deducciones</th><th>Total bonificaciones</th>
         <th>Salario neto</th><th>Observaciones</th><th>Fecha</th><th>Acciones</th>
       </tr>
     </thead>
     <tbody>
-      @for (item of lista; track item.id) {
+      @for (item of lista(); track item.id) {
       <tr>
         <td>{{ item.id }}</td>
-        <td>{{ item.empleado }}</td>
-        <td>{{ item.planilla }}</td>
-        <td>₡{{ item.salario_base }}</td>
-        <td>{{ item.dias_trabajados }}</td>
-        <td>{{ item.dias_esperados }}</td>
-        <td>{{ item.horas_extra }}</td>
-        <td>₡{{ item.total_bruto }}</td>
-        <td>₡{{ item.total_deducciones }}</td>
-        <td>₡{{ item.total_bonificaciones }}</td>
-        <td>₡{{ item.salario_neto }}</td>
+        <td>{{ item.empleadoId }}</td>
+        <td>{{ item.planillaId }}</td>
+        <td>₡{{ item.salarioBase }}</td>
+        <td>{{ item.diasTrabajados }}</td>
+        <td>{{ item.diasEsperados }}</td>
+        <td>{{ item.horasExtras }}</td>
+        <td>₡{{ item.totalBruto }}</td>
+        <td>₡{{ item.totalDeducciones }}</td>
+        <td>₡{{ item.totalBonificaciones }}</td>
+        <td>₡{{ item.salarioNeto }}</td>
         <td>{{ item.observaciones }}</td>
         <td>{{ item.fecha }}</td>
         <td>
@@ -75,50 +75,50 @@
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-group">
-          <label class="form-label" for="id_empleado">Empleado <span class="required-mark">*</span></label>
-          <input id="id_empleado" class="form-input" [class.invalid]="enviado && !form.id_empleado" [(ngModel)]="form.id_empleado" placeholder="ID o nombre del empleado" />
-          @if (enviado && !form.id_empleado) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="empleadoId">Empleado ID <span class="required-mark">*</span></label>
+          <input id="empleadoId" class="form-input" type="number" [class.invalid]="enviado && !form.empleadoId" [(ngModel)]="form.empleadoId" placeholder="ID del empleado" />
+          @if (enviado && !form.empleadoId) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="id_planilla">Planilla <span class="required-mark">*</span></label>
-          <input id="id_planilla" class="form-input" [class.invalid]="enviado && !form.id_planilla" [(ngModel)]="form.id_planilla" placeholder="ID o período de la planilla" />
-          @if (enviado && !form.id_planilla) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="planillaId">Planilla ID <span class="required-mark">*</span></label>
+          <input id="planillaId" class="form-input" type="number" [class.invalid]="enviado && !form.planillaId" [(ngModel)]="form.planillaId" placeholder="ID de la planilla" />
+          @if (enviado && !form.planillaId) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="salario_base">Salario base <span class="required-mark">*</span></label>
-          <input id="salario_base" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salario_base" [(ngModel)]="form.salario_base" placeholder="0" />
-          @if (enviado && !form.salario_base) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="salarioBase">Salario base <span class="required-mark">*</span></label>
+          <input id="salarioBase" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salarioBase" [(ngModel)]="form.salarioBase" placeholder="0" />
+          @if (enviado && !form.salarioBase) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="dias_trabajados">Días trabajados <span class="required-mark">*</span></label>
-          <input id="dias_trabajados" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.dias_trabajados" [(ngModel)]="form.dias_trabajados" placeholder="0" />
-          @if (enviado && !form.dias_trabajados) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="diasTrabajados">Días trabajados <span class="required-mark">*</span></label>
+          <input id="diasTrabajados" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.diasTrabajados" [(ngModel)]="form.diasTrabajados" placeholder="0" />
+          @if (enviado && !form.diasTrabajados) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="dias_esperados">Días esperados <span class="required-mark">*</span></label>
-          <input id="dias_esperados" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.dias_esperados" [(ngModel)]="form.dias_esperados" placeholder="0" />
-          @if (enviado && !form.dias_esperados) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="diasEsperados">Días esperados <span class="required-mark">*</span></label>
+          <input id="diasEsperados" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.diasEsperados" [(ngModel)]="form.diasEsperados" placeholder="0" />
+          @if (enviado && !form.diasEsperados) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="horas_extra">Horas extra</label>
-          <input id="horas_extra" class="form-input" type="number" min="0" [(ngModel)]="form.horas_extra" placeholder="0" />
+          <label class="form-label" for="horasExtras">Horas extra</label>
+          <input id="horasExtras" class="form-input" type="number" min="0" [(ngModel)]="form.horasExtras" placeholder="0" />
         </div>
         <div class="form-group">
-          <label class="form-label" for="total_bruto">Total bruto</label>
-          <input id="total_bruto" class="form-input" type="number" min="0" [(ngModel)]="form.total_bruto" placeholder="0" />
+          <label class="form-label" for="totalBruto">Total bruto</label>
+          <input id="totalBruto" class="form-input" type="number" min="0" [(ngModel)]="form.totalBruto" placeholder="0" />
         </div>
         <div class="form-group">
-          <label class="form-label" for="total_deducciones">Total deducciones</label>
-          <input id="total_deducciones" class="form-input" type="number" min="0" [(ngModel)]="form.total_deducciones" placeholder="0" />
+          <label class="form-label" for="totalDeducciones">Total deducciones</label>
+          <input id="totalDeducciones" class="form-input" type="number" min="0" [(ngModel)]="form.totalDeducciones" placeholder="0" />
         </div>
         <div class="form-group">
-          <label class="form-label" for="total_bonificaciones">Total bonificaciones</label>
-          <input id="total_bonificaciones" class="form-input" type="number" min="0" [(ngModel)]="form.total_bonificaciones" placeholder="0" />
+          <label class="form-label" for="totalBonificaciones">Total bonificaciones</label>
+          <input id="totalBonificaciones" class="form-input" type="number" min="0" [(ngModel)]="form.totalBonificaciones" placeholder="0" />
         </div>
         <div class="form-group">
-          <label class="form-label" for="salario_neto">Salario neto <span class="required-mark">*</span></label>
-          <input id="salario_neto" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salario_neto" [(ngModel)]="form.salario_neto" placeholder="0" />
-          @if (enviado && !form.salario_neto) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="salarioNeto">Salario neto <span class="required-mark">*</span></label>
+          <input id="salarioNeto" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salarioNeto" [(ngModel)]="form.salarioNeto" placeholder="0" />
+          @if (enviado && !form.salarioNeto) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
           <label class="form-label" for="observaciones">Observaciones</label>

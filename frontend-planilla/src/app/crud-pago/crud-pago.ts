@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 interface Pago {
-  id: number; empleado: string; planilla: string; salario_base: number;
-  dias_trabajados: number; dias_esperados: number; horas_extra: number;
-  total_bruto: number; total_deducciones: number; total_bonificaciones: number;
-  salario_neto: number; observaciones: string; fecha: string;
+  id: number; empleadoId: number; planillaId: number; salarioBase: number;
+  diasTrabajados: number; diasEsperados: number; horasExtras: number;
+  totalBruto: number; totalDeducciones: number; totalBonificaciones: number;
+  salarioNeto: number; observaciones: string; fecha: string;
 }
 
 @Component({
@@ -14,30 +15,50 @@ interface Pago {
   templateUrl: './crud-pago.html',
   styleUrl: './crud-pago.css',
 })
-export class CrudPago {
-  mostrandoModal = false;
-  modoEditar = false;
-  enviado = false;
+export class CrudPago implements OnInit {
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = 'http://localhost/ServicioPago/';
 
-  lista: Pago[] = [];
-  form: any = this.formVacio();
+  protected readonly lista = signal<Pago[]>([]);
+  protected mostrandoModal = false;
+  protected modoEditar = false;
+  protected enviado = false;
+  protected form = this.formVacio();
 
-  formVacio() {
-    return { id_empleado: '', id_planilla: '', salario_base: '', dias_trabajados: '', dias_esperados: '', horas_extra: '', total_bruto: '', total_deducciones: '', total_bonificaciones: '', salario_neto: '', observaciones: '' };
+  ngOnInit() { this.loadPagos(); }
+
+  protected loadPagos() {
+    this.http.get<Pago[]>(this.apiUrl + 'ReadAll').subscribe({
+      next: (data) => this.lista.set(data),
+      error: (err) => console.error('Error loading pagos', err),
+    });
   }
 
-  camposRequeridos() { return ['id_empleado', 'id_planilla', 'salario_base', 'dias_trabajados', 'dias_esperados', 'salario_neto']; }
-
-  formValido(): boolean {
-    return this.camposRequeridos().every(c => this.form[c] !== '' && this.form[c] !== null);
+  protected formVacio() {
+    return { empleadoId: 0, planillaId: 0, salarioBase: 0, diasTrabajados: 0, diasEsperados: 0, horasExtras: 0, totalBruto: 0, totalDeducciones: 0, totalBonificaciones: 0, salarioNeto: 0, observaciones: '' };
   }
 
-  abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
-  abrirEditar(item: Pago) { this.form = { ...item, id_empleado: item.empleado, id_planilla: item.planilla }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
-  cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
+  protected formValido(): boolean {
+    return this.form.empleadoId > 0 && this.form.planillaId > 0 && this.form.salarioBase > 0 && this.form.diasTrabajados > 0 && this.form.diasEsperados > 0;
+  }
 
-  guardar() {
+  protected abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
+  protected abrirEditar(item: Pago) { this.form = { ...item }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
+  protected cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
+
+  protected guardar() {
     this.enviado = true;
-    if (this.formValido()) { this.cerrarModal(); }
+    if (!this.formValido()) return;
+    if (this.modoEditar) {
+      this.http.post(this.apiUrl + 'Update', this.form).subscribe({
+        next: () => { this.loadPagos(); this.cerrarModal(); },
+        error: (err) => console.error('Error updating pago', err),
+      });
+    } else {
+      this.http.post(this.apiUrl + 'Create', this.form).subscribe({
+        next: () => { this.loadPagos(); this.cerrarModal(); },
+        error: (err) => console.error('Error creating pago', err),
+      });
+    }
   }
 }

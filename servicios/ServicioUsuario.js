@@ -13,8 +13,7 @@ class ServicioUsuario {
 }
 
   async ReadAll() {
-    return await ejecutarConsulta( "SELECT id, nombreUsuario, correo, rol, empleadoId, estado, ultimoAcceso, creacion FROM USUARIO WHERE id = ?",
-   );
+    return await ejecutarConsulta("SELECT id, nombreUsuario, correo, rol, empleadoId, estado, ultimoAcceso, creacion FROM USUARIO");
   }
 
   async Create(datos) {

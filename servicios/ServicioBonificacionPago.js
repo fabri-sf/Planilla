@@ -41,7 +41,7 @@ class ServicioBonificacionPago {
 
   async Delete(datos) {
     return await ejecutarConsulta(
-      "UPDATE BONIFICACION_PAGO SET estado = CASE WHEN estado = 'activo' THEN 'inactivo' ELSE 'activo' END WHERE id = ?",
+      "DELETE FROM BONIFICACION_PAGO WHERE id = ?",
       [datos.id],
     );
   }

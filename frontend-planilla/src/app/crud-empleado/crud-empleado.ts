@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 interface Empleado {
   id: number; cedula: string; nombre: string; apellido: string;
-  email: string; telefono: string; fecha_nacimiento: string;
-  fecha_ingreso: string; salario_base: number; estado: string;
-  puesto: string; departamento: string; tipocontrato: string;
+  email: string; telefono: string; fechaNacimiento: string;
+  fechaIngreso: string; salarioBase: number; estado: string;
+  puestoId: number; departamentoId: number; tipoContratoId: number;
 }
 
 @Component({
@@ -14,32 +15,59 @@ interface Empleado {
   templateUrl: './crud-empleado.html',
   styleUrl: './crud-empleado.css',
 })
-export class CrudEmpleado {
-  mostrandoModal = false;
-  modoEditar = false;
-  enviado = false;
+export class CrudEmpleado implements OnInit {
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = 'http://localhost/ServicioEmpleado/';
 
-  lista: Empleado[] = [];
-  form: any = this.formVacio();
+  protected readonly lista = signal<Empleado[]>([]);
+  protected mostrandoModal = false;
+  protected modoEditar = false;
+  protected enviado = false;
+  protected form = this.formVacio();
 
-  formVacio() {
-    return { cedula: '', nombre: '', apellido: '', email: '', telefono: '', fecha_nacimiento: '', fecha_ingreso: '', salario_base: '', estado: '', id_puesto: '', id_departamento: '', id_tipocontrato: '' };
+  ngOnInit() { this.loadEmpleados(); }
+
+  protected loadEmpleados() {
+    this.http.get<Empleado[]>(this.apiUrl + 'ReadAll').subscribe({
+      next: (data) => this.lista.set(data),
+      error: (err) => console.error('Error loading empleados', err),
+    });
   }
 
-  camposRequeridos() {
-    return ['cedula', 'nombre', 'apellido', 'email', 'fecha_ingreso', 'salario_base', 'estado'];
+  protected formVacio() {
+    return { cedula: '', nombre: '', apellido: '', email: '', telefono: '', fechaNacimiento: '', fechaIngreso: '', salarioBase: 0, estado: '', puestoId: 0, departamentoId: 0, tipoContratoId: 0 };
   }
 
-  formValido(): boolean {
-    return this.camposRequeridos().every(c => this.form[c] !== '' && this.form[c] !== null && this.form[c] !== undefined);
+  protected formValido(): boolean {
+    return this.form.cedula !== '' && this.form.nombre !== '' && this.form.apellido !== '' && this.form.email !== '' && this.form.fechaIngreso !== '' && this.form.salarioBase > 0 && this.form.estado !== '';
   }
 
-  abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
-  abrirEditar(item: Empleado) { this.form = { ...item, id_puesto: item.puesto, id_departamento: item.departamento, id_tipocontrato: item.tipocontrato }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
-  cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
+  protected abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
+  protected abrirEditar(item: Empleado) { this.form = { ...item }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
+  protected cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
 
-  guardar() {
+  protected guardar() {
     this.enviado = true;
-    if (this.formValido()) { this.cerrarModal(); }
+    if (!this.formValido()) return;
+    if (this.modoEditar) {
+      this.http.post(this.apiUrl + 'Update', this.form).subscribe({
+        next: () => { this.loadEmpleados(); this.cerrarModal(); },
+        error: (err) => console.error('Error updating empleado', err),
+      });
+    } else {
+      this.http.post(this.apiUrl + 'Create', this.form).subscribe({
+        next: () => { this.loadEmpleados(); this.cerrarModal(); },
+        error: (err) => console.error('Error creating empleado', err),
+      });
+    }
+  }
+
+  protected eliminar(id: number) {
+    if (confirm('¿Estás seguro de eliminar este empleado?')) {
+      this.http.post(this.apiUrl + 'Delete', { id }).subscribe({
+        next: () => this.loadEmpleados(),
+        error: (err) => console.error('Error deleting empleado', err),
+      });
+    }
   }
 }

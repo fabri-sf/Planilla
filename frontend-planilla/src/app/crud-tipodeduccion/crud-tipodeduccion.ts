@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 interface TipoDeduccion {
   id: number; codigo: string; nombre: string; porcentaje: number;
-  monto_fijo: number; obligatorio: boolean; estado: string; creacion: string;
+  montoFijo: number; obligatorio: boolean; estado: string; creacion: string;
 }
 
 @Component({
@@ -12,30 +13,59 @@ interface TipoDeduccion {
   templateUrl: './crud-tipodeduccion.html',
   styleUrl: './crud-tipodeduccion.css',
 })
-export class CrudTipodeduccion {
-  mostrandoModal = false;
-  modoEditar = false;
-  enviado = false;
+export class CrudTipodeduccion implements OnInit {
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = 'http://localhost/ServicioTipoDeduccion/';
 
-  lista: TipoDeduccion[] = [];
-  form: any = this.formVacio();
+  protected readonly lista = signal<TipoDeduccion[]>([]);
+  protected mostrandoModal = false;
+  protected modoEditar = false;
+  protected enviado = false;
+  protected form = this.formVacio();
 
-  formVacio() {
-    return { codigo: '', nombre: '', porcentaje: '', monto_fijo: '', obligatorio: false, estado: '' };
+  ngOnInit() { this.loadTiposDeducciones(); }
+
+  protected loadTiposDeducciones() {
+    this.http.get<TipoDeduccion[]>(this.apiUrl + 'ReadAll').subscribe({
+      next: (data) => this.lista.set(data),
+      error: (err) => console.error('Error loading tipos de deduccion', err),
+    });
   }
 
-  camposRequeridos() { return ['codigo', 'nombre', 'estado']; }
-
-  formValido(): boolean {
-    return this.camposRequeridos().every(c => this.form[c] !== '' && this.form[c] !== null);
+  protected formVacio() {
+    return { codigo: '', nombre: '', porcentaje: 0, montoFijo: 0, obligatorio: false, estado: '' };
   }
 
-  abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
-  abrirEditar(item: TipoDeduccion) { this.form = { ...item }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
-  cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
+  protected formValido(): boolean {
+    return this.form.codigo !== '' && this.form.nombre !== '' && this.form.estado !== '';
+  }
 
-  guardar() {
+  protected abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
+  protected abrirEditar(item: TipoDeduccion) { this.form = { ...item }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
+  protected cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
+
+  protected guardar() {
     this.enviado = true;
-    if (this.formValido()) { this.cerrarModal(); }
+    if (!this.formValido()) return;
+    if (this.modoEditar) {
+      this.http.post(this.apiUrl + 'Update', this.form).subscribe({
+        next: () => { this.loadTiposDeducciones(); this.cerrarModal(); },
+        error: (err) => console.error('Error updating tipo deduccion', err),
+      });
+    } else {
+      this.http.post(this.apiUrl + 'Create', this.form).subscribe({
+        next: () => { this.loadTiposDeducciones(); this.cerrarModal(); },
+        error: (err) => console.error('Error creating tipo deduccion', err),
+      });
+    }
+  }
+
+  protected eliminar(id: number) {
+    if (confirm('¿Estás seguro de eliminar este tipo de deducción?')) {
+      this.http.post(this.apiUrl + 'Delete', { id }).subscribe({
+        next: () => this.loadTiposDeducciones(),
+        error: (err) => console.error('Error deleting tipo deduccion', err),
+      });
+    }
   }
 }

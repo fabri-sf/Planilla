@@ -24,25 +24,25 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>ID</th><th>Usuario</th><th>Correo</th><th>Rol</th><th>Empleado</th>
+        <th>ID</th><th>Usuario</th><th>Correo</th><th>Rol</th><th>Empleado ID</th>
         <th>Estado</th><th>Último acceso</th><th>Creación</th><th>Acciones</th>
       </tr>
     </thead>
     <tbody>
-      @for (item of lista; track item.id) {
+      @for (item of lista(); track item.id) {
       <tr>
         <td>{{ item.id }}</td>
-        <td>{{ item.nombre_usuario }}</td>
+        <td>{{ item.nombreUsuario }}</td>
         <td>{{ item.correo }}</td>
-        <td><span class="badge" [class.badge-admin]="item.rol==='Administrador'" [class.badge-gerente]="item.rol==='Gerente'" [class.badge-empleado]="item.rol==='Empleado'">{{ item.rol }}</span></td>
-        <td>{{ item.empleado }}</td>
-        <td><span class="badge" [class.badge-activo]="item.estado==='Activo'" [class.badge-inactivo]="item.estado==='Inactivo'">{{ item.estado }}</span></td>
-        <td>{{ item.ultimo_acceso }}</td>
+        <td><span class="badge" [class.badge-admin]="item.rol==='admin'" [class.badge-gerente]="item.rol==='gerente'" [class.badge-empleado]="item.rol==='empleado'">{{ item.rol }}</span></td>
+        <td>{{ item.empleadoId }}</td>
+        <td><span class="badge" [class.badge-activo]="item.estado==='activo'" [class.badge-inactivo]="item.estado==='inactivo'">{{ item.estado }}</span></td>
+        <td>{{ item.ultimoAcceso }}</td>
         <td>{{ item.creacion }}</td>
         <td>
           <div class="actions">
             <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
-            <button type="button" class="btn-delete" title="Eliminar">🗑️</button>
+            <button type="button" class="btn-delete" title="Eliminar" (click)="eliminar(item.id)">🗑️</button>
           </div>
         </td>
       </tr>
@@ -68,9 +68,9 @@
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-group">
-          <label class="form-label" for="nombre_usuario">Usuario <span class="required-mark">*</span></label>
-          <input id="nombre_usuario" class="form-input" [class.invalid]="enviado && !form.nombre_usuario" [(ngModel)]="form.nombre_usuario" placeholder="Nombre de usuario" />
-          @if (enviado && !form.nombre_usuario) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="nombreUsuario">Usuario <span class="required-mark">*</span></label>
+          <input id="nombreUsuario" class="form-input" [class.invalid]="enviado && !form.nombreUsuario" [(ngModel)]="form.nombreUsuario" placeholder="Nombre de usuario" />
+          @if (enviado && !form.nombreUsuario) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
           <label class="form-label" for="correo">Correo <span class="required-mark">*</span></label>
@@ -85,22 +85,22 @@
           <label class="form-label" for="rol">Rol <span class="required-mark">*</span></label>
           <select id="rol" class="form-select" title="Rol" [class.invalid]="enviado && !form.rol" [(ngModel)]="form.rol">
             <option value="">Seleccione...</option>
-            <option>Administrador</option>
-            <option>Gerente</option>
-            <option>Empleado</option>
+            <option value="admin">admin</option>
+            <option value="gerente">gerente</option>
+            <option value="empleado">empleado</option>
           </select>
           @if (enviado && !form.rol) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="id_empleado">Empleado</label>
-          <input id="id_empleado" class="form-input" [(ngModel)]="form.id_empleado" placeholder="ID o nombre del empleado" />
+          <label class="form-label" for="empleadoId">Empleado ID</label>
+          <input id="empleadoId" class="form-input" type="number" [(ngModel)]="form.empleadoId" placeholder="ID del empleado" />
         </div>
         <div class="form-group">
           <label class="form-label" for="estado">Estado <span class="required-mark">*</span></label>
           <select id="estado" class="form-select" title="Estado" [class.invalid]="enviado && !form.estado" [(ngModel)]="form.estado">
             <option value="">Seleccione...</option>
-            <option>Activo</option>
-            <option>Inactivo</option>
+            <option value="activo">activo</option>
+            <option value="inactivo">inactivo</option>
           </select>
           @if (enviado && !form.estado) { <span class="form-error">Campo obligatorio</span> }
         </div>

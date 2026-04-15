@@ -77,7 +77,7 @@ class ServicioEmpleado {
     );
   }
 
-  async Delete(Datos) {
+   async Delete(Datos) {
     const usuarioId = await ServicioUsuario.obtenerUsuarioId(Datos.token);
 
     const actual = await ejecutarConsulta(
