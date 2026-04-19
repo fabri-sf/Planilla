@@ -6,7 +6,6 @@
   </div>
   <div class="header-right">
     <button class="btn-outline">Ingresar</button>
-    <button class="btn-primary">Nueva planilla</button>
 
     <div class="hamburger-wrapper">
       <button class="hamburger-btn" [class.open]="menuOpen" (click)="toggleMenu()">
@@ -82,6 +81,17 @@
 
 <!-- ===== COMPONENTES (router-outlet ANTES del footer) ===== -->
 <router-outlet />
+
+<!-- ===== TOAST DE NOTIFICACIÓN ===== -->
+@if (notifSvc.notif()) {
+  <div class="toast" [class.toast-exito]="notifSvc.notif()?.tipo === 'exito'" [class.toast-error]="notifSvc.notif()?.tipo === 'error'">
+    <span class="toast-icon">{{ notifSvc.notif()?.tipo === 'exito' ? '✅' : '❌' }}</span>
+    <div class="toast-body">
+      <span class="toast-titulo">{{ notifSvc.notif()?.tipo === 'exito' ? 'Operación exitosa' : 'Error' }}</span>
+      <span class="toast-msg">{{ notifSvc.notif()?.mensaje }}</span>
+    </div>
+  </div>
+}
 
 <!-- ===== FOOTER ===== -->
 <footer class="footer">

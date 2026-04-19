@@ -1,0 +1,534 @@
+@if (planilla()) {
+
+<!-- ===== HEADER ===== -->
+<div class="pd-header">
+  <div class="pd-header-left">
+    <button class="pd-btn-back" (click)="volver()">← Volver</button>
+    <div class="pd-header-icon">📋</div>
+    <div>
+      <div class="pd-header-periodo">
+        {{ planilla()!.periodo }}
+        <span class="pd-badge" [ngStyle]="badgeStyle(planilla()!.estado)">{{ planilla()!.estado }}</span>
+      </div>
+      <div class="pd-header-fechas">
+        {{ fmtFecha(planilla()!.fechaInicio) }} → {{ fmtFecha(planilla()!.fechaFin) }} &nbsp;·&nbsp;
+        Pago: {{ fmtFecha(planilla()!.fechaPago) }}
+      </div>
+    </div>
+  </div>
+  <div class="pd-header-actions">
+    @if (planilla()!.estado === 'cerrada') {
+      <button class="pd-btn-outline" (click)="imprimirPDF()">🖨️ PDF</button>
+      <button class="pd-btn-outline" (click)="exportarCSV()">📊 Excel</button>
+    }
+  </div>
+</div>
+
+<!-- ===== TABS ===== -->
+<div class="pd-tabs">
+  <button class="pd-tab" [class.pd-tab--active]="tab === 'resumen'" (click)="tab = 'resumen'">
+    📊 Resumen
+  </button>
+  @if (planilla()!.estado === 'borrador') {
+    <button class="pd-tab" [class.pd-tab--active]="tab === 'procesar'" (click)="tab = 'procesar'">
+      ⚙️ Generar pagos
+    </button>
+  }
+  <button class="pd-tab" [class.pd-tab--active]="tab === 'historial'" (click)="tab = 'historial'">
+    📈 Historial de salarios
+  </button>
+</div>
+
+<!-- ═══════════════════ TAB: RESUMEN ═══════════════════ -->
+@if (tab === 'resumen') {
+<div class="pd-resumen">
+
+  <!-- Columna izquierda -->
+  <div class="pd-col-left">
+
+    <!-- Métricas -->
+    <div class="pd-metricas-grid">
+      <div class="pd-metrica pd-metrica--blue">
+        <div class="pd-metrica-label">Total bruto</div>
+        <div class="pd-metrica-val">{{ fmtMoneda(totalBruto) }}</div>
+      </div>
+      <div class="pd-metrica pd-metrica--red">
+        <div class="pd-metrica-label">Deducciones</div>
+        <div class="pd-metrica-val">{{ fmtMoneda(totalDeducciones) }}</div>
+      </div>
+      <div class="pd-metrica pd-metrica--green">
+        <div class="pd-metrica-label">Total neto</div>
+        <div class="pd-metrica-val">{{ fmtMoneda(totalNeto) }}</div>
+      </div>
+      <div class="pd-metrica">
+        <div class="pd-metrica-label">Empleados</div>
+        <div class="pd-metrica-val">{{ pagos().length }}</div>
+      </div>
+    </div>
+
+    <!-- Tabla de pagos -->
+    @if (pagos().length > 0) {
+      <div class="pd-card">
+        <div class="pd-card-title">Detalle de pagos por empleado</div>
+        <div class="pd-table-wrap">
+          <table class="pd-table">
+            <thead><tr>
+              <th>Empleado</th><th>Días</th><th>Hrs extra</th>
+              <th>Bruto</th><th>Deducciones</th><th>Neto</th>
+            </tr></thead>
+            <tbody>
+              @for (p of pagos(); track p.id) {
+                <tr>
+                  <td>{{ nombreEmpleado(p.empleadoId) }}</td>
+                  <td class="pd-centro">{{ p.diasTrabajados }}</td>
+                  <td class="pd-centro">{{ p.horasExtras }}</td>
+                  <td class="pd-monto">{{ fmtMoneda(p.totalBruto) }}</td>
+                  <td class="pd-monto pd-rojo">{{ fmtMoneda(p.totalDeducciones) }}</td>
+                  <td class="pd-monto pd-verde pd-bold">{{ fmtMoneda(p.salarioNeto) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    } @else {
+      <div class="pd-card pd-empty-pagos">
+        <div class="pd-empty-icon">💡</div>
+        <p>Esta planilla aún no tiene pagos generados.</p>
+        @if (planilla()!.estado === 'borrador') {
+          <button class="pd-btn-primary" (click)="tab = 'procesar'">Ir a Generar pagos</button>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Columna derecha: timeline + acciones -->
+  <div class="pd-col-right">
+
+    <!-- Timeline -->
+    <div class="pd-card pd-timeline-card">
+      <div class="pd-card-title">Estado de la planilla</div>
+      <div class="pd-timeline">
+        @for (est of ESTADOS_TIMELINE; track est; let i = $index) {
+          <div class="pd-timeline-item"
+               [class.pd-tl-done]="i < estadoActualIndex()"
+               [class.pd-tl-current]="i === estadoActualIndex()"
+               [class.pd-tl-pending]="i > estadoActualIndex()">
+            <div class="pd-tl-dot"></div>
+            <div class="pd-tl-label">{{ est | titlecase }}</div>
+          </div>
+        }
+        @if (planilla()!.estado === 'atrasada') {
+          <div class="pd-timeline-item pd-tl-atrasada">
+            <div class="pd-tl-dot"></div>
+            <div class="pd-tl-label">⚠️ Atrasada</div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Panel de acciones -->
+    <div class="pd-card pd-acciones-card">
+      <div class="pd-card-title">Acciones</div>
+      <div class="pd-acciones">
+
+        @if (planilla()!.estado === 'borrador') {
+          <button class="pd-btn-primary pd-btn-full" (click)="tab = 'procesar'">⚙️ Procesar planilla</button>
+          <button class="pd-btn-outline pd-btn-full" (click)="confirmarEliminar = true">🗑️ Eliminar</button>
+        }
+
+        @if (planilla()!.estado === 'procesada') {
+          <button class="pd-btn-amber pd-btn-full" (click)="cambiarEstado()">✅ Aprobar planilla</button>
+          <button class="pd-btn-danger pd-btn-full" (click)="navAtraso()">⏰ Marcar atrasada</button>
+        }
+
+        @if (planilla()!.estado === 'aprobada') {
+          <button class="pd-btn-green pd-btn-full" (click)="cambiarEstado()">💳 Marcar como pagada</button>
+          <button class="pd-btn-danger pd-btn-full" (click)="navAtraso()">⏰ Marcar atrasada</button>
+        }
+
+        @if (planilla()!.estado === 'atrasada') {
+          <button class="pd-btn-blue pd-btn-full" (click)="cambiarEstado()">▶️ Reanudar → Aprobada</button>
+        }
+
+        @if (planilla()!.estado === 'pagada') {
+          <button class="pd-btn-purple pd-btn-full" (click)="cambiarEstado()">🔒 Cerrar planilla</button>
+        }
+
+        @if (planilla()!.estado === 'cerrada') {
+          <button class="pd-btn-outline pd-btn-full" (click)="imprimirPDF()">🖨️ Descargar PDF</button>
+          <button class="pd-btn-outline pd-btn-full" (click)="exportarCSV()">📊 Exportar Excel</button>
+        }
+      </div>
+
+      @if (planilla()!.creadoPor || planilla()!.aprobadoPor) {
+        <div class="pd-responsables">
+          @if (planilla()!.creadoPor) {
+            <div class="pd-resp-item">
+              <span class="pd-resp-label">Creado por</span>
+              <span class="pd-resp-val">{{ nombreUsuario(planilla()!.creadoPor) }}</span>
+            </div>
+          }
+          @if (planilla()!.aprobadoPor) {
+            <div class="pd-resp-item">
+              <span class="pd-resp-label">Aprobado por</span>
+              <span class="pd-resp-val">{{ nombreUsuario(planilla()!.aprobadoPor) }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+  </div>
+</div>
+} <!-- end tab resumen -->
+
+<!-- ═══════════════════ TAB: PROCESAR (stepper) ═══════════════════ -->
+@if (tab === 'procesar') {
+<div class="pd-procesar">
+
+  <!-- Stepper indicador -->
+  <div class="pd-stepper">
+    @for (s of ['Seleccionar empleados', 'Calcular asistencia', 'Revisar cálculos', 'Confirmar']; track $index; let i = $index) {
+      <div class="pd-step" [class.pd-step--done]="paso > i" [class.pd-step--active]="paso === i">
+        <div class="pd-step-num">{{ i + 1 }}</div>
+        <div class="pd-step-label">{{ s }}</div>
+      </div>
+      @if (i < 3) { <div class="pd-step-line" [class.pd-step-line--done]="paso > i"></div> }
+    }
+  </div>
+
+  <!-- Paso 0: Seleccionar empleados -->
+  @if (paso === 0) {
+    <div class="pd-card pd-paso-card">
+      <div class="pd-card-title">Seleccionar empleados a procesar</div>
+      <div class="pd-card-sub">{{ seleccionados.size }} de {{ empleados().length }} empleados seleccionados</div>
+      <div class="pd-emp-check-table-wrap">
+        <table class="pd-table">
+          <thead><tr>
+            <th><input type="checkbox" title="Seleccionar todos" [checked]="todosSeleccionados" (change)="toggleTodos()" /></th>
+            <th>Empleado</th><th>Cédula</th><th>Salario base</th>
+          </tr></thead>
+          <tbody>
+            @for (emp of empleados(); track emp.id) {
+              <tr (click)="toggleEmp(emp.id)" [class.pd-emp-sel]="seleccionados.has(emp.id)">
+                <td><input type="checkbox" [title]="'Seleccionar ' + emp.nombre" [checked]="seleccionados.has(emp.id)"
+                           (click)="$event.stopPropagation()" (change)="toggleEmp(emp.id)" /></td>
+                <td>{{ emp.nombre }} {{ emp.apellido }}</td>
+                <td class="pd-muted">{{ emp.cedula }}</td>
+                <td class="pd-monto">{{ fmtMoneda(emp.salarioBase) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="pd-paso-footer">
+        <button class="pd-btn-cancel" (click)="tab = 'resumen'">Cancelar</button>
+        <button class="pd-btn-primary" [disabled]="seleccionados.size === 0" (click)="calcularAsistencia()">
+          Siguiente: Calcular →
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Paso 1: Calculando -->
+  @if (paso === 1) {
+    <div class="pd-card pd-loading">
+      <div class="pd-spinner"></div>
+      <p>Consultando asistencia y calculando montos...</p>
+    </div>
+  }
+
+  <!-- Paso 2: Resultados -->
+  @if (paso === 2 && previsualizacion()) {
+    <div class="pd-card pd-paso-card">
+      <div class="pd-card-title">Cálculo de pagos</div>
+      <div class="pd-card-sub">{{ previsualizacion()!.empleados.length }} empleados · período: {{ fmtFecha(planilla()!.fechaInicio) }} → {{ fmtFecha(planilla()!.fechaFin) }}</div>
+
+      <div class="pd-table-wrap">
+        <table class="pd-table">
+          <thead><tr>
+            <th>Empleado</th><th>Días</th><th>Hrs extra</th>
+            <th>Proporcional</th><th>Hrs extra $</th>
+            <th>Bruto</th><th>CCSS 9.67%</th><th>ISR</th>
+            <th>Neto</th><th>Cargas pat.</th><th></th>
+          </tr></thead>
+          <tbody>
+            @for (emp of previsualizacion()!.empleados; track emp.empleadoId) {
+              <tr>
+                <td>{{ emp.nombre }} {{ emp.apellido }}</td>
+                <td class="pd-centro">{{ emp.diasTrabajados }}</td>
+                <td class="pd-centro">{{ emp.horasExtras }}</td>
+                <td class="pd-monto">{{ fmtMoneda(emp.salarioProporcional) }}</td>
+                <td class="pd-monto">{{ fmtMoneda(emp.pagoHorasExtras) }}</td>
+                <td class="pd-monto pd-bold">{{ fmtMoneda(emp.totalBruto) }}</td>
+                <td class="pd-monto pd-rojo">{{ fmtMoneda(emp.ccssObrero) }}</td>
+                <td class="pd-monto pd-rojo">{{ fmtMoneda(emp.renta) }}</td>
+                <td class="pd-monto pd-verde pd-bold">{{ fmtMoneda(emp.salarioNeto) }}</td>
+                <td class="pd-monto pd-muted">{{ fmtMoneda(emp.cargasCCSS) }}</td>
+                <td><button class="pd-btn-ver" (click)="verDetalleEmp(emp)">Ver</button></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Totales -->
+      <div class="pd-totales-grid">
+        <div class="pd-total-item">
+          <span class="pd-total-label">Total bruto</span>
+          <span class="pd-total-val">{{ fmtMoneda(previsualizacion()!.totales.totalBruto) }}</span>
+        </div>
+        <div class="pd-total-item pd-total-rojo">
+          <span class="pd-total-label">CCSS obrero</span>
+          <span class="pd-total-val">{{ fmtMoneda(previsualizacion()!.totales.totalCCSS) }}</span>
+        </div>
+        <div class="pd-total-item pd-total-rojo">
+          <span class="pd-total-label">ISR total</span>
+          <span class="pd-total-val">{{ fmtMoneda(previsualizacion()!.totales.totalRenta) }}</span>
+        </div>
+        <div class="pd-total-item pd-total-verde">
+          <span class="pd-total-label">Total neto</span>
+          <span class="pd-total-val pd-bold">{{ fmtMoneda(previsualizacion()!.totales.totalNeto) }}</span>
+        </div>
+      </div>
+      <div class="pd-cargas-info">
+        ℹ️ Cargas patronales (26.67% + 0.5% BP): <strong>{{ fmtMoneda(previsualizacion()!.totales.cargasPatronales) }}</strong>
+        — no se descuentan al empleado, son costo adicional de la empresa.
+      </div>
+
+      <div class="pd-paso-footer">
+        <button class="pd-btn-cancel" (click)="paso = 0">← Anterior</button>
+        <button class="pd-btn-primary" (click)="paso = 3">Confirmar y procesar →</button>
+      </div>
+    </div>
+  }
+
+  <!-- Paso 3: Confirmar -->
+  @if (paso === 3) {
+    <div class="pd-card pd-paso-card pd-confirm-card">
+      @if (!procesando) {
+        <div class="pd-confirm-icon">✅</div>
+        <div class="pd-confirm-title">¿Confirmar procesamiento?</div>
+        <div class="pd-confirm-msg">
+          Se crearán <strong>{{ previsualizacion()?.empleados?.length ?? 0 }}</strong> registros en PAGO y DEDUCCION_PAGO.
+          La planilla cambiará a estado <strong>procesada</strong>.
+        </div>
+        <div class="pd-confirm-resumen">
+          <div>Total neto a pagar: <strong>{{ fmtMoneda(previsualizacion()?.totales.totalNeto ?? 0) }}</strong></div>
+          <div>Costo empresa: <strong>{{ fmtMoneda((previsualizacion()?.totales.totalBruto ?? 0) + (previsualizacion()?.totales.cargasPatronales ?? 0)) }}</strong></div>
+        </div>
+        <div class="pd-paso-footer">
+          <button class="pd-btn-cancel" (click)="paso = 2">← Revisar</button>
+          <button class="pd-btn-green" (click)="confirmarProcesar()">⚙️ Procesar planilla</button>
+        </div>
+      } @else {
+        <div class="pd-spinner"></div>
+        <p class="pd-confirm-msg">Generando pagos, por favor espere...</p>
+      }
+    </div>
+  }
+
+</div>
+} <!-- end tab procesar -->
+
+<!-- ═══════════════════ TAB: HISTORIAL SALARIOS ═══════════════════ -->
+@if (tab === 'historial') {
+<div class="pd-historial">
+
+  <div class="pd-card">
+    <div class="pd-hist-header">
+      <div class="pd-card-title">Historial de salarios</div>
+      <button class="pd-btn-primary" (click)="abrirFormSalario()">+ Ajustar salario</button>
+    </div>
+
+    <div class="pd-table-wrap">
+      <table class="pd-table">
+        <thead><tr>
+          <th>Empleado</th><th>Salario anterior</th><th>Salario nuevo</th>
+          <th>Variación</th><th>Fecha</th><th>Motivo</th><th>Autorizado por</th><th></th>
+        </tr></thead>
+        <tbody>
+          @for (h of historial(); track h.id) {
+            <tr>
+              <td>{{ nombreEmpHistorial(h.empleadoId) }}</td>
+              <td class="pd-monto">{{ fmtMoneda(h.salarioAnterior) }}</td>
+              <td class="pd-monto pd-bold">{{ fmtMoneda(h.salarioNuevo) }}</td>
+              <td class="pd-centro">
+                <span [class]="h.salarioNuevo >= h.salarioAnterior ? 'pd-chip-verde' : 'pd-chip-rojo'">
+                  {{ incremento(h.salarioAnterior, h.salarioNuevo) }}
+                </span>
+              </td>
+              <td>{{ fmtFecha(h.fechaCambio) }}</td>
+              <td>{{ h.motivo }}</td>
+              <td>{{ nombreUsuario(h.autorizadoPor) }}</td>
+              <td>
+                <button class="pd-btn-ver" (click)="abrirFormSalario(empleados().find(e => e.id === h.empleadoId))">
+                  Ajustar
+                </button>
+              </td>
+            </tr>
+          }
+          @if (historial().length === 0) {
+            <tr><td colspan="8" class="pd-empty-cell">Sin registros de cambios salariales</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Barras de salario actual -->
+  <div class="pd-card">
+    <div class="pd-card-title">Salarios actuales por empleado</div>
+    <div class="pd-barras">
+      @for (emp of empleados(); track emp.id) {
+        <div class="pd-barra-row">
+          <div class="pd-barra-nombre">{{ emp.nombre }} {{ emp.apellido }}</div>
+          <div class="pd-barra-track">
+            <div class="pd-barra-fill" [style.width.%]="baraPorcentaje(emp.salarioBase)"></div>
+          </div>
+          <div class="pd-barra-val">{{ fmtMoneda(emp.salarioBase) }}</div>
+        </div>
+      }
+    </div>
+  </div>
+
+</div>
+} <!-- end tab historial -->
+
+<!-- ═══════════════════ MODAL CONFIRMAR ELIMINAR ═══════════════════ -->
+@if (confirmarEliminar) {
+<div class="modal-confirm-overlay">
+  <div class="modal-confirm">
+    <div class="modal-confirm-icon">🗑️</div>
+    <div class="modal-confirm-title">Eliminar planilla</div>
+    <div class="modal-confirm-msg">
+      ¿Eliminar la planilla <strong>{{ planilla()!.periodo }}</strong>?
+      Esta acción no se puede deshacer.
+    </div>
+    <div class="modal-confirm-actions">
+      <button class="btn-cancel-form" (click)="confirmarEliminar = false">Cancelar</button>
+      <button class="btn-danger" (click)="eliminarPlanilla()">Eliminar</button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ═══════════════════ MODAL DETALLE PAGO EMPLEADO ═══════════════════ -->
+@if (empDetalle) {
+<div class="modal-confirm-overlay" (click)="cerrarDetalle()">
+  <div class="pd-desglose-modal" (click)="$event.stopPropagation()">
+    <div class="pd-desglose-header">
+      <div class="pd-desglose-title">Desglose de pago</div>
+      <button class="pd-desglose-close" (click)="cerrarDetalle()">✕</button>
+    </div>
+    <div class="pd-desglose-body">
+      <div class="pd-desglose-nombre">{{ empDetalle.nombre }} {{ empDetalle.apellido }}</div>
+      <div class="pd-desglose-cedula">{{ empDetalle.cedula }} · {{ empDetalle.departamento }}</div>
+
+      <div class="pd-desglose-section">Asistencia del período</div>
+      <div class="pd-desglose-bar-label">{{ empDetalle.diasTrabajados }} días de 30 trabajados</div>
+      <div class="pd-desglose-progress">
+        <div class="pd-desglose-progress-fill" [style.width.%]="(empDetalle.diasTrabajados / 30) * 100"></div>
+      </div>
+      <div class="pd-desglose-hrs">{{ empDetalle.horasExtras }} horas extra registradas</div>
+
+      <div class="pd-desglose-section">Cálculo paso a paso</div>
+      <div class="pd-desglose-row"><span>Salario base</span><span>{{ fmtMoneda(empDetalle.salarioBase) }}</span></div>
+      <div class="pd-desglose-row"><span>Proporcional (base/30 × {{ empDetalle.diasTrabajados }} días)</span><span>{{ fmtMoneda(empDetalle.salarioProporcional) }}</span></div>
+      <div class="pd-desglose-row"><span>Horas extra (base/30/8 × 1.5 × {{ empDetalle.horasExtras }} hrs)</span><span>{{ fmtMoneda(empDetalle.pagoHorasExtras) }}</span></div>
+      <div class="pd-desglose-row pd-desglose-total"><span>Total bruto</span><span>{{ fmtMoneda(empDetalle.totalBruto) }}</span></div>
+
+      <div class="pd-desglose-section">Deducciones obligatorias</div>
+      <div class="pd-desglose-row pd-desglose-neg"><span>CCSS obrero (9.67%)</span><span>-{{ fmtMoneda(empDetalle.ccssObrero) }}</span></div>
+      <div class="pd-desglose-row pd-desglose-neg"><span>Impuesto sobre la Renta</span><span>-{{ fmtMoneda(empDetalle.renta) }}</span></div>
+
+      <div class="pd-desglose-row pd-desglose-neto"><span>SALARIO NETO</span><span>{{ fmtMoneda(empDetalle.salarioNeto) }}</span></div>
+
+      <div class="pd-desglose-section">Cargas patronales (no afectan neto)</div>
+      <div class="pd-desglose-row pd-desglose-info"><span>CCSS patronal (26.67%)</span><span>{{ fmtMoneda(empDetalle.cargasCCSS) }}</span></div>
+      <div class="pd-desglose-row pd-desglose-info"><span>Banco Popular (0.5%)</span><span>{{ fmtMoneda(empDetalle.bancoPOpular) }}</span></div>
+      <div class="pd-desglose-row pd-desglose-info pd-bold"><span>Costo total para empresa</span><span>{{ fmtMoneda(empDetalle.totalBruto + empDetalle.cargasCCSS + empDetalle.bancoPOpular) }}</span></div>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ═══════════════════ MODAL AJUSTE SALARIO ═══════════════════ -->
+@if (mostrarFormSalario) {
+<div class="modal-confirm-overlay">
+  <div class="pd-salario-modal">
+    <div class="pd-desglose-header">
+      <div class="pd-desglose-title">Ajuste de salario</div>
+      <button class="pd-desglose-close" (click)="mostrarFormSalario = false">✕</button>
+    </div>
+    <div class="pd-desglose-body">
+      <div class="pd-sal-grid">
+        <div class="pd-sal-field pd-sal-full">
+          <label class="pd-sal-label">Empleado</label>
+          <select class="pd-sal-input" title="Empleado" [(ngModel)]="formSalario.empleadoId" (change)="onEmpleadoSalarioChange()">
+            <option [ngValue]="0">Seleccione...</option>
+            @for (e of empleados(); track e.id) {
+              <option [ngValue]="e.id">{{ e.nombre }} {{ e.apellido }}</option>
+            }
+          </select>
+        </div>
+        <div class="pd-sal-field">
+          <label class="pd-sal-label">Salario anterior</label>
+          <input class="pd-sal-input" type="number" [(ngModel)]="formSalario.salarioAnterior" readonly />
+        </div>
+        <div class="pd-sal-field">
+          <label class="pd-sal-label">Salario nuevo</label>
+          <input class="pd-sal-input" type="number" [(ngModel)]="formSalario.salarioNuevo" placeholder="0" />
+        </div>
+        @if (formSalario.salarioNuevo > 0) {
+          <div class="pd-sal-preview pd-sal-full">
+            Incremento: <strong [class.pd-verde]="formSalario.salarioNuevo >= formSalario.salarioAnterior"
+                                [class.pd-rojo]="formSalario.salarioNuevo < formSalario.salarioAnterior">
+              {{ previewIncremento }}
+            </strong>
+            ({{ fmtMoneda(formSalario.salarioNuevo - formSalario.salarioAnterior) }})
+          </div>
+        }
+        <div class="pd-sal-field pd-sal-full">
+          <label class="pd-sal-label">Motivo</label>
+          <input class="pd-sal-input" [(ngModel)]="formSalario.motivo" placeholder="Razón del cambio" />
+        </div>
+        <div class="pd-sal-field pd-sal-full">
+          <label class="pd-sal-label">Autorizado por</label>
+          <select class="pd-sal-input" [(ngModel)]="formSalario.autorizadoPor">
+            <option [ngValue]="0">Seleccione...</option>
+            @for (u of usuariosAutorizadores; track u.id) {
+              <option [ngValue]="u.id">{{ u.nombreUsuario }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="pd-paso-footer">
+        <button class="pd-btn-cancel" (click)="mostrarFormSalario = false" [disabled]="enviandoSalario">Cancelar</button>
+        <button class="pd-btn-primary" (click)="guardarSalario()" [disabled]="enviandoSalario || !formSalario.empleadoId || !formSalario.salarioNuevo">
+          {{ enviandoSalario ? 'Guardando...' : 'Guardar cambio' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+} @else {
+  <div class="pd-loading-page">
+    <div class="pd-spinner"></div>
+    <p>Cargando planilla...</p>
+  </div>
+}
+
+<!-- Print styles en línea para PDF -->
+<style>
+  @media print {
+    .pd-header-actions, .pd-tabs, .pd-acciones-card,
+    .pd-procesar, .pd-historial, header, footer { display: none !important; }
+    .pd-resumen { display: block !important; }
+    .pd-col-right { display: none !important; }
+    .pd-col-left { width: 100% !important; }
+  }
+</style>

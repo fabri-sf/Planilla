@@ -4,6 +4,8 @@ const ServicioUsuario = require("./ServicioUsuario.js");
 class ServicioEmpleado {
   constructor() {}
 
+  // ── EMPLEADO ──────────────────────────────────────────────────────────────
+
   async Read(Datos) {
     return await ejecutarConsulta("SELECT * FROM EMPLEADO WHERE cedula = ?", [
       Datos.cedula,
@@ -17,15 +19,20 @@ class ServicioEmpleado {
   async Create(Datos) {
     const usuarioId = await ServicioUsuario.obtenerUsuarioId(Datos.token);
 
-    await ejecutarConsulta(
-      `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
-         VALUES (?, 'EMPLEADO', 'INSERT', 0, 'todos', NULL, ?, ?)`,
-      [
-        usuarioId,
-        `${Datos.nombre} ${Datos.apellido}`,
-        `Creación empleado: ${Datos.nombre} ${Datos.apellido}`,
-      ],
-    );
+    try {
+      await ejecutarConsulta(
+        `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
+           VALUES (?, 'EMPLEADO', 'INSERT', 0, 'todos', NULL, ?, ?)`,
+        [
+          usuarioId ?? 0,
+          `${Datos.nombre} ${Datos.apellido}`,
+          `Creación empleado: ${Datos.nombre} ${Datos.apellido}`,
+        ],
+      );
+    } catch (e) {
+      console.warn("AUDITORIA insert fallido (Create Empleado):", e.message);
+    }
+
     return await ejecutarConsulta(
       "INSERT INTO EMPLEADO (cedula, nombre, apellido, email, telefono, fechaNacimiento, fechaIngreso, salarioBase, estado, puestoId, departamentoId, tipoContratoId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [
@@ -48,16 +55,21 @@ class ServicioEmpleado {
   async Update(Datos) {
     const usuarioId = await ServicioUsuario.obtenerUsuarioId(Datos.token);
 
-    await ejecutarConsulta(
-      `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
-         VALUES (?, 'EMPLEADO', 'UPDATE', ?, 'todos', NULL, ?, ?)`,
-      [
-        usuarioId,
-        Datos.id,
-        `${Datos.nombre} ${Datos.apellido}, salario:${Datos.salarioBase}, estado:${Datos.estado}`,
-        `Modificación empleado ID: ${Datos.id}`,
-      ],
-    );
+    try {
+      await ejecutarConsulta(
+        `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
+           VALUES (?, 'EMPLEADO', 'UPDATE', ?, 'todos', NULL, ?, ?)`,
+        [
+          usuarioId ?? 0,
+          Datos.id,
+          `${Datos.nombre} ${Datos.apellido}, salario:${Datos.salarioBase}, estado:${Datos.estado}`,
+          `Modificación empleado ID: ${Datos.id}`,
+        ],
+      );
+    } catch (e) {
+      console.warn("AUDITORIA insert fallido (Update Empleado):", e.message);
+    }
+
     return await ejecutarConsulta(
       "UPDATE EMPLEADO SET nombre = ?, apellido = ?, email = ?, telefono = ?, fechaNacimiento = ?, fechaIngreso = ?, salarioBase = ?, estado = ?, puestoId = ?, departamentoId = ?, tipoContratoId = ? WHERE id = ?",
       [
@@ -77,7 +89,7 @@ class ServicioEmpleado {
     );
   }
 
-   async Delete(Datos) {
+  async Delete(Datos) {
     const usuarioId = await ServicioUsuario.obtenerUsuarioId(Datos.token);
 
     const actual = await ejecutarConsulta(
@@ -87,17 +99,22 @@ class ServicioEmpleado {
     const estadoActual = actual[0].estado;
     const estadoNuevo = estadoActual === "activo" ? "inactivo" : "activo";
 
-    await ejecutarConsulta(
-      `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
-         VALUES (?, 'EMPLEADO', 'UPDATE', ?, 'estado', ?, ?, ?)`,
-      [
-        usuarioId,
-        Datos.id,
-        estadoActual,
-        estadoNuevo,
-        `Cambio estado empleado ID: ${Datos.id}`,
-      ],
-    );
+    try {
+      await ejecutarConsulta(
+        `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
+           VALUES (?, 'EMPLEADO', 'UPDATE', ?, 'estado', ?, ?, ?)`,
+        [
+          usuarioId ?? 0,
+          Datos.id,
+          estadoActual,
+          estadoNuevo,
+          `Cambio estado empleado ID: ${Datos.id}`,
+        ],
+      );
+    } catch (e) {
+      console.warn("AUDITORIA insert fallido (Delete Empleado):", e.message);
+    }
+
     return await ejecutarConsulta(
       "UPDATE EMPLEADO SET estado = CASE WHEN estado = 'activo' THEN 'inactivo' ELSE 'activo' END WHERE id = ?",
       [Datos.id],

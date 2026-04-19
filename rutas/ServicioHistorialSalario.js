@@ -52,7 +52,7 @@ Router.post("/Create", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
-        await ServicioHistorialSalario.Create(solicitud.body)
+        await ServicioHistorialSalario.Create({ ...solicitud.body, token: solicitud.headers.authorization })
       );
     } catch (error) {
       console.error(error);
@@ -72,7 +72,7 @@ Router.post("/Update", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
-        await ServicioHistorialSalario.Update(solicitud.body)
+        await ServicioHistorialSalario.Update({ ...solicitud.body, token: solicitud.headers.authorization })
       );
     } catch (error) {
       console.error(error);
@@ -91,7 +91,7 @@ Router.post("/Delete", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
-        await ServicioHistorialSalario.Delete(solicitud.body)
+        await ServicioHistorialSalario.Delete({ ...solicitud.body, token: solicitud.headers.authorization })
       );
     } catch (error) {
       console.error(error);
