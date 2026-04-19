@@ -1,5 +1,6 @@
-import { Component, HostListener, signal } from '@angular/core';
+import { Component, HostListener, inject, signal } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
+import { NotificacionService } from './notificacion.service';
 
 @Component({
   selector: 'app-root',
@@ -9,6 +10,7 @@ import { RouterOutlet, Router } from '@angular/router';
 })
 export class App {
   protected readonly title = signal('frontend-planilla');
+  protected readonly notifSvc = inject(NotificacionService);
 
   menuOpen = false;
   rutaActiva = '';

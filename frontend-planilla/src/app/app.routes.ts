@@ -13,6 +13,10 @@ import { CrudTipobonificacion } from './crud-tipobonificacion/crud-tipobonificac
 import { CrudTipocontrato } from './crud-tipocontrato/crud-tipocontrato';
 import { CrudTipodeduccion } from './crud-tipodeduccion/crud-tipodeduccion';
 import { CrudUsuario } from './crud-usuario/crud-usuario';
+import { PlanillaDashboard } from './planilla-dashboard/planilla-dashboard';
+import { PlanillaCrear } from './planilla-crear/planilla-crear';
+import { PlanillaDetalle } from './planilla-detalle/planilla-detalle';
+import { PlanillaAtraso } from './planilla-atraso/planilla-atraso';
 
 export const routes: Routes = [
     {
@@ -47,8 +51,26 @@ export const routes: Routes = [
         path: 'pago',
         component: CrudPago
     },
+    // Rutas de planilla (orden importante: más específicas primero)
+    {
+        path: 'planilla/crear',
+        component: PlanillaCrear
+    },
+    {
+        path: 'planilla/:id/atraso',
+        component: PlanillaAtraso
+    },
+    {
+        path: 'planilla/:id',
+        component: PlanillaDetalle
+    },
     {
         path: 'planilla',
+        component: PlanillaDashboard
+    },
+    // Ruta legacy CRUD planilla
+    {
+        path: 'crud-planilla',
         component: CrudPlanilla
     },
     {

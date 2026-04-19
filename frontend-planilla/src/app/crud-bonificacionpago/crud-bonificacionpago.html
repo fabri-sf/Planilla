@@ -9,14 +9,14 @@
   </div>
   <div class="page-header-right">
     <button type="button" class="btn-add" (click)="abrirCrear()">+ Nuevo registro</button>
-    <button type="button" class="btn-close" title="Cerrar">✕</button>
+    <button type="button" class="btn-close" (click)="cerrar()" title="Cerrar">✕</button>
   </div>
 </div>
 
 <!-- ===== BUSCADOR ===== -->
 <div class="search-bar">
   <span class="search-icon">🔍</span>
-  <input type="text" class="search-input" placeholder="Buscar por pago, tipo de bonificación u id..." />
+  <input type="text" class="search-input" placeholder="Buscar por empleado, tipo u id..." [(ngModel)]="terminoBusqueda" />
 </div>
 
 <!-- ===== TABLA ===== -->
@@ -25,25 +25,25 @@
     <thead>
       <tr>
         <th>ID</th>
-        <th>Pago ID</th>
-        <th>Tipo Bonificación ID</th>
+        <th>Empleado / Pago</th>
+        <th>Tipo Bonificación</th>
         <th>Monto</th>
         <th>Observaciones</th>
         <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
-      @for (item of lista(); track item.id) {
+      @for (item of listaFiltrada; track item.id) {
       <tr>
         <td>{{ item.id }}</td>
-        <td>{{ item.pagoId }}</td>
-        <td>{{ item.tipoBonificacionId }}</td>
+        <td>{{ nombrePago(item.pagoId) }}</td>
+        <td>{{ nombreTipoBonificacion(item.tipoBonificacionId) }}</td>
         <td>₡{{ item.monto }}</td>
         <td>{{ item.observaciones }}</td>
         <td>
           <div class="actions">
             <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
-            <button type="button" class="btn-delete" title="Eliminar" (click)="eliminar(item.id)">🗑️</button>
+            <button type="button" class="btn-delete" title="Eliminar" (click)="confirmarEliminar(item.id)">🗑️</button>
           </div>
         </td>
       </tr>
@@ -69,13 +69,23 @@
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-group">
-          <label class="form-label" for="pagoId">Pago ID <span class="required-mark">*</span></label>
-          <input id="pagoId" type="number" class="form-input" [class.invalid]="enviado && !form.pagoId" [(ngModel)]="form.pagoId" placeholder="ID del pago" />
+          <label class="form-label" for="pagoId">Empleado / Pago <span class="required-mark">*</span></label>
+          <select id="pagoId" class="form-select" title="Pago" [class.invalid]="enviado && !form.pagoId" [(ngModel)]="form.pagoId">
+            <option [ngValue]="0">Seleccione...</option>
+            @for (p of pagos(); track p.id) {
+              <option [ngValue]="p.id">{{ nombrePago(p.id) }}</option>
+            }
+          </select>
           @if (enviado && !form.pagoId) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="tipoBonificacionId">Tipo Bonificación ID <span class="required-mark">*</span></label>
-          <input id="tipoBonificacionId" type="number" class="form-input" [class.invalid]="enviado && !form.tipoBonificacionId" [(ngModel)]="form.tipoBonificacionId" placeholder="ID del tipo de bonificación" />
+          <label class="form-label" for="tipoBonificacionId">Tipo Bonificación <span class="required-mark">*</span></label>
+          <select id="tipoBonificacionId" class="form-select" title="Tipo Bonificación" [class.invalid]="enviado && !form.tipoBonificacionId" [(ngModel)]="form.tipoBonificacionId">
+            <option [ngValue]="0">Seleccione...</option>
+            @for (t of tiposBonificacion(); track t.id) {
+              <option [ngValue]="t.id">{{ t.nombre }}</option>
+            }
+          </select>
           @if (enviado && !form.tipoBonificacionId) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
@@ -94,6 +104,21 @@
       <button type="button" class="btn-save" (click)="guardar()">
         {{ modoEditar ? 'Guardar cambios' : 'Crear registro' }}
       </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ===== MODAL CONFIRMACIÓN ELIMINAR ===== -->
+@if (mostrandoConfirmacion) {
+<div class="modal-confirm-overlay" (click)="cerrarConfirmacion()">
+  <div class="modal-confirm" (click)="$event.stopPropagation()">
+    <div class="modal-confirm-icon">🗑️</div>
+    <p class="modal-confirm-title">¿Eliminar bonificación?</p>
+    <p class="modal-confirm-msg">Esta acción eliminará el registro permanentemente. ¿Deseas continuar?</p>
+    <div class="modal-confirm-actions">
+      <button type="button" class="btn-cancel-form" (click)="cerrarConfirmacion()">Cancelar</button>
+      <button type="button" class="btn-danger" (click)="ejecutarEliminar()">Sí, eliminar</button>
     </div>
   </div>
 </div>

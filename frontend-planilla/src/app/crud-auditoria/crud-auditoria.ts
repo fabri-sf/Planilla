@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 interface Auditoria {
   id: number;
@@ -22,6 +23,7 @@ interface Auditoria {
 })
 export class CrudAuditoria implements OnInit {
   private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
   private readonly apiUrl = 'http://localhost/ServicioAuditoria/';
 
   protected readonly lista = signal<Auditoria[]>([]);
@@ -34,4 +36,5 @@ export class CrudAuditoria implements OnInit {
       error: (err) => console.error('Error loading auditoria', err),
     });
   }
+  cerrar() { this.router.navigate(['/']); }
 }

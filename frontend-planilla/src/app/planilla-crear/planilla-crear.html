@@ -1,0 +1,127 @@
+<!-- ===== HEADER ===== -->
+<div class="pc-header">
+  <button class="pc-btn-back" (click)="cancelar()">← Volver</button>
+  <div class="pc-header-title">
+    <span class="pc-header-icon">📋</span>
+    <div>
+      <h1 class="pc-title">Nueva planilla</h1>
+      <p class="pc-sub">Se creará en estado <strong>Borrador</strong></p>
+    </div>
+  </div>
+</div>
+
+<div class="pc-layout">
+
+  <!-- ===== FORMULARIO ===== -->
+  <div class="pc-form-col">
+    <div class="pc-card">
+      <div class="pc-card-title">Datos de la planilla</div>
+
+      <div class="pc-form-grid">
+        <div class="pc-field pc-field-full">
+          <label class="pc-label">Período <span class="pc-req">*</span></label>
+          <input class="pc-input" [(ngModel)]="form.periodo"
+                 [class.pc-invalid]="enviado && !form.periodo"
+                 placeholder="Ej: Enero 2025, Quincenal 01/2025" />
+          @if (enviado && !form.periodo) { <span class="pc-error">Campo obligatorio</span> }
+        </div>
+
+        <div class="pc-field">
+          <label class="pc-label">Fecha inicio <span class="pc-req">*</span></label>
+          <input class="pc-input" type="date" [(ngModel)]="form.fechaInicio"
+                 [class.pc-invalid]="enviado && !form.fechaInicio" />
+          @if (enviado && !form.fechaInicio) { <span class="pc-error">Campo obligatorio</span> }
+        </div>
+
+        <div class="pc-field">
+          <label class="pc-label">Fecha fin <span class="pc-req">*</span></label>
+          <input class="pc-input" type="date" [(ngModel)]="form.fechaFin"
+                 [class.pc-invalid]="enviado && !form.fechaFin" />
+          @if (enviado && !form.fechaFin) { <span class="pc-error">Campo obligatorio</span> }
+        </div>
+
+        <div class="pc-field">
+          <label class="pc-label">Fecha de pago estimada <span class="pc-req">*</span></label>
+          <input class="pc-input" type="date" [(ngModel)]="form.fechaPago"
+                 [class.pc-invalid]="enviado && !form.fechaPago" />
+          @if (enviado && !form.fechaPago) { <span class="pc-error">Campo obligatorio</span> }
+        </div>
+
+        <div class="pc-field">
+          <label class="pc-label">Creado por</label>
+          <select class="pc-input" [(ngModel)]="form.creadoPor">
+            <option [ngValue]="0">Seleccione...</option>
+            @for (u of usuarios(); track u.id) {
+              <option [ngValue]="u.id">{{ u.nombreUsuario }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="pc-field pc-field-full">
+          <label class="pc-label">Descripción</label>
+          <textarea class="pc-input pc-textarea" [(ngModel)]="form.descripcion"
+                    placeholder="Descripción de la planilla"></textarea>
+        </div>
+
+        <div class="pc-field pc-field-full">
+          <label class="pc-label">Observaciones</label>
+          <textarea class="pc-input pc-textarea" [(ngModel)]="form.observaciones"
+                    placeholder="Observaciones adicionales"></textarea>
+        </div>
+      </div>
+
+      <div class="pc-actions">
+        <button class="pc-btn-cancel" (click)="cancelar()" [disabled]="guardando">Cancelar</button>
+        <button class="pc-btn-save" (click)="guardar()" [disabled]="guardando">
+          {{ guardando ? 'Guardando...' : 'Crear planilla' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TABLA EMPLEADOS ===== -->
+  <div class="pc-emp-col">
+    <div class="pc-card">
+      <div class="pc-card-header">
+        <div class="pc-card-title">Empleados a incluir</div>
+        <div class="pc-emp-stats">
+          <span class="pc-emp-count">{{ seleccionados.size }} / {{ empleados().length }}</span> seleccionados
+        </div>
+      </div>
+      <p class="pc-emp-hint">
+        Los pagos se calcularán automáticamente al procesar la planilla según la asistencia del período.
+      </p>
+
+      <div class="pc-emp-table-wrap">
+        <table class="pc-emp-table">
+          <thead>
+            <tr>
+              <th>
+                <input type="checkbox" [checked]="todosSeleccionados" (change)="toggleTodos()" />
+              </th>
+              <th>Empleado</th>
+              <th>Cédula</th>
+              <th>Salario base</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (emp of empleados(); track emp.id) {
+              <tr [class.pc-emp-selected]="seleccionados.has(emp.id)"
+                  (click)="toggleEmpleado(emp.id)">
+                <td><input type="checkbox" [checked]="seleccionados.has(emp.id)"
+                           (click)="$event.stopPropagation()" (change)="toggleEmpleado(emp.id)" /></td>
+                <td>{{ emp.nombre }} {{ emp.apellido }}</td>
+                <td class="pc-emp-cedula">{{ emp.cedula }}</td>
+                <td class="pc-emp-salario">{{ fmtMoneda(emp.salarioBase) }}</td>
+              </tr>
+            }
+            @if (empleados().length === 0) {
+              <tr><td colspan="4" class="pc-emp-empty">Cargando empleados...</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>

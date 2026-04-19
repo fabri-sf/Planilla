@@ -9,14 +9,14 @@
   </div>
   <div class="page-header-right">
     <button type="button" class="btn-add" (click)="abrirCrear()">+ Nuevo registro</button>
-    <button type="button" class="btn-close" title="Cerrar">✕</button>
+    <button type="button" class="btn-close" (click)="cerrar()" title="Cerrar">✕</button>
   </div>
 </div>
 
 <!-- ===== BUSCADOR ===== -->
 <div class="search-bar">
   <span class="search-icon">🔍</span>
-  <input type="text" class="search-input" placeholder="Buscar por nombre, id..." />
+  <input type="text" class="search-input" placeholder="Buscar por nombre, id..." [(ngModel)]="terminoBusqueda" />
 </div>
 
 <!-- ===== TABLA ===== -->
@@ -24,25 +24,25 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>ID</th><th>Usuario</th><th>Correo</th><th>Rol</th><th>Empleado ID</th>
+        <th>ID</th><th>Usuario</th><th>Correo</th><th>Rol</th><th>Empleado</th>
         <th>Estado</th><th>Último acceso</th><th>Creación</th><th>Acciones</th>
       </tr>
     </thead>
     <tbody>
-      @for (item of lista(); track item.id) {
+      @for (item of listaFiltrada; track item.id) {
       <tr>
         <td>{{ item.id }}</td>
         <td>{{ item.nombreUsuario }}</td>
         <td>{{ item.correo }}</td>
         <td><span class="badge" [class.badge-admin]="item.rol==='admin'" [class.badge-gerente]="item.rol==='gerente'" [class.badge-empleado]="item.rol==='empleado'">{{ item.rol }}</span></td>
-        <td>{{ item.empleadoId }}</td>
+        <td>{{ nombreEmpleado(item.empleadoId) }}</td>
         <td><span class="badge" [class.badge-activo]="item.estado==='activo'" [class.badge-inactivo]="item.estado==='inactivo'">{{ item.estado }}</span></td>
         <td>{{ item.ultimoAcceso }}</td>
         <td>{{ item.creacion }}</td>
         <td>
           <div class="actions">
             <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
-            <button type="button" class="btn-delete" title="Eliminar" (click)="eliminar(item.id)">🗑️</button>
+            <button type="button" class="btn-delete" title="{{ item.estado === 'activo' ? 'Desactivar' : 'Activar' }}" (click)="confirmarEliminar(item.id, item.estado)">{{ item.estado === 'activo' ? '🔴' : '🟢' }}</button>
           </div>
         </td>
       </tr>
@@ -92,23 +92,44 @@
           @if (enviado && !form.rol) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="empleadoId">Empleado ID</label>
-          <input id="empleadoId" class="form-input" type="number" [(ngModel)]="form.empleadoId" placeholder="ID del empleado" />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="estado">Estado <span class="required-mark">*</span></label>
-          <select id="estado" class="form-select" title="Estado" [class.invalid]="enviado && !form.estado" [(ngModel)]="form.estado">
-            <option value="">Seleccione...</option>
-            <option value="activo">activo</option>
-            <option value="inactivo">inactivo</option>
+          <label class="form-label" for="empleadoId">Empleado</label>
+          <select id="empleadoId" class="form-select" title="Empleado" [(ngModel)]="form.empleadoId">
+            <option [ngValue]="0">Seleccione...</option>
+            @for (e of empleadosDisponibles(); track e.id) {
+              <option [ngValue]="e.id">{{ e.nombre }} {{ e.apellido }}</option>
+            }
           </select>
-          @if (enviado && !form.estado) { <span class="form-error">Campo obligatorio</span> }
         </div>
+        @if (modoEditar) {
+        <div class="form-group">
+          <label class="form-label" for="estado">Estado</label>
+          <select id="estado" class="form-select" title="Estado" [(ngModel)]="form.estado">
+            <option value="suspendido">suspendido</option>
+          </select>
+        </div>
+        }
       </div>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
       <button type="button" class="btn-save" (click)="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ===== MODAL CONFIRMACIÓN ===== -->
+@if (mostrandoConfirmacion) {
+<div class="modal-confirm-overlay" (click)="cerrarConfirmacion()">
+  <div class="modal-confirm" (click)="$event.stopPropagation()">
+    <div class="modal-confirm-icon">{{ estadoActual === 'activo' ? '🔴' : '🟢' }}</div>
+    <p class="modal-confirm-title">{{ estadoActual === 'activo' ? '¿Desactivar usuario?' : '¿Activar usuario?' }}</p>
+    <p class="modal-confirm-msg">{{ estadoActual === 'activo' ? 'El usuario perderá acceso al sistema.' : 'El usuario recuperará acceso al sistema.' }}</p>
+    <div class="modal-confirm-actions">
+      <button type="button" class="btn-cancel-form" (click)="cerrarConfirmacion()">Cancelar</button>
+      <button type="button" [class]="estadoActual === 'activo' ? 'btn-danger' : 'btn-save'" (click)="ejecutarEliminar()">
+        {{ estadoActual === 'activo' ? 'Sí, desactivar' : 'Sí, activar' }}
+      </button>
     </div>
   </div>
 </div>

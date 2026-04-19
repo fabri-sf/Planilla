@@ -1,0 +1,94 @@
+<!-- ===== TOP BAR ===== -->
+<div class="pl-topbar">
+  <div class="pl-topbar-left">
+    <div class="pl-topbar-icon">📋</div>
+    <div>
+      <h1 class="pl-topbar-title">Gestión de Planillas</h1>
+      <p class="pl-topbar-sub">{{ lista().length }} planillas en total</p>
+    </div>
+  </div>
+  <button class="pl-btn-primary" (click)="navCrear()">+ Nueva planilla</button>
+</div>
+
+<!-- ===== MÉTRICAS ===== -->
+<div class="pl-metricas">
+  <div class="pl-metrica-card">
+    <div class="pl-metrica-num">{{ lista().length }}</div>
+    <div class="pl-metrica-label">Total planillas</div>
+  </div>
+  <div class="pl-metrica-card pl-metrica-card--amber">
+    <div class="pl-metrica-num">{{ totalPendientes }}</div>
+    <div class="pl-metrica-label">Pendientes de pago</div>
+  </div>
+  <div class="pl-metrica-card pl-metrica-card--blue">
+    <div class="pl-metrica-num">{{ totalEnProceso }}</div>
+    <div class="pl-metrica-label">En proceso</div>
+  </div>
+  <div class="pl-metrica-card pl-metrica-card--green">
+    <div class="pl-metrica-num">{{ planillasPorEstado('cerrada').length }}</div>
+    <div class="pl-metrica-label">Cerradas</div>
+  </div>
+</div>
+
+<!-- ===== FILTROS ===== -->
+<div class="pl-filtros">
+  <button class="pl-chip" [class.pl-chip--active]="filtroActivo === ''" (click)="filtroActivo = ''">
+    Todas <span class="pl-chip-count">{{ lista().length }}</span>
+  </button>
+  @for (col of columnas; track col.estado) {
+    <button class="pl-chip"
+      [class.pl-chip--active]="filtroActivo === col.estado"
+      [style.--chip-color]="col.color"
+      [style.--chip-bg]="col.bg"
+      (click)="filtroActivo = col.estado">
+      {{ col.label }}
+      <span class="pl-chip-count">{{ planillasPorEstado(col.estado).length }}</span>
+    </button>
+  }
+</div>
+
+<!-- ===== KANBAN ===== -->
+<div class="pl-kanban" [class.pl-kanban--filtrado]="filtroActivo !== ''">
+  @for (col of columnasVisibles; track col.estado) {
+    <div class="pl-columna" [style.border-top-color]="col.borde">
+
+      <!-- Encabezado columna -->
+      <div class="pl-columna-header">
+        <span class="pl-columna-title" [style.color]="col.color">{{ col.label }}</span>
+        <span class="pl-columna-count" [style.background]="col.bg" [style.color]="col.color">
+          {{ planillasPorEstado(col.estado).length }}
+        </span>
+      </div>
+
+      <!-- Tarjetas -->
+      <div class="pl-cards">
+        @for (item of planillasPorEstado(col.estado); track item.id) {
+          <div class="pl-card" (click)="navDetalle(item.id)">
+            <div class="pl-card-top">
+              <span class="pl-card-id">#{{ item.id }}</span>
+              <span class="pl-badge" [ngStyle]="badgeStyle(item.estado)">{{ item.estado }}</span>
+            </div>
+            <div class="pl-card-periodo">{{ item.periodo }}</div>
+            @if (item.descripcion) {
+              <div class="pl-card-desc">{{ item.descripcion }}</div>
+            }
+            <div class="pl-card-fecha">
+              <span>📅</span> {{ fmtFecha(item.fechaInicio) }} — {{ fmtFecha(item.fechaFin) }}
+            </div>
+            @if (item.creadoPor) {
+              <div class="pl-card-responsable">
+                <div class="pl-avatar" [style.background]="col.borde">
+                  {{ inicialUsuario(item.creadoPor) }}
+                </div>
+                <span>{{ nombreUsuario(item.creadoPor) }}</span>
+              </div>
+            }
+          </div>
+        }
+        @if (planillasPorEstado(col.estado).length === 0) {
+          <div class="pl-columna-empty">Sin planillas</div>
+        }
+      </div>
+    </div>
+  }
+</div>

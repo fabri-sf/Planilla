@@ -277,3 +277,51 @@
   font-weight: 600; cursor: pointer; transition: all var(--transition-normal);
 }
 .btn-cancel-form:hover { background: var(--bg-page); border-color: var(--text-hint); }
+
+/* ===== FILTROS BAR ===== */
+.filtros-bar {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+  margin-bottom: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+.search-bar-flex { flex: 1; margin-bottom: 0; }
+
+.filtro-planilla {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  white-space: nowrap;
+}
+
+.filtro-label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ===== TABLA — COLUMNAS MONETARIAS ===== */
+.monto { text-align: right; font-variant-numeric: tabular-nums; }
+.centro { text-align: center; }
+.font-bold { font-weight: 700; color: var(--text-primary); }
+.text-danger { color: var(--color-danger-text); }
+.text-success { color: var(--color-success-text); }
+.obs { max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
+
+.tabla-vacia {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* ===== MODAL PEQUEÑO ===== */
+.modal-sm { max-width: 440px; }
+
+.form-hint {
+  font-size: 11px;
+  color: var(--text-hint);
+  margin-top: 2px;
+}

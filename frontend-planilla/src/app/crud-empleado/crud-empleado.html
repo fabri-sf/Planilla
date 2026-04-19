@@ -9,14 +9,14 @@
   </div>
   <div class="page-header-right">
     <button type="button" class="btn-add" (click)="abrirCrear()">+ Nuevo registro</button>
-    <button type="button" class="btn-close" title="Cerrar">✕</button>
+    <button type="button" class="btn-close" (click)="cerrar()" title="Cerrar">✕</button>
   </div>
 </div>
 
 <!-- ===== BUSCADOR ===== -->
 <div class="search-bar">
   <span class="search-icon">🔍</span>
-  <input type="text" class="search-input" placeholder="Buscar por nombre, cédula, id..." />
+  <input type="text" class="search-input" placeholder="Buscar por nombre, cédula, id..." [(ngModel)]="terminoBusqueda" />
 </div>
 
 <!-- ===== TABLA ===== -->
@@ -31,7 +31,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (item of lista(); track item.id) {
+      @for (item of listaFiltrada; track item.id) {
       <tr>
         <td>{{ item.id }}</td>
         <td>{{ item.cedula }}</td>
@@ -43,13 +43,13 @@
         <td>{{ item.fechaIngreso }}</td>
         <td>₡{{ item.salarioBase }}</td>
         <td><span class="badge" [class.badge-activo]="item.estado==='activo'" [class.badge-inactivo]="item.estado==='inactivo'" [class.badge-suspendido]="item.estado==='suspendido'">{{ item.estado }}</span></td>
-        <td>{{ item.puestoId }}</td>
-        <td>{{ item.departamentoId }}</td>
-        <td>{{ item.tipoContratoId }}</td>
+        <td>{{ nombrePuesto(item.puestoId) }}</td>
+        <td>{{ nombreDepartamento(item.departamentoId) }}</td>
+        <td>{{ nombreTipoContrato(item.tipoContratoId) }}</td>
         <td>
           <div class="actions">
             <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
-            <button type="button" class="btn-delete" title="Eliminar" (click)="eliminar(item.id)">🗑️</button>
+            <button type="button" class="btn-delete" title="{{ item.estado === 'activo' ? 'Desactivar' : 'Activar' }}" (click)="confirmarEliminar(item.id, item.estado)">{{ item.estado === 'activo' ? '🔴' : '🟢' }}</button>
           </div>
         </td>
       </tr>
@@ -76,7 +76,7 @@
       <div class="form-grid">
         <div class="form-group">
           <label class="form-label" for="cedula">Cédula <span class="required-mark">*</span></label>
-          <input id="cedula" class="form-input" [class.invalid]="enviado && !form.cedula" [(ngModel)]="form.cedula" placeholder="Ej: 1-1234-5678" />
+          <input id="cedula" class="form-input" maxlength="11" [class.invalid]="enviado && !form.cedula" [(ngModel)]="form.cedula" placeholder="Ej: 1-1234-5678" />
           @if (enviado && !form.cedula) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
@@ -96,15 +96,15 @@
         </div>
         <div class="form-group">
           <label class="form-label" for="telefono">Teléfono</label>
-          <input id="telefono" class="form-input" [(ngModel)]="form.telefono" placeholder="8888-0000" />
+          <input id="telefono" class="form-input" maxlength="9" [(ngModel)]="form.telefono" placeholder="8888-0000" />
         </div>
         <div class="form-group">
           <label class="form-label" for="fechaNacimiento">Fecha de nacimiento</label>
-          <input id="fechaNacimiento" class="form-input" type="date" title="Fecha de nacimiento" [(ngModel)]="form.fechaNacimiento" />
+          <input id="fechaNacimiento" class="form-input" type="date" title="Fecha de nacimiento" [max]="maxFechaNacimiento" [(ngModel)]="form.fechaNacimiento" />
         </div>
         <div class="form-group">
           <label class="form-label" for="fechaIngreso">Fecha de ingreso <span class="required-mark">*</span></label>
-          <input id="fechaIngreso" class="form-input" type="date" title="Fecha de ingreso" [class.invalid]="enviado && !form.fechaIngreso" [(ngModel)]="form.fechaIngreso" />
+          <input id="fechaIngreso" class="form-input" type="date" title="Fecha de ingreso" [max]="hoy" [class.invalid]="enviado && !form.fechaIngreso" [(ngModel)]="form.fechaIngreso" />
           @if (enviado && !form.fechaIngreso) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
@@ -112,33 +112,63 @@
           <input id="salarioBase" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salarioBase" [(ngModel)]="form.salarioBase" placeholder="0" />
           @if (enviado && !form.salarioBase) { <span class="form-error">Campo obligatorio</span> }
         </div>
+        @if (modoEditar) {
         <div class="form-group">
-          <label class="form-label" for="estado">Estado <span class="required-mark">*</span></label>
-          <select id="estado" class="form-select" title="Estado" [class.invalid]="enviado && !form.estado" [(ngModel)]="form.estado">
-            <option value="">Seleccione...</option>
-            <option value="activo">activo</option>
-            <option value="inactivo">inactivo</option>
+          <label class="form-label" for="estado">Estado</label>
+          <select id="estado" class="form-select" title="Estado" [(ngModel)]="form.estado">
             <option value="suspendido">suspendido</option>
           </select>
-          @if (enviado && !form.estado) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+        }
+        <div class="form-group">
+          <label class="form-label" for="puestoId">Puesto</label>
+          <select id="puestoId" class="form-select" title="Puesto" [(ngModel)]="form.puestoId">
+            <option [ngValue]="0">Seleccione...</option>
+            @for (p of puestos(); track p.id) {
+              <option [ngValue]="p.id">{{ p.nombre }}</option>
+            }
+          </select>
         </div>
         <div class="form-group">
-          <label class="form-label" for="puestoId">Puesto ID</label>
-          <input id="puestoId" class="form-input" type="number" [(ngModel)]="form.puestoId" placeholder="ID del puesto" />
+          <label class="form-label" for="departamentoId">Departamento</label>
+          <select id="departamentoId" class="form-select" title="Departamento" [(ngModel)]="form.departamentoId">
+            <option [ngValue]="0">Seleccione...</option>
+            @for (d of departamentos(); track d.id) {
+              <option [ngValue]="d.id">{{ d.nombre }}</option>
+            }
+          </select>
         </div>
         <div class="form-group">
-          <label class="form-label" for="departamentoId">Departamento ID</label>
-          <input id="departamentoId" class="form-input" type="number" [(ngModel)]="form.departamentoId" placeholder="ID del departamento" />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="tipoContratoId">Tipo de contrato ID</label>
-          <input id="tipoContratoId" class="form-input" type="number" [(ngModel)]="form.tipoContratoId" placeholder="ID del tipo de contrato" />
+          <label class="form-label" for="tipoContratoId">Tipo de contrato</label>
+          <select id="tipoContratoId" class="form-select" title="Tipo de contrato" [(ngModel)]="form.tipoContratoId">
+            <option [ngValue]="0">Seleccione...</option>
+            @for (t of tiposContrato(); track t.id) {
+              <option [ngValue]="t.id">{{ t.nombre }}</option>
+            }
+          </select>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
       <button type="button" class="btn-save" (click)="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ===== MODAL CONFIRMACIÓN ===== -->
+@if (mostrandoConfirmacion) {
+<div class="modal-confirm-overlay" (click)="cerrarConfirmacion()">
+  <div class="modal-confirm" (click)="$event.stopPropagation()">
+    <div class="modal-confirm-icon">{{ estadoActual === 'activo' ? '🔴' : '🟢' }}</div>
+    <p class="modal-confirm-title">{{ estadoActual === 'activo' ? '¿Desactivar empleado?' : '¿Activar empleado?' }}</p>
+    <p class="modal-confirm-msg">{{ estadoActual === 'activo' ? 'El empleado pasará a estado inactivo y no podrá operar.' : 'El empleado volverá a estar activo en el sistema.' }}</p>
+    <div class="modal-confirm-actions">
+      <button type="button" class="btn-cancel-form" (click)="cerrarConfirmacion()">Cancelar</button>
+      <button type="button" [class]="estadoActual === 'activo' ? 'btn-danger' : 'btn-save'" (click)="ejecutarEliminar()">
+        {{ estadoActual === 'activo' ? 'Sí, desactivar' : 'Sí, activar' }}
+      </button>
     </div>
   </div>
 </div>

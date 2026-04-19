@@ -1,0 +1,81 @@
+:host { display: block; background: var(--bg-page); min-height: 100%; font-family: var(--font-base); }
+
+.pc-header {
+  display: flex; align-items: center; gap: var(--space-lg);
+  padding: var(--space-lg) var(--space-xl);
+  background: var(--bg-white); border-bottom: 1px solid var(--border-default);
+}
+.pc-btn-back {
+  background: none; border: 1px solid var(--border-default);
+  padding: 8px 16px; border-radius: var(--radius-md); cursor: pointer;
+  font-size: var(--font-size-sm); color: var(--text-secondary);
+  transition: all var(--transition-normal);
+}
+.pc-btn-back:hover { background: var(--bg-page); }
+.pc-header-title { display: flex; align-items: center; gap: var(--space-md); }
+.pc-header-icon { font-size: 28px; }
+.pc-title { font-size: var(--font-size-xl); font-weight: 700; color: var(--text-primary); margin: 0; }
+.pc-sub   { font-size: var(--font-size-sm); color: var(--text-muted); margin: 2px 0 0; }
+
+.pc-layout {
+  display: grid; grid-template-columns: 1fr 1.2fr;
+  gap: var(--space-xl); padding: var(--space-xl);
+  align-items: start;
+}
+
+.pc-card {
+  background: var(--bg-white); border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg); padding: var(--space-xl);
+}
+.pc-card-title  { font-size: var(--font-size-lg); font-weight: 700; color: var(--text-primary); margin-bottom: var(--space-lg); }
+.pc-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-sm); }
+.pc-emp-stats   { font-size: var(--font-size-sm); color: var(--text-muted); }
+.pc-emp-count   { font-weight: 700; color: var(--color-primary); }
+.pc-emp-hint    { font-size: var(--font-size-xs); color: var(--text-hint); margin-bottom: var(--space-md); line-height: 1.5; }
+
+.pc-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+.pc-field { display: flex; flex-direction: column; gap: 5px; }
+.pc-field-full { grid-column: 1 / -1; }
+.pc-label { font-size: var(--font-size-sm); font-weight: 600; color: var(--text-secondary); }
+.pc-req   { color: var(--color-danger); }
+.pc-input {
+  padding: 10px 14px; border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-md); font-size: var(--font-size-sm);
+  color: var(--text-primary); background: var(--bg-white);
+  transition: border-color var(--transition-normal);
+  font-family: var(--font-base); outline: none; box-sizing: border-box; width: 100%;
+}
+.pc-input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(79,142,247,.12); }
+.pc-invalid { border-color: var(--color-danger) !important; }
+.pc-textarea { resize: vertical; min-height: 80px; }
+.pc-error { font-size: 11px; color: var(--color-danger-text); }
+
+.pc-actions { display: flex; justify-content: flex-end; gap: var(--space-sm); margin-top: var(--space-xl); }
+.pc-btn-cancel {
+  background: var(--bg-white); border: 1.5px solid var(--border-default);
+  padding: 10px 28px; border-radius: var(--radius-md); font-size: var(--font-size-sm);
+  font-weight: 600; cursor: pointer; color: var(--text-secondary); transition: all var(--transition-normal);
+}
+.pc-btn-cancel:hover { background: var(--bg-page); }
+.pc-btn-save {
+  background: var(--color-primary); color: #fff; border: none;
+  padding: 10px 28px; border-radius: var(--radius-md); font-size: var(--font-size-sm);
+  font-weight: 600; cursor: pointer; transition: background var(--transition-normal);
+}
+.pc-btn-save:hover:not([disabled]) { background: var(--color-primary-dark); }
+.pc-btn-save[disabled], .pc-btn-cancel[disabled] { opacity: .6; cursor: not-allowed; }
+
+.pc-emp-table-wrap { overflow-y: auto; max-height: 480px; border: 1px solid var(--border-default); border-radius: var(--radius-md); }
+.pc-emp-table { width: 100%; border-collapse: collapse; }
+.pc-emp-table thead tr { background: var(--bg-page); position: sticky; top: 0; }
+.pc-emp-table th { padding: 10px 14px; text-align: left; font-size: var(--font-size-xs); font-weight: 700; color: var(--text-hint); text-transform: uppercase; letter-spacing: .5px; }
+.pc-emp-table td { padding: 10px 14px; font-size: var(--font-size-sm); color: var(--text-secondary); border-top: 1px solid var(--border-separator); cursor: pointer; }
+.pc-emp-table tr:hover td { background: var(--color-primary-light); }
+.pc-emp-selected td { background: var(--color-primary-light); }
+.pc-emp-cedula  { color: var(--text-muted); font-size: var(--font-size-xs); }
+.pc-emp-salario { font-weight: 600; color: var(--text-primary); }
+.pc-emp-empty   { text-align: center; color: var(--text-hint); padding: var(--space-xl); }
+
+@media (max-width: 900px) {
+  .pc-layout { grid-template-columns: 1fr; }
+}

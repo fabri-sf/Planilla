@@ -1,13 +1,20 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { NotificacionService } from '../notificacion.service';
 
 interface Pago {
   id: number; empleadoId: number; planillaId: number; salarioBase: number;
   diasTrabajados: number; diasEsperados: number; horasExtras: number;
   totalBruto: number; totalDeducciones: number; totalBonificaciones: number;
   salarioNeto: number; observaciones: string; fecha: string;
+  // campos enriquecidos desde el servidor (ReadByPlanilla)
+  nombre?: string; apellido?: string; cedula?: string;
 }
+
+interface Empleado { id: number; nombre: string; apellido: string; }
+interface Planilla { id: number; periodo: string; estado: string; }
 
 @Component({
   selector: 'app-crud-pago',
@@ -17,15 +24,29 @@ interface Pago {
 })
 export class CrudPago implements OnInit {
   private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly notifSvc = inject(NotificacionService);
   private readonly apiUrl = 'http://localhost/ServicioPago/';
 
   protected readonly lista = signal<Pago[]>([]);
-  protected mostrandoModal = false;
-  protected modoEditar = false;
-  protected enviado = false;
-  protected form = this.formVacio();
+  protected readonly empleados = signal<Empleado[]>([]);
+  protected readonly planillas = signal<Planilla[]>([]);
+  protected planillaSeleccionada = 0;
+  protected terminoBusqueda = '';
 
-  ngOnInit() { this.loadPagos(); }
+  // Modal solo para editar observaciones
+  protected mostrandoModal = false;
+  protected formObs = { id: 0, observaciones: '' };
+
+  ngOnInit() {
+    this.loadPagos();
+    this.http.get<Empleado[]>('http://localhost/ServicioEmpleado/ReadAll').subscribe({
+      next: (d) => this.empleados.set(d), error: () => {}
+    });
+    this.http.get<Planilla[]>('http://localhost/ServicioPlanilla/ReadAll').subscribe({
+      next: (d) => this.planillas.set(d), error: () => {}
+    });
+  }
 
   protected loadPagos() {
     this.http.get<Pago[]>(this.apiUrl + 'ReadAll').subscribe({
@@ -34,31 +55,44 @@ export class CrudPago implements OnInit {
     });
   }
 
-  protected formVacio() {
-    return { empleadoId: 0, planillaId: 0, salarioBase: 0, diasTrabajados: 0, diasEsperados: 0, horasExtras: 0, totalBruto: 0, totalDeducciones: 0, totalBonificaciones: 0, salarioNeto: 0, observaciones: '' };
-  }
-
-  protected formValido(): boolean {
-    return this.form.empleadoId > 0 && this.form.planillaId > 0 && this.form.salarioBase > 0 && this.form.diasTrabajados > 0 && this.form.diasEsperados > 0;
-  }
-
-  protected abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
-  protected abrirEditar(item: Pago) { this.form = { ...item }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
-  protected cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
-
-  protected guardar() {
-    this.enviado = true;
-    if (!this.formValido()) return;
-    if (this.modoEditar) {
-      this.http.post(this.apiUrl + 'Update', this.form).subscribe({
-        next: () => { this.loadPagos(); this.cerrarModal(); },
-        error: (err) => console.error('Error updating pago', err),
-      });
-    } else {
-      this.http.post(this.apiUrl + 'Create', this.form).subscribe({
-        next: () => { this.loadPagos(); this.cerrarModal(); },
-        error: (err) => console.error('Error creating pago', err),
-      });
+  protected get listaFiltrada(): Pago[] {
+    let result = this.lista();
+    if (this.planillaSeleccionada > 0) {
+      result = result.filter(p => p.planillaId === this.planillaSeleccionada);
     }
+    const t = this.terminoBusqueda.toLowerCase().trim();
+    if (!t) return result;
+    return result.filter(p =>
+      this.nombreEmpleado(p.empleadoId).toLowerCase().includes(t) ||
+      this.nombrePlanilla(p.planillaId).toLowerCase().includes(t) ||
+      String(p.id).includes(t)
+    );
   }
+
+  protected nombreEmpleado(id: number): string {
+    const e = this.empleados().find(e => e.id === id);
+    return e ? `${e.nombre} ${e.apellido}` : String(id);
+  }
+
+  protected nombrePlanilla(id: number): string {
+    return this.planillas().find(p => p.id === id)?.periodo ?? String(id);
+  }
+
+  protected fmt(val: number): string {
+    return val != null ? Number(val).toLocaleString('es-CR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
+  }
+
+  protected abrirEditarObs(item: Pago) {
+    this.formObs = { id: item.id, observaciones: item.observaciones ?? '' };
+    this.mostrandoModal = true;
+  }
+  protected cerrarModal() { this.mostrandoModal = false; }
+
+  protected guardarObs() {
+    this.http.post(this.apiUrl + 'Update', this.formObs).subscribe({
+      next: () => { this.loadPagos(); this.cerrarModal(); this.notifSvc.mostrar('Observaciones actualizadas'); },
+      error: () => this.notifSvc.mostrar('Error al actualizar las observaciones', 'error'),
+    });
+  }
+  cerrar() { this.router.navigate(["/"]); }
 }
