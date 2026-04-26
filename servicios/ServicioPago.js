@@ -68,7 +68,7 @@ class ServicioPago {
         `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
          VALUES (?, 'PAGO', 'INSERT', 0, 'todos', NULL, ?, ?)`,
         [
-          usuarioId ?? 0,
+          usuarioId ?? null,
           `empleadoId:${Datos.empleadoId}, planillaId:${Datos.planillaId}, salarioNeto:${salarioNeto}`,
           `Creación pago empleado ID: ${Datos.empleadoId}, planilla ID: ${Datos.planillaId}`,
         ]
@@ -119,7 +119,7 @@ class ServicioPago {
         `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
          VALUES (?, 'PAGO', 'UPDATE', ?, 'observaciones', NULL, ?, ?)`,
         [
-          usuarioId ?? 0,
+          usuarioId ?? null,
           Datos.id,
           Datos.observaciones,
           `Actualización observaciones pago ID: ${Datos.id}`,

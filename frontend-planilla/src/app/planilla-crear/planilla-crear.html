@@ -29,23 +29,29 @@
         <div class="pc-field">
           <label class="pc-label">Fecha inicio <span class="pc-req">*</span></label>
           <input class="pc-input" type="date" [(ngModel)]="form.fechaInicio"
-                 [class.pc-invalid]="enviado && !form.fechaInicio" />
+                 [class.pc-invalid]="enviado && (!form.fechaInicio || !!errorFechas)" />
           @if (enviado && !form.fechaInicio) { <span class="pc-error">Campo obligatorio</span> }
         </div>
 
         <div class="pc-field">
           <label class="pc-label">Fecha fin <span class="pc-req">*</span></label>
           <input class="pc-input" type="date" [(ngModel)]="form.fechaFin"
-                 [class.pc-invalid]="enviado && !form.fechaFin" />
+                 [class.pc-invalid]="enviado && (!form.fechaFin || !!errorFechas)" />
           @if (enviado && !form.fechaFin) { <span class="pc-error">Campo obligatorio</span> }
         </div>
 
         <div class="pc-field">
           <label class="pc-label">Fecha de pago estimada <span class="pc-req">*</span></label>
           <input class="pc-input" type="date" [(ngModel)]="form.fechaPago"
-                 [class.pc-invalid]="enviado && !form.fechaPago" />
+                 [class.pc-invalid]="enviado && (!form.fechaPago || !!errorFechas)" />
           @if (enviado && !form.fechaPago) { <span class="pc-error">Campo obligatorio</span> }
         </div>
+
+        @if (enviado && errorFechas) {
+          <div class="pc-field pc-field-full">
+            <span class="pc-error">{{ errorFechas }}</span>
+          </div>
+        }
 
         <div class="pc-field">
           <label class="pc-label">Creado por</label>

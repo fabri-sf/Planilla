@@ -78,7 +78,7 @@
           <table class="pd-table">
             <thead><tr>
               <th>Empleado</th><th>Días</th><th>Hrs extra</th>
-              <th>Bruto</th><th>Deducciones</th><th>Bonificaciones</th><th>Neto</th>
+              <th>Bruto</th><th>Deducciones</th><th>Bonificaciones</th><th>Neto</th><th></th>
             </tr></thead>
             <tbody>
               @for (p of pagos(); track p.id) {
@@ -90,6 +90,9 @@
                   <td class="pd-monto pd-rojo">{{ fmtMoneda(p.totalDeducciones) }}</td>
                   <td class="pd-monto pd-verde">{{ fmtMoneda(p.totalBonificaciones) }}</td>
                   <td class="pd-monto pd-verde pd-bold">{{ fmtMoneda(p.salarioNeto) }}</td>
+                  <td>
+                    <button class="pd-btn-ver" title="Comprobante de pago" (click)="verComprobante(p)">🖨️ Comprobante</button>
+                  </td>
                 </tr>
               }
             </tbody>
@@ -195,16 +198,16 @@
   <!-- Stepper indicador -->
   <div class="pd-stepper">
     @for (s of ['Seleccionar empleados', 'Calcular asistencia', 'Revisar cálculos', 'Confirmar', 'Deducciones y Bonificaciones']; track $index; let i = $index) {
-      <div class="pd-step" [class.pd-step--done]="paso > i" [class.pd-step--active]="paso === i">
+      <div class="pd-step" [class.pd-step--done]="paso() > i" [class.pd-step--active]="paso() === i">
         <div class="pd-step-num">{{ i + 1 }}</div>
         <div class="pd-step-label">{{ s }}</div>
       </div>
-      @if (i < 4) { <div class="pd-step-line" [class.pd-step-line--done]="paso > i"></div> }
+      @if (i < 4) { <div class="pd-step-line" [class.pd-step-line--done]="paso() > i"></div> }
     }
   </div>
 
   <!-- Paso 0: Seleccionar empleados -->
-  @if (paso === 0) {
+  @if (paso() === 0) {
     <div class="pd-card pd-paso-card">
       <div class="pd-card-title">Seleccionar empleados a procesar</div>
       <div class="pd-card-sub">{{ seleccionados.size }} de {{ empleados().length }} empleados seleccionados</div>
@@ -237,7 +240,7 @@
   }
 
   <!-- Paso 1: Calculando -->
-  @if (paso === 1) {
+  @if (paso() === 1) {
     <div class="pd-card pd-loading">
       <div class="pd-spinner"></div>
       <p>Consultando asistencia y calculando montos...</p>
@@ -245,7 +248,7 @@
   }
 
   <!-- Paso 2: Resultados -->
-  @if (paso === 2 && previsualizacion()) {
+  @if (paso() === 2 && previsualizacion()) {
     <div class="pd-card pd-paso-card">
       <div class="pd-card-title">Cálculo de pagos</div>
       <div class="pd-card-sub">{{ previsualizacion()!.empleados.length }} empleados · período: {{ fmtFecha(planilla()!.fechaInicio) }} → {{ fmtFecha(planilla()!.fechaFin) }}</div>
@@ -303,14 +306,14 @@
       </div>
 
       <div class="pd-paso-footer">
-        <button class="pd-btn-cancel" (click)="paso = 0">← Anterior</button>
-        <button class="pd-btn-primary" (click)="paso = 3">Confirmar y procesar →</button>
+        <button class="pd-btn-cancel" (click)="setPaso(0)">← Anterior</button>
+        <button class="pd-btn-primary" (click)="setPaso(3)">Confirmar y procesar →</button>
       </div>
     </div>
   }
 
   <!-- Paso 3: Confirmar -->
-  @if (paso === 3) {
+  @if (paso() === 3) {
     <div class="pd-card pd-paso-card pd-confirm-card">
       @if (!procesando) {
         <div class="pd-confirm-icon">✅</div>
@@ -324,7 +327,7 @@
           <div>Costo empresa: <strong>{{ fmtMoneda((previsualizacion()?.totales.totalBruto ?? 0) + (previsualizacion()?.totales.cargasPatronales ?? 0)) }}</strong></div>
         </div>
         <div class="pd-paso-footer">
-          <button class="pd-btn-cancel" (click)="paso = 2">← Revisar</button>
+          <button class="pd-btn-cancel" (click)="setPaso(2)">← Revisar</button>
           <button class="pd-btn-green" (click)="confirmarProcesar()">⚙️ Procesar planilla</button>
         </div>
       } @else {
@@ -335,7 +338,7 @@
   }
 
   <!-- ═══ Paso 4: Deducciones y Bonificaciones post-procesamiento ═══ -->
-  @if (paso === 4) {
+  @if (paso() === 4) {
     <div class="pd-card pd-paso-card">
       <div class="pd-card-title">➖➕ Deducciones y Bonificaciones</div>
       <div class="pd-card-sub">
@@ -442,7 +445,9 @@
       }
       @for (ded of deduccionesPago(); track ded.id) {
         <div class="pd-desglose-row">
-          <span>{{ ded.nombre ?? 'Deducción' }}
+          <span>
+            <strong>{{ ded.nombre ?? 'Deducción' }}</strong>
+            @if (ded.codigo) { <em class="pd-tipo-codigo">({{ ded.codigo }})</em> }
             @if (ded.observaciones) { — <em style="color: var(--text-muted);">{{ ded.observaciones }}</em> }
           </span>
           <div style="display:flex; align-items:center; gap:8px;">
@@ -536,7 +541,9 @@
       }
       @for (bon of bonificacionesPago(); track bon.id) {
         <div class="pd-desglose-row">
-          <span>{{ bon.nombre ?? 'Bonificación' }}
+          <span>
+            <strong>{{ bon.nombre ?? 'Bonificación' }}</strong>
+            @if (bon.codigo) { <em class="pd-tipo-codigo">({{ bon.codigo }})</em> }
             @if (bon.observaciones) { — <em style="color: var(--text-muted);">{{ bon.observaciones }}</em> }
           </span>
           <div style="display:flex; align-items:center; gap:8px;">
@@ -715,8 +722,8 @@
 
       <div class="pd-desglose-section">Cargas patronales (no afectan neto)</div>
       <div class="pd-desglose-row pd-desglose-info"><span>CCSS patronal (26.67%)</span><span>{{ fmtMoneda(empDetalle.cargasCCSS) }}</span></div>
-      <div class="pd-desglose-row pd-desglose-info"><span>Banco Popular (0.5%)</span><span>{{ fmtMoneda(empDetalle.bancoPOpular) }}</span></div>
-      <div class="pd-desglose-row pd-desglose-info pd-bold"><span>Costo total para empresa</span><span>{{ fmtMoneda(empDetalle.totalBruto + empDetalle.cargasCCSS + empDetalle.bancoPOpular) }}</span></div>
+      <div class="pd-desglose-row pd-desglose-info"><span>Banco Popular (0.5%)</span><span>{{ fmtMoneda(empDetalle.bancoPopular) }}</span></div>
+      <div class="pd-desglose-row pd-desglose-info pd-bold"><span>Costo total para empresa</span><span>{{ fmtMoneda(empDetalle.totalBruto + empDetalle.cargasCCSS + empDetalle.bancoPopular) }}</span></div>
     </div>
   </div>
 </div>

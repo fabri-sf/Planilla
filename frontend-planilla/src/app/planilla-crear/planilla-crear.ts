@@ -68,9 +68,26 @@ export class PlanillaCrear implements OnInit {
     return this.empleados().length > 0 && this.seleccionados.size === this.empleados().length;
   }
 
+  protected get errorFechas(): string | null {
+    const { fechaInicio, fechaFin, fechaPago } = this.form;
+    if (!fechaInicio || !fechaFin || !fechaPago) return null;
+    const hoy  = new Date();
+    const ini  = new Date(fechaInicio + 'T00:00:00');
+    const fin  = new Date(fechaFin    + 'T00:00:00');
+    const pago = new Date(fechaPago   + 'T00:00:00');
+    if (ini.getMonth() !== hoy.getMonth() || ini.getFullYear() !== hoy.getFullYear())
+      return 'La fecha de inicio debe pertenecer al mes actual';
+    if (fin <= ini)
+      return 'La fecha de fin debe ser posterior a la fecha de inicio';
+    if (pago <= ini)
+      return 'La fecha de pago debe ser posterior a la fecha de inicio';
+    return null;
+  }
+
   protected formValido(): boolean {
     return this.form.periodo !== '' && this.form.fechaInicio !== '' &&
-           this.form.fechaFin !== '' && this.form.fechaPago !== '';
+           this.form.fechaFin !== '' && this.form.fechaPago !== '' &&
+           this.errorFechas === null;
   }
 
   protected guardar() {

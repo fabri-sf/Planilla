@@ -1,4 +1,5 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
+import { lastValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TitleCasePipe, NgStyle } from '@angular/common';
@@ -27,7 +28,7 @@ interface PrevEmp {
   salarioBase: number; asistenciaRegistros: number; diasTrabajados: number; horasExtras: number;
   salarioProporcional: number; pagoHorasExtras: number; totalBruto: number;
   ccssObrero: number; renta: number; totalDeducciones: number; salarioNeto: number;
-  cargasCCSS: number; bancoPOpular: number;
+  cargasCCSS: number; bancoPopular: number;
 }
 interface PrevResult { planilla: Planilla; empleados: PrevEmp[]; totales: any; }
 
@@ -77,7 +78,8 @@ export class PlanillaDetalle implements OnInit {
   protected confirmarEliminar = false;
 
   // ── Stepper de procesamiento ──────────────────────────────────────────
-  protected paso = 0;
+  protected readonly paso = signal(0);
+  protected setPaso(n: number) { this.paso.set(n); }
   protected seleccionados = new Set<number>();
   protected previsualizacion = signal<PrevResult | null>(null);
   protected procesando = false;
@@ -232,7 +234,220 @@ export class PlanillaDetalle implements OnInit {
     a.click();
   }
 
-  protected imprimirPDF() { window.print(); }
+  private get pdfStyles(): string {
+    return `
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; color: #1e293b; }
+      .pagina { max-width: 900px; margin: 0 auto; background: #fff; }
+      /* Encabezado */
+      .pdf-header {
+        background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+        color: #fff; padding: 24px 32px; display: flex;
+        justify-content: space-between; align-items: center;
+      }
+      .pdf-empresa { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+      .pdf-empresa span { color: #93c5fd; }
+      .pdf-empresa-sub { font-size: 11px; opacity: 0.75; margin-top: 2px; }
+      .pdf-doc-tipo { text-align: right; }
+      .pdf-doc-tipo .titulo { font-size: 15px; font-weight: 700; }
+      .pdf-doc-tipo .subtitulo { font-size: 11px; opacity: 0.75; margin-top: 3px; }
+      /* Banda de datos */
+      .pdf-meta {
+        background: #eff6ff; border-bottom: 1px solid #bfdbfe;
+        padding: 12px 32px; display: flex; gap: 32px; flex-wrap: wrap;
+      }
+      .pdf-meta-item { font-size: 11px; color: #1e40af; }
+      .pdf-meta-item strong { display: block; font-size: 13px; color: #1e3a5f; margin-top: 1px; }
+      /* Contenido */
+      .pdf-body { padding: 24px 32px; }
+      /* Tabla */
+      table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-top: 12px; }
+      thead tr { background: #1e3a5f; color: #fff; }
+      thead th { padding: 8px 10px; text-align: left; font-weight: 600; }
+      thead th.r { text-align: right; }
+      tbody tr:nth-child(even) { background: #f0f7ff; }
+      tbody tr:hover { background: #dbeafe; }
+      td { padding: 7px 10px; border-bottom: 1px solid #e2e8f0; }
+      td.r { text-align: right; }
+      td.c { text-align: center; }
+      td.neto { font-weight: 700; color: #15803d; }
+      td.neg { color: #b91c1c; }
+      /* Fila totales */
+      tfoot tr { background: #1e3a5f; color: #fff; }
+      tfoot td { padding: 9px 10px; font-weight: 700; }
+      /* Sección header */
+      .sec-title {
+        font-size: 10px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.1em; color: #2563eb; border-bottom: 2px solid #bfdbfe;
+        padding-bottom: 4px; margin: 20px 0 8px;
+      }
+      /* Fila datos comprobante */
+      .dato-fila { display: flex; justify-content: space-between; padding: 5px 0;
+                   border-bottom: 1px solid #f1f5f9; font-size: 12px; }
+      .dato-fila .lbl { color: #64748b; }
+      .dato-fila .val { font-weight: 500; color: #1e293b; }
+      .dato-fila.total-row {
+        background: #1e3a5f; color: #fff; padding: 10px 14px;
+        border-radius: 8px; margin-top: 12px; border: none;
+      }
+      .dato-fila.total-row .lbl { color: #93c5fd; font-weight: 700; font-size: 13px; }
+      .dato-fila.total-row .val { color: #fff; font-weight: 800; font-size: 16px; }
+      /* Pie */
+      .pdf-footer {
+        margin-top: 32px; padding: 12px 32px;
+        border-top: 1px solid #e2e8f0; font-size: 10px;
+        color: #94a3b8; text-align: center;
+      }
+      @media print {
+        @page { margin: 10mm; size: A4 landscape; }
+        body { background: #fff; }
+        .pagina { max-width: 100%; }
+      }`;
+  }
+
+  protected imprimirPDF() {
+    const p = this.planilla(); if (!p) return;
+    const filas = this.pagos().map(pago => `
+      <tr>
+        <td>${this.nombreEmpleado(pago.empleadoId)}</td>
+        <td class="c">${pago.diasTrabajados}</td>
+        <td class="c">${pago.horasExtras}</td>
+        <td class="r">${this.fmtMoneda(pago.totalBruto)}</td>
+        <td class="r neg">${this.fmtMoneda(pago.totalDeducciones)}</td>
+        <td class="r" style="color:#15803d">${this.fmtMoneda(pago.totalBonificaciones)}</td>
+        <td class="r neto">${this.fmtMoneda(pago.salarioNeto)}</td>
+      </tr>`).join('');
+    const html = `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+      <title>Planilla ${p.periodo} — SalaryCenter</title>
+      <style>${this.pdfStyles}</style></head><body>
+      <div class="pagina">
+        <div class="pdf-header">
+          <div>
+            <div class="pdf-empresa">Salary<span>Center</span></div>
+            <div class="pdf-empresa-sub">Sistema de Gestión de Planillas</div>
+          </div>
+          <div class="pdf-doc-tipo">
+            <div class="titulo">Reporte de Planilla</div>
+            <div class="subtitulo">Generado el ${new Date().toLocaleDateString('es-CR')}</div>
+          </div>
+        </div>
+        <div class="pdf-meta">
+          <div class="pdf-meta-item">Período<strong>${p.periodo}</strong></div>
+          <div class="pdf-meta-item">Fecha inicio<strong>${this.fmtFecha(p.fechaInicio)}</strong></div>
+          <div class="pdf-meta-item">Fecha fin<strong>${this.fmtFecha(p.fechaFin)}</strong></div>
+          <div class="pdf-meta-item">Fecha de pago<strong>${this.fmtFecha(p.fechaPago)}</strong></div>
+          <div class="pdf-meta-item">Estado<strong>${p.estado.toUpperCase()}</strong></div>
+          <div class="pdf-meta-item">Empleados<strong>${this.pagos().length}</strong></div>
+        </div>
+        <div class="pdf-body">
+          <div class="sec-title">Detalle de pagos por empleado</div>
+          <table>
+            <thead><tr>
+              <th>Empleado</th><th class="r">Días</th><th class="r">Hrs extra</th>
+              <th class="r">Total bruto</th><th class="r">Deducciones</th>
+              <th class="r">Bonificaciones</th><th class="r">Salario neto</th>
+            </tr></thead>
+            <tbody>${filas}</tbody>
+            <tfoot><tr>
+              <td colspan="3">TOTALES</td>
+              <td class="r">${this.fmtMoneda(this.totalBruto)}</td>
+              <td class="r">${this.fmtMoneda(this.totalDeducciones)}</td>
+              <td class="r">${this.fmtMoneda(this.totalBonificaciones)}</td>
+              <td class="r">${this.fmtMoneda(this.totalNeto)}</td>
+            </tr></tfoot>
+          </table>
+        </div>
+        <div class="pdf-footer">SalaryCenter · ISW-811 Diseño Web · © 2025 Thaylin Barrueta &amp; Fabricio Sequeira</div>
+      </div>
+      <script>window.onload = function(){ window.print(); }<\/script>
+      </body></html>`;
+    const w = window.open('', '_blank');
+    if (w) { w.document.write(html); w.document.close(); }
+  }
+
+  protected verComprobante(pago: Pago) {
+    const p = this.planilla(); if (!p) return;
+    const emp = this.empleados().find(e => e.id === pago.empleadoId);
+    const nombre = emp ? `${emp.nombre} ${emp.apellido}` : `Empleado #${pago.empleadoId}`;
+    const cedula = emp?.cedula ?? '—';
+
+    // Buscar deducciones y bonificaciones individuales en paralelo
+    Promise.all([
+      lastValueFrom(this.http.get<DeduccionPago[]>(this.apiDeducUrl + `ReadPorPago?pagoId=${pago.id}`)).catch(() => [] as DeduccionPago[]),
+      lastValueFrom(this.http.get<BonificacionPago[]>(this.apiBonifUrl + `ReadPorPago?pagoId=${pago.id}`)).catch(() => [] as BonificacionPago[]),
+    ]).then(([deducciones, bonificaciones]) => {
+      const filasDeduccion = (deducciones ?? []).map(d =>
+        `<div class="dato-fila">
+          <span class="lbl">&nbsp;&nbsp;• ${d.nombre ?? 'Deducción'}</span>
+          <span class="val" style="color:#b91c1c">− ${this.fmtMoneda(d.monto)}</span>
+        </div>`).join('');
+
+      const filasBonificacion = (bonificaciones ?? []).map(b =>
+        `<div class="dato-fila">
+          <span class="lbl">&nbsp;&nbsp;• ${b.nombre ?? 'Bonificación'}</span>
+          <span class="val" style="color:#15803d">+ ${this.fmtMoneda(b.monto)}</span>
+        </div>`).join('');
+
+      const html = `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+        <title>Comprobante — ${nombre}</title>
+        <style>${this.pdfStyles}
+          @media print { @page { margin: 12mm; size: A4 portrait; } }
+        </style></head><body>
+        <div class="pagina" style="max-width:560px">
+          <div class="pdf-header">
+            <div>
+              <div class="pdf-empresa">Salary<span>Center</span></div>
+              <div class="pdf-empresa-sub">Sistema de Gestión de Planillas</div>
+            </div>
+            <div class="pdf-doc-tipo">
+              <div class="titulo">Comprobante de Pago</div>
+              <div class="subtitulo">${new Date().toLocaleDateString('es-CR')}</div>
+            </div>
+          </div>
+          <div class="pdf-meta">
+            <div class="pdf-meta-item">Período<strong>${p.periodo}</strong></div>
+            <div class="pdf-meta-item">Fecha de pago<strong>${this.fmtFecha(p.fechaPago)}</strong></div>
+          </div>
+          <div class="pdf-body">
+            <div class="sec-title">Datos del empleado</div>
+            <div class="dato-fila"><span class="lbl">Nombre completo</span><span class="val">${nombre}</span></div>
+            <div class="dato-fila"><span class="lbl">Cédula</span><span class="val">${cedula}</span></div>
+            <div class="dato-fila"><span class="lbl">Período</span><span class="val">${this.fmtFecha(p.fechaInicio)} — ${this.fmtFecha(p.fechaFin)}</span></div>
+
+            <div class="sec-title">Detalle salarial</div>
+            <div class="dato-fila"><span class="lbl">Salario base mensual</span><span class="val">${this.fmtMoneda(pago.salarioBase)}</span></div>
+            <div class="dato-fila"><span class="lbl">Días trabajados</span><span class="val">${pago.diasTrabajados} de ${pago.diasEsperados}</span></div>
+            <div class="dato-fila"><span class="lbl">Horas extra</span><span class="val">${pago.horasExtras}</span></div>
+            <div class="dato-fila" style="font-weight:600"><span class="lbl">Total bruto</span><span class="val">${this.fmtMoneda(pago.totalBruto)}</span></div>
+
+            <div class="sec-title">Deducciones</div>
+            ${filasDeduccion || '<div class="dato-fila"><span class="lbl" style="color:#94a3b8">Sin deducciones registradas</span></div>'}
+            <div class="dato-fila" style="font-weight:600;border-top:1px solid #e2e8f0;margin-top:4px;padding-top:6px">
+              <span class="lbl">Total deducciones</span>
+              <span class="val" style="color:#b91c1c">− ${this.fmtMoneda(pago.totalDeducciones)}</span>
+            </div>
+
+            <div class="sec-title">Bonificaciones</div>
+            ${filasBonificacion || '<div class="dato-fila"><span class="lbl" style="color:#94a3b8">Sin bonificaciones registradas</span></div>'}
+            <div class="dato-fila" style="font-weight:600;border-top:1px solid #e2e8f0;margin-top:4px;padding-top:6px">
+              <span class="lbl">Total bonificaciones</span>
+              <span class="val" style="color:#15803d">+ ${this.fmtMoneda(pago.totalBonificaciones)}</span>
+            </div>
+
+            <div class="dato-fila total-row" style="margin-top:16px">
+              <span class="lbl">SALARIO NETO A PAGAR</span>
+              <span class="val">${this.fmtMoneda(pago.salarioNeto)}</span>
+            </div>
+          </div>
+          <div class="pdf-footer">SalaryCenter · ISW-811 · Este documento es un comprobante oficial de pago</div>
+        </div>
+        <script>window.onload = function(){ window.print(); }<\/script>
+        </body></html>`;
+
+      const w = window.open('', '_blank');
+      if (w) { w.document.write(html); w.document.close(); }
+    });
+  }
 
   // ── Stepper ───────────────────────────────────────────────────────────
   protected toggleEmp(id: number) {
@@ -248,12 +463,12 @@ export class PlanillaDetalle implements OnInit {
   }
 
   protected calcularAsistencia() {
-    this.paso = 1;
+    this.paso.set(1);
     const ids = Array.from(this.seleccionados);
     const url = `http://localhost/ServicioPlanilla/Previsualizar?planillaId=${this.planillaId}&empleadosIds=${ids.join(',')}`;
     this.http.get<PrevResult>(url).subscribe({
-      next: (data) => { this.previsualizacion.set(data); this.paso = 2; },
-      error: () => { this.notifSvc.mostrar('Error al calcular', 'error'); this.paso = 0; },
+      next: (data) => { this.previsualizacion.set(data); this.paso.set(2); },
+      error: () => { this.notifSvc.mostrar('Error al calcular', 'error'); this.paso.set(0); },
     });
   }
 
@@ -263,23 +478,22 @@ export class PlanillaDetalle implements OnInit {
     const ids = Array.from(this.seleccionados);
     this.http.post('http://localhost/ServicioPlanilla/GenerarPagos', { planillaId: this.planillaId, empleadosIds: ids }).subscribe({
       next: (res: any) => {
+        this.paso.set(4);
         this.procesando = false;
         this.previsualizacion.set(null);
         this.loadAll();
         this.notifSvc.mostrar(`Planilla procesada — ${res.total} pagos generados`);
-        setTimeout(() => { this.paso = 4; }, 500);
       },
       error: (e) => {
-        console.log('Error completo:', e);
         this.procesando = false;
-        this.paso = 2;
+        this.paso.set(2);
         this.notifSvc.mostrar(e.error?.error ?? 'Error al procesar', 'error');
       },
     });
   }
 
   protected finalizarProcesamiento() {
-    this.paso = 0;
+    this.paso.set(0);
     this.tab = 'resumen';
   }
 
@@ -342,7 +556,15 @@ export class PlanillaDetalle implements OnInit {
     this.http.post(this.apiDeducUrl + 'Create', payload).subscribe({
       next: () => {
         this.http.post(this.apiPagoUrl + 'Recalcular', { pagoId: this.pagoSeleccionado!.id }).subscribe({
-          next: () => {
+          next: (res: any) => {
+            if (this.pagoSeleccionado) {
+              this.pagoSeleccionado = {
+                ...this.pagoSeleccionado,
+                totalDeducciones:    res.totalDeducciones,
+                totalBonificaciones: res.totalBonificaciones,
+                salarioNeto:         res.salarioNeto,
+              };
+            }
             this.notifSvc.mostrar('Deducción agregada correctamente');
             this.cerrarNuevaDeduccion();
             this.cargarDeduccionesPago(this.pagoSeleccionado!.id);
@@ -361,7 +583,15 @@ export class PlanillaDetalle implements OnInit {
     this.http.post(this.apiDeducUrl + 'Delete', { id: ded.id }).subscribe({
       next: () => {
         this.http.post(this.apiPagoUrl + 'Recalcular', { pagoId: this.pagoSeleccionado!.id }).subscribe({
-          next: () => {
+          next: (res: any) => {
+            if (this.pagoSeleccionado) {
+              this.pagoSeleccionado = {
+                ...this.pagoSeleccionado,
+                totalDeducciones:    res.totalDeducciones,
+                totalBonificaciones: res.totalBonificaciones,
+                salarioNeto:         res.salarioNeto,
+              };
+            }
             this.notifSvc.mostrar('Deducción eliminada');
             this.cargarDeduccionesPago(this.pagoSeleccionado!.id);
             this.loadAll();
@@ -416,7 +646,15 @@ export class PlanillaDetalle implements OnInit {
     this.http.post(this.apiBonifUrl + 'Create', payload).subscribe({
       next: () => {
         this.http.post(this.apiPagoUrl + 'Recalcular', { pagoId: this.pagoSeleccionadoBonif!.id }).subscribe({
-          next: () => {
+          next: (res: any) => {
+            if (this.pagoSeleccionadoBonif) {
+              this.pagoSeleccionadoBonif = {
+                ...this.pagoSeleccionadoBonif,
+                totalDeducciones:    res.totalDeducciones,
+                totalBonificaciones: res.totalBonificaciones,
+                salarioNeto:         res.salarioNeto,
+              };
+            }
             this.notifSvc.mostrar('Bonificación agregada correctamente');
             this.cerrarNuevaBonificacion();
             this.cargarBonificacionesPago(this.pagoSeleccionadoBonif!.id);
@@ -435,7 +673,15 @@ export class PlanillaDetalle implements OnInit {
     this.http.post(this.apiBonifUrl + 'Delete', { id: bon.id }).subscribe({
       next: () => {
         this.http.post(this.apiPagoUrl + 'Recalcular', { pagoId: this.pagoSeleccionadoBonif!.id }).subscribe({
-          next: () => {
+          next: (res: any) => {
+            if (this.pagoSeleccionadoBonif) {
+              this.pagoSeleccionadoBonif = {
+                ...this.pagoSeleccionadoBonif,
+                totalDeducciones:    res.totalDeducciones,
+                totalBonificaciones: res.totalBonificaciones,
+                salarioNeto:         res.salarioNeto,
+              };
+            }
             this.notifSvc.mostrar('Bonificación eliminada');
             this.cargarBonificacionesPago(this.pagoSeleccionadoBonif!.id);
             this.loadAll();

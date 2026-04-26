@@ -16,13 +16,13 @@ class ServicioDeduccionPago {
 
   
   async ReadPorPago(pagoId) {
-   return await ejecutarConsulta(
-    `SELECT dp.*, td.nombre, td.codigo
-     FROM DEDUCCION_PAGO dp
-     JOIN TIPO_DEDUCCION td ON dp.tipoDeduccionId = td.id
-     WHERE dp.pagoId = ? AND 1 = 0`,  // ← siempre falso, no retorna nada
-    [pagoId]
-  );
+    return await ejecutarConsulta(
+      `SELECT dp.*, td.nombre, td.codigo, td.porcentaje, td.montoFijo, td.obligatorio
+       FROM DEDUCCION_PAGO dp
+       JOIN TIPO_DEDUCCION td ON dp.tipoDeduccionId = td.id
+       WHERE dp.pagoId = ?`,
+      [pagoId]
+    );
   }
 
   async Create(Datos) {
