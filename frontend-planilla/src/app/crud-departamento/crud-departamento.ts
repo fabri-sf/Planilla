@@ -5,8 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { NotificacionService } from '../notificacion.service';
 
 interface Departamento {
-  id: number; codigo: string; nombre: string;
-  descripcion: string; estado: string; creacion: string;
+  id: number;
+  codigo: string;
+  nombre: string;
+  descripcion: string;
+  estado: string;
+  creacion: string;
 }
 
 @Component({
@@ -31,7 +35,9 @@ export class CrudDepartamento implements OnInit {
   protected terminoBusqueda = '';
   protected codigoSufijo = '';
 
-  ngOnInit() { this.loadDepartamentos(); }
+  ngOnInit() {
+    this.loadDepartamentos();
+  }
 
   protected loadDepartamentos() {
     this.http.get<Departamento[]>(this.apiUrl + 'ReadAll').subscribe({
@@ -50,45 +56,101 @@ export class CrudDepartamento implements OnInit {
     );
   }
 
-  protected formVacio() { return { codigo: '', nombre: '', descripcion: '', estado: 'activo' }; }
+  protected formVacio() {
+    return { codigo: '', nombre: '', descripcion: '', estado: 'activo' };
+  }
 
   protected abrirCrear() {
     this.form = this.formVacio();
     this.codigoSufijo = '';
-    this.modoEditar = false; this.mostrandoModal = true;
+    this.modoEditar = false;
+    this.mostrandoModal = true;
   }
+
   protected abrirEditar(item: Departamento) {
     this.form = { ...item };
-    this.codigoSufijo = item.codigo.startsWith('DEP-') ? item.codigo.slice(4) : item.codigo;
-    this.modoEditar = true; this.mostrandoModal = true;
+    this.codigoSufijo = item.codigo.startsWith('DEP-')
+      ? item.codigo.slice(4)
+      : item.codigo;
+    this.modoEditar = true;
+    this.mostrandoModal = true;
   }
-  protected cerrarModal() { this.mostrandoModal = false; }
 
-  protected confirmarEliminar(id: number, estado: string) { this.idAEliminar = id; this.estadoActual = estado; this.mostrandoConfirmacion = true; }
-  protected cerrarConfirmacion() { this.mostrandoConfirmacion = false; this.idAEliminar = 0; this.estadoActual = ''; }
+  protected cerrarModal() {
+    this.mostrandoModal = false;
+  }
+
+  protected confirmarEliminar(id: number, estado: string) {
+    this.idAEliminar = id;
+    this.estadoActual = estado;
+    this.mostrandoConfirmacion = true;
+  }
+
+  protected cerrarConfirmacion() {
+    this.mostrandoConfirmacion = false;
+    this.idAEliminar = 0;
+    this.estadoActual = '';
+  }
+
   protected ejecutarEliminar() {
-    const msg = this.estadoActual === 'activo' || this.estadoActual === 'Activo'
-      ? 'Departamento desactivado exitosamente'
-      : 'Departamento activado exitosamente';
+    const msg =
+      this.estadoActual === 'activo' || this.estadoActual === 'Activo'
+        ? 'Departamento desactivado exitosamente'
+        : 'Departamento activado exitosamente';
+
     this.http.post(this.apiUrl + 'Delete', { id: this.idAEliminar }).subscribe({
-      next: () => { this.loadDepartamentos(); this.cerrarConfirmacion(); this.notifSvc.mostrar(msg); },
-      error: () => { this.cerrarConfirmacion(); this.notifSvc.mostrar('Error al cambiar estado del departamento', 'error'); },
+      next: () => {
+        this.loadDepartamentos();
+        this.cerrarConfirmacion();
+        this.notifSvc.mostrar(msg);
+      },
+      error: () => {
+        this.cerrarConfirmacion();
+        this.notifSvc.mostrar(
+          'Error al cambiar estado del departamento',
+          'error'
+        );
+      },
     });
   }
 
   protected guardar() {
     this.form.codigo = 'DEP-' + this.codigoSufijo;
+
     if (this.modoEditar) {
       this.http.post(this.apiUrl + 'Update', this.form).subscribe({
-        next: () => { this.loadDepartamentos(); this.cerrarModal(); this.notifSvc.mostrar('Departamento actualizado exitosamente'); },
-        error: () => this.notifSvc.mostrar('Error al actualizar el departamento', 'error'),
+        next: () => {
+          this.loadDepartamentos();
+          this.cerrarModal();
+          this.notifSvc.mostrar(
+            'Departamento actualizado exitosamente'
+          );
+        },
+        error: () =>
+          this.notifSvc.mostrar(
+            'Error al actualizar el departamento',
+            'error'
+          ),
       });
     } else {
       this.http.post(this.apiUrl + 'Create', this.form).subscribe({
-        next: () => { this.loadDepartamentos(); this.cerrarModal(); this.notifSvc.mostrar('Departamento creado exitosamente'); },
-        error: () => this.notifSvc.mostrar('Error al crear el departamento', 'error'),
+        next: () => {
+          this.loadDepartamentos();
+          this.cerrarModal();
+          this.notifSvc.mostrar(
+            'Departamento creado exitosamente'
+          );
+        },
+        error: () =>
+          this.notifSvc.mostrar(
+            'Error al crear el departamento',
+            'error'
+          ),
       });
     }
   }
-  cerrar() { this.router.navigate(["/"]); }
+
+  cerrar() {
+    this.router.navigate(['/']);
+  }
 }
