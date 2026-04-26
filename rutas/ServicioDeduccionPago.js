@@ -5,10 +5,6 @@ const ServicioDeduccionPago = require("../servicios/ServicioDeduccionPago.js");
 const Usuarios = require('../servicios/ServicioUsuario.js');
 
 // ================= READ =================
-/*Router.get("/Read", async (solicitud, respuesta, next) => {
-  return respuesta.json(await ServicioDeduccionPago.Read(solicitud.body));
-});*/
-
 Router.get("/Read", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
@@ -25,10 +21,6 @@ Router.get("/Read", async (solicitud, respuesta, next) => {
 
 
 // ================= READ ALL =================
-/*Router.get("/ReadAll", async (req, res) => {
-  res.json(await ServicioDeduccionPago.ReadAll());
-});*/
-
 Router.get("/ReadAll", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
@@ -44,11 +36,25 @@ Router.get("/ReadAll", async (solicitud, respuesta, next) => {
 });
 
 
-// ================= CREATE =================
-/*Router.post("/Create", async (req, res) => {
-  res.json(await ServicioDeduccionPago.Create(req.body));
-});*/
+// ================= READ POR PAGO =================
+// Trae las deducciones de un pago específico con el nombre del tipo
+// GET /deduccionPago/ReadPorPago?pagoId=1
+Router.get("/ReadPorPago", async (solicitud, respuesta, next) => {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(
+        await ServicioDeduccionPago.ReadPorPago(Number(solicitud.query.pagoId))
+      );
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
+});
 
+
+// ================= CREATE =================
 Router.post("/Create", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
@@ -65,10 +71,6 @@ Router.post("/Create", async (solicitud, respuesta, next) => {
 
 
 // ================= EDIT =================
-/*Router.post("/Edit", async (req, res) => {
-  res.json(await ServicioDeduccionPago.Edit(req.body));
-});*/
-
 Router.post("/Edit", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
@@ -84,12 +86,7 @@ Router.post("/Edit", async (solicitud, respuesta, next) => {
 });
 
 
-
 // ================= DELETE =================
-/*Router.post("/Delete", async (solicitud, respuesta, next) => {
-  return respuesta.json(await ServicioDeduccionPago.Delete(solicitud.body));
-});*/
-
 Router.post("/Delete", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {

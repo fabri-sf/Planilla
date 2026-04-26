@@ -8,15 +8,24 @@
     </div>
   </div>
   <div class="page-header-right">
-    <button type="button" class="btn-add" (click)="abrirCrear()">+ Nuevo registro</button>
+    <button type="button" class="btn-add" (click)="abrirCrear()">+ Marcar entrada</button>
     <button type="button" class="btn-close" (click)="cerrar()" title="Cerrar">✕</button>
   </div>
 </div>
 
-<!-- ===== BUSCADOR ===== -->
-<div class="search-bar">
-  <span class="search-icon">🔍</span>
-  <input type="text" class="search-input" placeholder="Buscar por empleado, id..." [(ngModel)]="terminoBusqueda" />
+<!-- ===== BUSCADOR + FILTRO FECHA ===== -->
+<div class="filters-row">
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" class="search-input" placeholder="Buscar por empleado o id..." [(ngModel)]="terminoBusqueda" />
+  </div>
+  <div class="date-filter">
+    <span class="search-icon">📅</span>
+    <input type="date" class="search-input" [(ngModel)]="fechaFiltro" title="Filtrar por fecha" />
+    @if (fechaFiltro) {
+      <button type="button" class="btn-clear-date" (click)="fechaFiltro = ''" title="Limpiar filtro">✕</button>
+    }
+  </div>
 </div>
 
 <!-- ===== TABLA ===== -->
@@ -32,6 +41,7 @@
         <th>Horas Trabajadas</th>
         <th>Horas Extra</th>
         <th>Observaciones</th>
+        <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
@@ -41,17 +51,26 @@
         <td>{{ nombreEmpleado(item.empleadoId) }}</td>
         <td>{{ item.fecha }}</td>
         <td>{{ item.horaEntrada }}</td>
-        <td>{{ item.horaSalida }}</td>
-        <td>{{ item.horasTrabajadas }}</td>
+        <td>{{ item.horaSalida || '—' }}</td>
+        <td>{{ item.horasTrabajadas ?? '—' }}</td>
         <td>{{ item.horasExtras }}</td>
-        <td>{{ item.observaciones }}</td>
+        <td>{{ item.observaciones || '—' }}</td>
+        <td>
+          <div class="actions">
+            @if (!item.horaSalida || item.horaSalida === '00:00:00') {
+              <button type="button" class="btn-salida" title="Marcar salida" (click)="marcarSalida(item)">🚪 Salida</button>
+            }
+            <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
+            <button type="button" class="btn-delete" title="Eliminar" (click)="confirmarEliminar(item.id)">🗑️</button>
+          </div>
+        </td>
       </tr>
       }
     </tbody>
   </table>
 </div>
 
-<!-- ===== MODAL NUEVO REGISTRO ===== -->
+<!-- ===== MODAL NUEVO / EDITAR REGISTRO ===== -->
 @if (mostrandoModal) {
 <div class="modal-overlay" (click)="cerrarModal()">
   <div class="modal" (click)="$event.stopPropagation()">
@@ -59,52 +78,91 @@
       <div class="modal-title-group">
         <div class="modal-icon">🕐</div>
         <div>
-          <p class="modal-title">Nueva asistencia</p>
-          <p class="modal-subtitle">Registrar entrada / salida</p>
+          <p class="modal-title">{{ modoEditar ? 'Editar asistencia' : 'Marcar entrada' }}</p>
+          <p class="modal-subtitle">{{ modoEditar ? 'Editar registro de asistencia' : 'Registrar entrada del día de hoy' }}</p>
         </div>
       </div>
       <button type="button" class="modal-close" (click)="cerrarModal()" title="Cerrar">✕</button>
     </div>
     <div class="modal-body">
       <div class="form-grid">
+
         <div class="form-group">
           <label class="form-label" for="empleadoId">Empleado <span class="required-mark">*</span></label>
-          <select id="empleadoId" class="form-select" title="Empleado" [(ngModel)]="form.empleadoId">
+          <select id="empleadoId" class="form-select" title="Empleado"
+            [class.invalid]="enviado && !form.empleadoId"
+            [(ngModel)]="form.empleadoId">
             <option [ngValue]="0">Seleccione...</option>
             @for (e of empleados(); track e.id) {
               <option [ngValue]="e.id">{{ e.nombre }} {{ e.apellido }}</option>
             }
           </select>
+          @if (enviado && !form.empleadoId) { <span class="form-error">Campo obligatorio</span> }
         </div>
+
+        <!-- Fecha: solo lectura al crear, editable en modo editar -->
         <div class="form-group">
-          <label class="form-label" for="fecha">Fecha <span class="required-mark">*</span></label>
-          <input id="fecha" type="date" class="form-input" [(ngModel)]="form.fecha" />
+          <label class="form-label" for="fecha">Fecha</label>
+          @if (modoEditar) {
+            <input id="fecha" type="date" class="form-input" [(ngModel)]="form.fecha" />
+          } @else {
+            <input id="fecha" type="text" class="form-input form-input-readonly" [value]="form.fecha" readonly />
+          }
         </div>
+
         <div class="form-group">
           <label class="form-label" for="horaEntrada">Hora Entrada <span class="required-mark">*</span></label>
-          <input id="horaEntrada" type="time" class="form-input" [(ngModel)]="form.horaEntrada" />
+          <input id="horaEntrada" type="time" class="form-input"
+            [class.invalid]="enviado && !form.horaEntrada"
+            [(ngModel)]="form.horaEntrada" />
+          @if (enviado && !form.horaEntrada) { <span class="form-error">Campo obligatorio</span> }
         </div>
+
         <div class="form-group">
           <label class="form-label" for="horaSalida">Hora Salida</label>
           <input id="horaSalida" type="time" class="form-input" [(ngModel)]="form.horaSalida" />
         </div>
+
         <div class="form-group">
           <label class="form-label" for="horasTrabajadas">Horas Trabajadas</label>
-          <input id="horasTrabajadas" type="number" step="0.01" class="form-input" [(ngModel)]="form.horasTrabajadas" placeholder="Ej: 8.00" />
+          <input id="horasTrabajadas" type="number" step="0.01" min="0" class="form-input"
+            [(ngModel)]="form.horasTrabajadas" placeholder="Ej: 8.00" />
         </div>
+
         <div class="form-group">
           <label class="form-label" for="horasExtras">Horas Extra</label>
-          <input id="horasExtras" type="number" step="0.01" class="form-input" [(ngModel)]="form.horasExtras" placeholder="Ej: 0.00" />
+          <input id="horasExtras" type="number" step="0.01" min="0" class="form-input"
+            [(ngModel)]="form.horasExtras" placeholder="Ej: 0.00" />
         </div>
-        <div class="form-group">
+
+        <div class="form-group form-group-full">
           <label class="form-label" for="observaciones">Observaciones</label>
-          <textarea id="observaciones" class="form-textarea" [(ngModel)]="form.observaciones" placeholder="Observaciones opcionales"></textarea>
+          <textarea id="observaciones" class="form-textarea"
+            [(ngModel)]="form.observaciones" placeholder="Observaciones opcionales"></textarea>
         </div>
+
       </div>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
-      <button type="button" class="btn-save" (click)="guardar()">Registrar asistencia</button>
+      <button type="button" class="btn-save" (click)="guardar()">
+        {{ modoEditar ? 'Guardar cambios' : 'Registrar entrada' }}
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ===== MODAL CONFIRMACIÓN ELIMINAR ===== -->
+@if (mostrandoConfirmacion) {
+<div class="modal-confirm-overlay" (click)="cerrarConfirmacion()">
+  <div class="modal-confirm" (click)="$event.stopPropagation()">
+    <div class="modal-confirm-icon">🗑️</div>
+    <p class="modal-confirm-title">¿Eliminar registro?</p>
+    <p class="modal-confirm-msg">Esta acción eliminará el registro de asistencia permanentemente. ¿Deseas continuar?</p>
+    <div class="modal-confirm-actions">
+      <button type="button" class="btn-cancel-form" (click)="cerrarConfirmacion()">Cancelar</button>
+      <button type="button" class="btn-danger" (click)="ejecutarEliminar()">Sí, eliminar</button>
     </div>
   </div>
 </div>

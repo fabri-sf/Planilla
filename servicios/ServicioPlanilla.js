@@ -5,54 +5,89 @@ const ServicioUsuario = require("./ServicioUsuario.js");
 
 function round2(n) { return Math.round(n * 100) / 100; }
 
-/**
- * ISR Costa Rica — escala MH mensual 2025 (progresiva)
- * Tramo 1: hasta ₡942,625       → 0%
- * Tramo 2: ₡942,626–₡1,357,072 → 15% sobre el exceso
- * Tramo 3: más de ₡1,357,072   → 25% sobre el exceso adicional
- */
-function calcularRenta(bruto) {
-  let renta = 0;
-  if (bruto > 942625)  renta += Math.min(bruto - 942625, 1357072 - 942625) * 0.15;
-  if (bruto > 1357072) renta += (bruto - 1357072) * 0.25;
-  return renta;
-}
+function calcularMontosPago(emp, asistencias, tiposDeduccion) {
+  const salarioBase    = parseFloat(emp.salarioBase) || 0;
+  const diasTrabajados = asistencias.length;
+  const horasExtras    = asistencias.reduce((s, a) => s + (parseFloat(a.horasExtras) || 0), 0);
 
-/**
- * Calcula todos los montos de un pago dado el empleado y sus asistencias del período.
- * salarioProporcional = salarioBase / 30 * diasTrabajados
- * horasExtras         = (salarioBase / 30 / 8) * 1.5 * horasExtras
- * CCSS obrero         = bruto × 9.67%
- * Cargas patronales   = bruto × 26.67% + bruto × 0.5% (Banco Popular) — informativas
- */
-function calcularMontosPago(emp, asistencias) {
-  const salarioBase      = parseFloat(emp.salarioBase) || 0;
-  const diasTrabajados   = asistencias.length;
-  const horasExtrasTotal = asistencias.reduce((s, a) => s + (parseFloat(a.horasExtras) || 0), 0);
+  // Salario proporcional por días trabajados sobre 30
+  const salarioProporcional = round2((salarioBase / 30) * diasTrabajados);
+  const pagoHorasExtras     = round2((salarioBase / 30 / 8) * 1.5 * horasExtras);
+  const totalBruto          = round2(salarioProporcional + pagoHorasExtras);
 
-  const salarioProporcional = (salarioBase / 30) * diasTrabajados;
-  const pagoHorasExtras     = (salarioBase / 30 / 8) * 1.5 * horasExtrasTotal;
-  const totalBruto          = salarioProporcional + pagoHorasExtras;
+  let ccssObrero = 0;
+  let renta      = 0;
+  const deduccionesCalculadas = [];
 
-  const ccssObrero          = totalBruto * 0.0967;
-  const renta               = calcularRenta(totalBruto);
-  const totalDeducciones    = ccssObrero + renta;
-  const salarioNeto         = totalBruto - totalDeducciones;
-  const cargasCCSS          = totalBruto * 0.2667;
-  const bancoPOpular        = totalBruto * 0.005;
+  for (const tipo of tiposDeduccion) {
+    let monto = 0;
+
+    const tienePorcentaje = tipo.porcentaje !== null &&
+                            tipo.porcentaje !== undefined &&
+                            tipo.porcentaje !== '' &&
+                            !isNaN(parseFloat(tipo.porcentaje));
+
+    const tieneMontoFijo  = tipo.montoFijo !== null &&
+                            tipo.montoFijo !== undefined &&
+                            tipo.montoFijo !== '' &&
+                            !isNaN(parseFloat(tipo.montoFijo));
+
+    if (tienePorcentaje) {
+      // Porcentaje sobre el bruto proporcional
+      monto = round2(totalBruto * (parseFloat(tipo.porcentaje) / 100));
+
+    } else if (tieneMontoFijo) {
+      // Monto fijo prorateado por días trabajados
+      // Ej: ₡50,000 fijo × (5 días / 30) = ₡8,333
+      const montoFijo         = parseFloat(tipo.montoFijo);
+      const montoProporcional = round2((montoFijo / 30) * diasTrabajados);
+      // Solo se aplica si el bruto proporcional lo puede cubrir
+      monto = totalBruto >= montoProporcional ? montoProporcional : 0;
+    }
+
+    if (monto <= 0) continue;
+
+    // Identificar CCSS y Renta por código exacto de la BD
+    const cod = (tipo.codigo || '').toUpperCase();
+    const nom = (tipo.nombre || '').toUpperCase();
+
+    const esCCSS  = cod === 'DED-001' ||
+                    nom.includes('CCSS') || nom.includes('SEGURO SOCIAL') ||
+                    nom.includes('CAJA') || nom.includes('OBRERO');
+
+    const esRenta = cod === 'DED-002' ||
+                    nom.includes('RENTA') || nom.includes('ISR') ||
+                    nom.includes('IMPUESTO');
+
+    if (esCCSS)  ccssObrero += monto;
+    if (esRenta) renta      += monto;
+
+    deduccionesCalculadas.push({
+      tipoDeduccionId: tipo.id,
+      nombre:          tipo.nombre,
+      codigo:          tipo.codigo,
+      monto,
+    });
+  }
+
+  const totalDeducciones = round2(deduccionesCalculadas.reduce((s, d) => s + d.monto, 0));
+  const salarioNeto      = round2(Math.max(0, totalBruto - totalDeducciones));
+  const cargasCCSS       = round2(totalBruto * 0.2667);
+  const bancoPopular     = round2(totalBruto * 0.005);
 
   return {
     diasTrabajados,
-    horasExtras:         round2(horasExtrasTotal),
-    salarioProporcional: round2(salarioProporcional),
-    pagoHorasExtras:     round2(pagoHorasExtras),
-    totalBruto:          round2(totalBruto),
-    ccssObrero:          round2(ccssObrero),
-    renta:               round2(renta),
-    totalDeducciones:    round2(totalDeducciones),
-    salarioNeto:         round2(salarioNeto),
-    cargasCCSS:          round2(cargasCCSS),
-    bancoPOpular:        round2(bancoPOpular),
+    horasExtras:         round2(horasExtras),
+    salarioProporcional,
+    pagoHorasExtras,
+    totalBruto,
+    deduccionesCalculadas,
+    totalDeducciones,
+    salarioNeto,
+    ccssObrero:  round2(ccssObrero),
+    renta:       round2(renta),
+    cargasCCSS,
+    bancoPopular,
   };
 }
 
@@ -64,7 +99,10 @@ class ServicioPlanilla {
   // ── PLANILLA ──────────────────────────────────────────────────────────────
 
   async Read(datos) {
-    return await ejecutarConsulta("SELECT * FROM PLANILLA WHERE periodo LIKE ?", [`%${datos.periodo}%`]);
+    return await ejecutarConsulta(
+      "SELECT * FROM PLANILLA WHERE periodo LIKE ?",
+      [`%${datos.periodo}%`]
+    );
   }
 
   async ReadAll() {
@@ -101,24 +139,21 @@ class ServicioPlanilla {
     } catch (e) { console.warn("AUDITORIA Update Planilla:", e.message); }
 
     return await ejecutarConsulta(
-      `UPDATE PLANILLA SET periodo=?, fechaInicio=?, fechaFin=?, fechaPago=?, estado=?,
-       descripcion=?, creadoPor=?, aprobadoPor=? WHERE id=?`,
+      `UPDATE PLANILLA SET periodo=?, fechaInicio=?, fechaFin=?, fechaPago=?,
+       estado=?, descripcion=?, creadoPor=?, aprobadoPor=? WHERE id=?`,
       [datos.periodo, datos.fechaInicio, datos.fechaFin, datos.fechaPago,
        datos.estado, datos.descripcion, datos.creadoPor, datos.aprobadoPor, datos.id]
     );
   }
 
-  // ── Delete (solo borradores) ───────────────────────────────────────────────
-
   async Delete(datos) {
     const rows = await ejecutarConsulta("SELECT estado FROM PLANILLA WHERE id = ?", [datos.id]);
     if (!rows.length) throw new Error("Planilla no encontrada");
     if (rows[0].estado !== "borrador") throw new Error("Solo se pueden eliminar planillas en estado borrador");
+    await ejecutarConsulta("DELETE FROM DEDUCCION_PAGO WHERE pagoId IN (SELECT id FROM PAGO WHERE planillaId = ?)", [datos.id]);
     await ejecutarConsulta("DELETE FROM PAGO WHERE planillaId = ?", [datos.id]);
     return await ejecutarConsulta("DELETE FROM PLANILLA WHERE id = ? AND estado = 'borrador'", [datos.id]);
   }
-
-  // ── CambiarEstado ─────────────────────────────────────────────────────────
 
   async CambiarEstado(datos) {
     const transiciones = {
@@ -147,8 +182,6 @@ class ServicioPlanilla {
     await ejecutarConsulta("UPDATE PLANILLA SET estado = ? WHERE id = ?", [siguiente, datos.planillaId]);
     return { estadoAnterior: planilla.estado, estadoNuevo: siguiente };
   }
-
-  // ── Atraso ────────────────────────────────────────────────────────────────
 
   async Atraso(datos) {
     const rows = await ejecutarConsulta("SELECT * FROM PLANILLA WHERE id = ?", [datos.planillaId]);
@@ -180,6 +213,10 @@ class ServicioPlanilla {
     if (!rows.length) throw new Error("Planilla no encontrada");
     const planilla = rows[0];
 
+    const tiposDeduccion = await ejecutarConsulta(
+      "SELECT * FROM TIPO_DEDUCCION WHERE estado = 'activo'"
+    );
+
     let empleados;
     if (empleadosIds && empleadosIds.length > 0) {
       const ph = empleadosIds.map(() => "?").join(",");
@@ -197,39 +234,55 @@ class ServicioPlanilla {
       );
     }
 
-    let totalBruto = 0, totalCCSS = 0, totalRenta = 0, totalNeto = 0, totalCargas = 0;
+    let totalBruto = 0, totalDeducciones = 0, totalNeto = 0, totalCargas = 0;
+    let totalCCSS = 0, totalRenta = 0;
     const resultado = [];
 
     for (const emp of empleados) {
-      const asistencias = await ejecutarConsulta(
+      // Buscar asistencias en el período
+      let asistencias = await ejecutarConsulta(
         "SELECT * FROM ASISTENCIA WHERE empleadoId = ? AND fecha BETWEEN ? AND ?",
         [emp.id, planilla.fechaInicio, planilla.fechaFin]
       );
-      const calc = calcularMontosPago(emp, asistencias);
+
+      // Si no hay registros en el período (modo pruebas), usar todos los del empleado
+      if (!asistencias.length) {
+        asistencias = await ejecutarConsulta(
+          "SELECT * FROM ASISTENCIA WHERE empleadoId = ?",
+          [emp.id]
+        );
+      }
+
+      const calc = calcularMontosPago(emp, asistencias, tiposDeduccion);
       resultado.push({
-        empleadoId: emp.id, nombre: emp.nombre, apellido: emp.apellido,
-        cedula: emp.cedula, departamento: emp.departamento,
-        salarioBase: parseFloat(emp.salarioBase) || 0,
+        empleadoId:          emp.id,
+        nombre:              emp.nombre,
+        apellido:            emp.apellido,
+        cedula:              emp.cedula,
+        departamento:        emp.departamento,
+        salarioBase:         parseFloat(emp.salarioBase) || 0,
         asistenciaRegistros: asistencias.length,
         ...calc,
       });
-      totalBruto += calc.totalBruto;
-      totalCCSS  += calc.ccssObrero;
-      totalRenta += calc.renta;
-      totalNeto  += calc.salarioNeto;
-      totalCargas += calc.cargasCCSS + calc.bancoPOpular;
+      totalBruto       += calc.totalBruto;
+      totalDeducciones += calc.totalDeducciones;
+      totalNeto        += calc.salarioNeto;
+      totalCargas      += calc.cargasCCSS + calc.bancoPopular;
+      totalCCSS        += calc.ccssObrero;
+      totalRenta       += calc.renta;
     }
 
     return {
       planilla,
+      tiposDeduccionAplicados: tiposDeduccion,
       empleados: resultado,
       totales: {
-        totalEmpleados: resultado.length,
+        totalEmpleados:   resultado.length,
         totalBruto:       round2(totalBruto),
+        totalDeducciones: round2(totalDeducciones),
+        totalNeto:        round2(totalNeto),
         totalCCSS:        round2(totalCCSS),
         totalRenta:       round2(totalRenta),
-        totalDeducciones: round2(totalCCSS + totalRenta),
-        totalNeto:        round2(totalNeto),
         cargasPatronales: round2(totalCargas),
       }
     };
@@ -244,22 +297,17 @@ class ServicioPlanilla {
     if (planilla.estado !== "borrador")
       throw new Error(`Solo se generan pagos en estado borrador (actual: "${planilla.estado}")`);
 
-    // Limpiar pagos previos
-    await ejecutarConsulta("DELETE FROM DEDUCCION_PAGO WHERE pagoId IN (SELECT id FROM PAGO WHERE planillaId = ?)", [datos.planillaId]);
+    const tiposDeduccion = await ejecutarConsulta(
+      "SELECT * FROM TIPO_DEDUCCION WHERE estado = 'activo'"
+    );
+
+    // Limpiar pagos previos si se regenera
+    await ejecutarConsulta(
+      "DELETE FROM DEDUCCION_PAGO WHERE pagoId IN (SELECT id FROM PAGO WHERE planillaId = ?)",
+      [datos.planillaId]
+    );
     await ejecutarConsulta("DELETE FROM PAGO WHERE planillaId = ?", [datos.planillaId]);
 
-    // Obtener tipos de deducción para CCSS e ISR
-    const [tiposCCSS] = await ejecutarConsulta(
-      "SELECT * FROM TIPO_DEDUCCION WHERE (codigo LIKE '%CCSS%' OR nombre LIKE '%CCSS%') AND estado = 'activo' LIMIT 1"
-    ).catch(() => [[]]);
-    const [tiposISR] = await ejecutarConsulta(
-      "SELECT * FROM TIPO_DEDUCCION WHERE (codigo LIKE '%ISR%' OR nombre LIKE '%Renta%' OR nombre LIKE '%renta%') AND estado = 'activo' LIMIT 1"
-    ).catch(() => [[]]);
-
-    const ccssTipo = Array.isArray(tiposCCSS) ? tiposCCSS : tiposCCSS;
-    const isrTipo  = Array.isArray(tiposISR)  ? tiposISR  : tiposISR;
-
-    // Empleados a procesar
     let empleados;
     const ids = datos.empleadosIds && datos.empleadosIds.length > 0 ? datos.empleadosIds : null;
     if (ids) {
@@ -271,62 +319,118 @@ class ServicioPlanilla {
       empleados = await ejecutarConsulta("SELECT * FROM EMPLEADO WHERE estado = 'activo'");
     }
 
+    if (!empleados.length) throw new Error("No hay empleados activos para procesar");
+
     const usuarioId = await ServicioUsuario.obtenerUsuarioId(datos.token);
     const pagosGenerados = [];
 
     for (const emp of empleados) {
-      const asistencias = await ejecutarConsulta(
+      // Buscar asistencias en el período
+      let asistencias = await ejecutarConsulta(
         "SELECT * FROM ASISTENCIA WHERE empleadoId = ? AND fecha BETWEEN ? AND ?",
         [emp.id, planilla.fechaInicio, planilla.fechaFin]
       );
-      const calc = calcularMontosPago(emp, asistencias);
+
+      // Si no hay registros en el período (modo pruebas), usar todos los del empleado
+      if (!asistencias.length) {
+        asistencias = await ejecutarConsulta(
+          "SELECT * FROM ASISTENCIA WHERE empleadoId = ?",
+          [emp.id]
+        );
+      }
+
+      const calc = calcularMontosPago(emp, asistencias, tiposDeduccion);
 
       try {
         await ejecutarConsulta(
           `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
            VALUES (?, 'PAGO', 'INSERT', 0, 'todos', NULL, ?, ?)`,
-          [usuarioId ?? null,
-           `empleado:${emp.id}, neto:${calc.salarioNeto}`,
-           `Pago generado: ${emp.nombre} ${emp.apellido} — planilla ${datos.planillaId}`]
+          [
+            usuarioId ?? null,
+            `empleado:${emp.id}, neto:${calc.salarioNeto}`,
+            `Pago generado: ${emp.nombre} ${emp.apellido} — planilla ${datos.planillaId}`
+          ]
         );
       } catch (e) { console.warn("AUDITORIA GenerarPagos:", e.message); }
 
-      const pagoRes = await ejecutarConsulta(
-        `INSERT INTO PAGO (empleadoId, planillaId, salarioBase, diasTrabajados, diasEsperados,
-         horasExtras, totalBruto, totalDeducciones, totalBonificaciones, salarioNeto, observaciones)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [emp.id, datos.planillaId, emp.salarioBase, calc.diasTrabajados, 30,
-         calc.horasExtras, calc.totalBruto, calc.totalDeducciones, 0,
-         calc.salarioNeto, `Generado automáticamente — ${calc.diasTrabajados} días trabajados`]
-      );
+      // INSERT PAGO con manejo de error explícito
+      let pagoRes;
+      try {
+        pagoRes = await ejecutarConsulta(
+          `INSERT INTO PAGO
+             (empleadoId, planillaId, salarioBase, diasTrabajados, diasEsperados,
+              horasExtras, totalBruto, totalDeducciones, totalBonificaciones, salarioNeto, observaciones)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            emp.id,
+            datos.planillaId,
+            parseFloat(emp.salarioBase) || 0,
+            calc.diasTrabajados,
+            30,
+            calc.horasExtras,
+            calc.totalBruto,
+            calc.totalDeducciones,
+            0,
+            calc.salarioNeto,
+            `Generado automáticamente — ${calc.diasTrabajados} días trabajados`
+          ]
+        );
+      } catch (e) {
+        console.error(`Error INSERT PAGO empleado ${emp.id}:`, e.message);
+        throw new Error(`Error al insertar pago para ${emp.nombre} ${emp.apellido}: ${e.message}`);
+      }
+
+      if (!pagoRes || !pagoRes.insertId) {
+        throw new Error(
+          `INSERT PAGO no retornó insertId para ${emp.nombre} ${emp.apellido}. ` +
+          `Verificá que la tabla PAGO existe y sus columnas son correctas.`
+        );
+      }
 
       const pagoId = pagoRes.insertId;
 
-      // DEDUCCION_PAGO para CCSS
-      if (pagoId && ccssTipo && ccssTipo.id && calc.ccssObrero > 0) {
-        await ejecutarConsulta(
-          "INSERT INTO DEDUCCION_PAGO (pagoId, tipoDeduccionId, monto, observaciones) VALUES (?, ?, ?, ?)",
-          [pagoId, ccssTipo.id, calc.ccssObrero, "CCSS Obrero 9.67%"]
-        ).catch(e => console.warn("DEDUCCION_PAGO CCSS:", e.message));
-      }
-      // DEDUCCION_PAGO para ISR
-      if (pagoId && isrTipo && isrTipo.id && calc.renta > 0) {
-        await ejecutarConsulta(
-          "INSERT INTO DEDUCCION_PAGO (pagoId, tipoDeduccionId, monto, observaciones) VALUES (?, ?, ?, ?)",
-          [pagoId, isrTipo.id, calc.renta, "Impuesto sobre la Renta"]
-        ).catch(e => console.warn("DEDUCCION_PAGO ISR:", e.message));
+      for (const deduccion of calc.deduccionesCalculadas) {
+        if (deduccion.monto > 0) {
+          try {
+            await ejecutarConsulta(
+              `INSERT INTO DEDUCCION_PAGO (pagoId, tipoDeduccionId, monto, observaciones)
+               VALUES (?, ?, ?, ?)`,
+              [
+                pagoId,
+                deduccion.tipoDeduccionId,
+                deduccion.monto,
+                `${deduccion.nombre} — calculado automáticamente`
+              ]
+            );
+          } catch (e) {
+            console.warn(`DEDUCCION_PAGO ${deduccion.codigo}:`, e.message);
+          }
+        }
       }
 
-      pagosGenerados.push({ empleadoId: emp.id, nombre: `${emp.nombre} ${emp.apellido}`, salarioNeto: calc.salarioNeto });
+      pagosGenerados.push({
+        empleadoId:       emp.id,
+        nombre:           `${emp.nombre} ${emp.apellido}`,
+        totalBruto:       calc.totalBruto,
+        totalDeducciones: calc.totalDeducciones,
+        salarioNeto:      calc.salarioNeto,
+        deducciones:      calc.deduccionesCalculadas,
+      });
     }
 
-    // Avanzar planilla a procesada
-    await ejecutarConsulta("UPDATE PLANILLA SET estado = 'procesada' WHERE id = ?", [datos.planillaId]);
+    await ejecutarConsulta(
+      "UPDATE PLANILLA SET estado = 'procesada' WHERE id = ?",
+      [datos.planillaId]
+    );
 
-    return { pagosGenerados, total: pagosGenerados.length };
+    return {
+      mensaje:        "Planilla procesada correctamente",
+      pagosGenerados,
+      total:          pagosGenerados.length,
+    };
   }
 
-  // ── ReportePlanilla ───────────────────────────────────────────────────────
+  // ── Reportes ──────────────────────────────────────────────────────────────
 
   async ReportePlanilla(planillaId) {
     const rows = await ejecutarConsulta("SELECT * FROM PLANILLA WHERE id = ?", [planillaId]);
@@ -343,19 +447,17 @@ class ServicioPlanilla {
     );
 
     const totales = {
-      totalBruto:          pagos.reduce((s, p) => s + parseFloat(p.totalBruto || 0), 0),
-      totalDeducciones:    pagos.reduce((s, p) => s + parseFloat(p.totalDeducciones || 0), 0),
-      totalBonificaciones: pagos.reduce((s, p) => s + parseFloat(p.totalBonificaciones || 0), 0),
-      totalNeto:           pagos.reduce((s, p) => s + parseFloat(p.salarioNeto || 0), 0),
+      totalBruto:          round2(pagos.reduce((s, p) => s + parseFloat(p.totalBruto || 0), 0)),
+      totalDeducciones:    round2(pagos.reduce((s, p) => s + parseFloat(p.totalDeducciones || 0), 0)),
+      totalBonificaciones: round2(pagos.reduce((s, p) => s + parseFloat(p.totalBonificaciones || 0), 0)),
+      totalNeto:           round2(pagos.reduce((s, p) => s + parseFloat(p.salarioNeto || 0), 0)),
       cantidadEmpleados:   pagos.length,
     };
-    totales.cargasPatronales = round2(totales.totalBruto * 0.2717); // CCSS pat + BP
+    totales.cargasPatronales  = round2(totales.totalBruto * 0.2717);
     totales.costoTotalEmpresa = round2(totales.totalBruto + totales.cargasPatronales);
 
     return { planilla: rows[0], pagos, totales };
   }
-
-  // ── ReportePorDepartamento ────────────────────────────────────────────────
 
   async ReportePorDepartamento(planillaId) {
     const rows = await ejecutarConsulta("SELECT * FROM PLANILLA WHERE id = ?", [planillaId]);

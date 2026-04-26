@@ -28,20 +28,42 @@ export class CRUDAsistencia implements OnInit {
   protected readonly empleados = signal<Empleado[]>([]);
   protected mostrandoModal = false;
   protected modoEditar = false;
+  protected enviado = false;
   protected form = this.formVacio();
   protected mostrandoConfirmacion = false;
   protected idAEliminar = 0;
   protected terminoBusqueda = '';
+  // Filtro de fecha en la tabla
+  protected fechaFiltro = '';
 
   ngOnInit() {
     this.loadAsistencia();
     this.http.get<Empleado[]>('http://localhost/ServicioEmpleado/ReadAll').subscribe({ next: (d) => this.empleados.set(d), error: () => {} });
   }
 
+  // Fecha de hoy en formato YYYY-MM-DD
+  private hoy(): string {
+    const d = new Date();
+    return d.toISOString().split('T')[0];
+  }
+
+  // Hora actual en formato HH:MM
+  private horaActual(): string {
+    const d = new Date();
+    return d.toTimeString().slice(0, 5);
+  }
+
   protected get listaFiltrada(): Asistencia[] {
     const t = this.terminoBusqueda.toLowerCase().trim();
-    if (!t) return this.lista();
-    return this.lista().filter(a =>
+    let resultado = this.lista();
+
+    // Filtrar por fecha si se seleccionó una
+    if (this.fechaFiltro) {
+      resultado = resultado.filter(a => a.fecha?.startsWith(this.fechaFiltro));
+    }
+
+    if (!t) return resultado;
+    return resultado.filter(a =>
       this.nombreEmpleado(a.empleadoId).toLowerCase().includes(t) ||
       a.fecha?.toLowerCase().includes(t) ||
       String(a.id).includes(t)
@@ -64,12 +86,32 @@ export class CRUDAsistencia implements OnInit {
     return { id: 0, empleadoId: 0, fecha: '', horaEntrada: '', horaSalida: '', horasTrabajadas: 0, horasExtras: 0, observaciones: '' };
   }
 
-  protected abrirCrear() { this.form = this.formVacio(); this.modoEditar = false; this.mostrandoModal = true; }
-  protected abrirEditar(item: Asistencia) { this.form = { ...item }; this.modoEditar = true; this.mostrandoModal = true; }
-  protected cerrarModal() { this.mostrandoModal = false; }
+  protected formValido(): boolean {
+    return this.form.empleadoId > 0 && !!this.form.horaEntrada;
+  }
+
+  // Al abrir crear: fecha y hora de entrada se fijan automáticamente al día de hoy
+  protected abrirCrear() {
+    this.form = this.formVacio();
+    this.form.fecha = this.hoy();
+    this.form.horaEntrada = this.horaActual();
+    this.enviado = false;
+    this.modoEditar = false;
+    this.mostrandoModal = true;
+  }
+
+  protected abrirEditar(item: Asistencia) {
+    this.form = { ...item };
+    this.enviado = false;
+    this.modoEditar = true;
+    this.mostrandoModal = true;
+  }
+
+  protected cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
 
   protected confirmarEliminar(id: number) { this.idAEliminar = id; this.mostrandoConfirmacion = true; }
   protected cerrarConfirmacion() { this.mostrandoConfirmacion = false; this.idAEliminar = 0; }
+
   protected ejecutarEliminar() {
     this.http.post(this.apiUrl + 'Delete', { id: this.idAEliminar }).subscribe({
       next: () => { this.loadAsistencia(); this.cerrarConfirmacion(); this.notifSvc.mostrar('Registro de asistencia eliminado'); },
@@ -77,7 +119,27 @@ export class CRUDAsistencia implements OnInit {
     });
   }
 
+  // Marca la hora de salida en el registro existente
+  protected marcarSalida(item: Asistencia) {
+    const horaSalida = this.horaActual();
+    // Calcular horas trabajadas en base a entrada y salida
+    const [hE, mE] = item.horaEntrada.split(':').map(Number);
+    const [hS, mS] = horaSalida.split(':').map(Number);
+    const minutosEntrada = hE * 60 + mE;
+    const minutosSalida = hS * 60 + mS;
+    const horasTrabajadas = Math.max(0, (minutosSalida - minutosEntrada) / 60);
+
+    const actualizado = { ...item, horaSalida, horasTrabajadas: parseFloat(horasTrabajadas.toFixed(2)) };
+    this.http.post(this.apiUrl + 'Update', actualizado).subscribe({
+      next: () => { this.loadAsistencia(); this.notifSvc.mostrar('Salida marcada exitosamente'); },
+      error: () => this.notifSvc.mostrar('Error al marcar salida', 'error'),
+    });
+  }
+
   protected guardar() {
+    this.enviado = true;
+    if (!this.formValido()) return;
+
     if (this.modoEditar) {
       this.http.post(this.apiUrl + 'Update', this.form).subscribe({
         next: () => { this.loadAsistencia(); this.cerrarModal(); this.notifSvc.mostrar('Asistencia actualizada exitosamente'); },
@@ -90,5 +152,6 @@ export class CRUDAsistencia implements OnInit {
       });
     }
   }
+
   cerrar() { this.router.navigate(["/"]); }
 }

@@ -325,3 +325,88 @@
   color: var(--text-hint);
   margin-top: 2px;
 }
+
+
+/* ===== BOTÓN DEDUCCIONES ===== */
+.btn-deduccion {
+  width: 34px; height: 34px; border: none;
+  border-radius: var(--radius-sm); cursor: pointer;
+  font-size: 15px; display: flex; align-items: center;
+  justify-content: center; transition: background var(--transition-fast);
+  background: var(--color-danger-bg); color: var(--color-danger-text);
+}
+.btn-deduccion:hover { background: var(--color-danger); color: white; }
+
+/* ===== MODAL DEDUCCIONES ===== */
+.modal-md { max-width: 580px; }
+
+.deducciones-lista {
+  display: flex; flex-direction: column;
+  gap: var(--space-sm); margin-bottom: var(--space-md);
+}
+
+.lista-vacia {
+  text-align: center; color: var(--text-muted);
+  font-size: var(--font-size-sm); padding: var(--space-md);
+  background: var(--bg-page); border-radius: var(--radius-md);
+}
+
+.deduccion-item {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px; background: var(--bg-page);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+}
+
+.deduccion-info { display: flex; flex-direction: column; gap: 2px; }
+.deduccion-nombre { font-weight: 600; font-size: var(--font-size-sm); color: var(--text-primary); }
+.deduccion-obs { font-size: 11px; color: var(--text-muted); }
+
+.deduccion-monto {
+  display: flex; align-items: center;
+  gap: var(--space-sm);
+}
+
+.btn-xs { width: 28px; height: 28px; font-size: 13px; }
+
+.deduccion-resumen {
+  display: flex; justify-content: space-between;
+  padding: 8px 14px; font-size: var(--font-size-sm);
+  color: var(--text-secondary); border-top: 1px solid var(--border-default);
+  margin-top: var(--space-sm);
+}
+.deduccion-resumen-neto {
+  font-size: var(--font-size-md);
+  color: var(--text-primary);
+  border-top: 2px solid var(--border-default);
+}
+
+.nueva-deduccion-form {
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
+  background: var(--bg-page);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+}
+
+.form-section-title {
+  font-size: var(--font-size-sm); font-weight: 700;
+  color: var(--text-primary); margin: 0 0 var(--space-md);
+}
+
+.form-group-full { grid-column: 1 / -1; }
+
+.nueva-deduccion-actions {
+  display: flex; justify-content: flex-end;
+  gap: var(--space-sm); margin-top: var(--space-md);
+}
+
+.btn-add-deduccion {
+  background: var(--color-danger-bg); color: var(--color-danger-text);
+  border: 1.5px solid var(--color-danger-bg); padding: 9px 18px;
+  border-radius: var(--radius-md); font-size: var(--font-size-sm);
+  font-weight: 600; cursor: pointer;
+  transition: all var(--transition-normal);
+}
+.btn-add-deduccion:hover { background: var(--color-danger); color: white; }

@@ -31,6 +31,23 @@ interface PrevEmp {
 }
 interface PrevResult { planilla: Planilla; empleados: PrevEmp[]; totales: any; }
 
+interface TipoDeduccion {
+  id: number; codigo: string; nombre: string;
+  porcentaje: number | null; montoFijo: number | null; obligatorio: boolean;
+}
+interface DeduccionPago {
+  id: number; pagoId: number; tipoDeduccionId: number;
+  monto: number; observaciones: string; nombre?: string; codigo?: string;
+}
+
+interface TipoBonificacion {
+  id: number; codigo: string; nombre: string; descripcion: string; estado: string;
+}
+interface BonificacionPago {
+  id: number; pagoId: number; tipoBonificacionId: number;
+  monto: number; observaciones: string; nombre?: string; codigo?: string;
+}
+
 type Tab = 'resumen' | 'procesar' | 'historial';
 
 @Component({
@@ -60,16 +77,43 @@ export class PlanillaDetalle implements OnInit {
   protected confirmarEliminar = false;
 
   // ── Stepper de procesamiento ──────────────────────────────────────────
-  protected paso = 0; // 0=elegir empleados, 1=calculando, 2=resultados, 3=confirmar
+  protected paso = 0;
   protected seleccionados = new Set<number>();
   protected previsualizacion = signal<PrevResult | null>(null);
   protected procesando = false;
-  protected empDetalle: PrevEmp | null = null; // modal detalle por empleado
+  protected empDetalle: PrevEmp | null = null;
 
   // ── Historial salarios ────────────────────────────────────────────────
   protected mostrarFormSalario = false;
   protected formSalario = { empleadoId: 0, salarioAnterior: 0, salarioNuevo: 0, motivo: '', autorizadoPor: 0 };
   protected enviandoSalario = false;
+
+  // ── URLs ──────────────────────────────────────────────────────────────
+  private readonly apiDeducUrl     = 'http://localhost/ServicioDeduccionPago/';
+  private readonly apiTipoUrl      = 'http://localhost/ServicioTipoDeduccion/';
+  private readonly apiBonifUrl     = 'http://localhost/ServicioBonificacionPago/';
+  private readonly apiTipoBonifUrl = 'http://localhost/ServicioTipoBonificacion/';
+  private readonly apiPagoUrl      = 'http://localhost/ServicioPago/';
+
+  // ── Deducciones ───────────────────────────────────────────────────────
+  protected readonly tiposDeduccion  = signal<TipoDeduccion[]>([]);
+  protected readonly deduccionesPago = signal<DeduccionPago[]>([]);
+
+  protected mostrandoModalDeducciones    = false;
+  protected mostrandoModalNuevaDeduccion = false;
+  protected pagoSeleccionado: Pago | null = null;
+  protected formDeduccion = { tipoDeduccionId: 0, montoManual: 0, observaciones: '' };
+
+  // ── Bonificaciones ────────────────────────────────────────────────────
+  protected readonly tiposBonificacion  = signal<TipoBonificacion[]>([]);
+  protected readonly bonificacionesPago = signal<BonificacionPago[]>([]);
+
+  protected mostrandoModalBonificaciones    = false;
+  protected mostrandoModalNuevaBonificacion = false;
+  protected formBonificacion = { tipoBonificacionId: 0, montoManual: 0, observaciones: '' };
+
+  // ── pagoSeleccionadoBonif (para no pisar el de deducciones) ──────────
+  protected pagoSeleccionadoBonif: Pago | null = null;
 
   ngOnInit() {
     this.planillaId = Number(this.route.snapshot.paramMap.get('id'));
@@ -98,6 +142,13 @@ export class PlanillaDetalle implements OnInit {
     this.http.get<HistorialSalario[]>('http://localhost/ServicioHistorialSalario/ReadAll').subscribe({
       next: (d) => this.historial.set(d), error: () => {}
     });
+    this.http.get<TipoDeduccion[]>(this.apiTipoUrl + 'ReadAll').subscribe({
+      next: (d) => this.tiposDeduccion.set(d), error: () => {}
+    });
+    this.http.get<TipoBonificacion[]>(this.apiTipoBonifUrl + 'ReadAll').subscribe({
+      next: (d) => this.tiposBonificacion.set(d.filter(t => t.estado === 'activo')),
+      error: () => {}
+    });
   }
 
   // ── Helpers de presentación ───────────────────────────────────────────
@@ -115,9 +166,10 @@ export class PlanillaDetalle implements OnInit {
   }
 
   // ── Totales de pagos ──────────────────────────────────────────────────
-  protected get totalBruto(): number       { return this.pagos().reduce((s, p) => s + parseFloat(String(p.totalBruto)) || 0, 0); }
-  protected get totalDeducciones(): number { return this.pagos().reduce((s, p) => s + parseFloat(String(p.totalDeducciones)) || 0, 0); }
-  protected get totalNeto(): number        { return this.pagos().reduce((s, p) => s + parseFloat(String(p.salarioNeto)) || 0, 0); }
+  protected get totalBruto(): number       { return this.pagos().reduce((s, p) => s + (parseFloat(String(p.totalBruto)) || 0), 0); }
+  protected get totalDeducciones(): number { return this.pagos().reduce((s, p) => s + (parseFloat(String(p.totalDeducciones)) || 0), 0); }
+  protected get totalBonificaciones(): number { return this.pagos().reduce((s, p) => s + (parseFloat(String(p.totalBonificaciones)) || 0), 0); }
+  protected get totalNeto(): number        { return this.pagos().reduce((s, p) => s + (parseFloat(String(p.salarioNeto)) || 0), 0); }
 
   // ── Timeline de estados ───────────────────────────────────────────────
   protected readonly ESTADOS_TIMELINE = ['borrador','procesada','aprobada','pagada','cerrada'];
@@ -167,11 +219,11 @@ export class PlanillaDetalle implements OnInit {
 
   // ── Export ────────────────────────────────────────────────────────────
   protected exportarCSV() {
-    const cabecera = ['Empleado', 'Días', 'Hrs Extra', 'Bruto', 'Deducciones', 'Neto'];
+    const cabecera = ['Empleado', 'Días', 'Hrs Extra', 'Bruto', 'Deducciones', 'Bonificaciones', 'Neto'];
     const filas = this.pagos().map(p => [
       this.nombreEmpleado(p.empleadoId),
       p.diasTrabajados, p.horasExtras,
-      p.totalBruto, p.totalDeducciones, p.salarioNeto
+      p.totalBruto, p.totalDeducciones, p.totalBonificaciones, p.salarioNeto
     ]);
     const csv = [cabecera, ...filas].map(r => r.join(',')).join('\n');
     const a = document.createElement('a');
@@ -212,13 +264,13 @@ export class PlanillaDetalle implements OnInit {
     this.http.post('http://localhost/ServicioPlanilla/GenerarPagos', { planillaId: this.planillaId, empleadosIds: ids }).subscribe({
       next: (res: any) => {
         this.procesando = false;
-        this.paso = 0;
         this.previsualizacion.set(null);
-        this.tab = 'resumen';
         this.loadAll();
         this.notifSvc.mostrar(`Planilla procesada — ${res.total} pagos generados`);
+        setTimeout(() => { this.paso = 4; }, 500);
       },
       error: (e) => {
+        console.log('Error completo:', e);
         this.procesando = false;
         this.paso = 2;
         this.notifSvc.mostrar(e.error?.error ?? 'Error al procesar', 'error');
@@ -226,8 +278,173 @@ export class PlanillaDetalle implements OnInit {
     });
   }
 
+  protected finalizarProcesamiento() {
+    this.paso = 0;
+    this.tab = 'resumen';
+  }
+
   protected verDetalleEmp(emp: PrevEmp) { this.empDetalle = emp; }
   protected cerrarDetalle() { this.empDetalle = null; }
+
+  // ── Deducciones ───────────────────────────────────────────────────────
+  protected abrirDeducciones(pago: Pago) {
+    this.pagoSeleccionado = pago;
+    this.mostrandoModalDeducciones = true;
+    this.cargarDeduccionesPago(pago.id);
+  }
+
+  protected cargarDeduccionesPago(pagoId: number) {
+    this.http.get<DeduccionPago[]>(this.apiDeducUrl + `ReadPorPago?pagoId=${pagoId}`).subscribe({
+      next: (d) => this.deduccionesPago.set(d),
+      error: () => this.notifSvc.mostrar('Error al cargar deducciones', 'error'),
+    });
+  }
+
+  protected cerrarModalDeducciones() {
+    this.mostrandoModalDeducciones = false;
+    this.pagoSeleccionado = null;
+    this.deduccionesPago.set([]);
+    this.mostrandoModalNuevaDeduccion = false;
+  }
+
+  protected abrirNuevaDeduccion() {
+    this.formDeduccion = { tipoDeduccionId: 0, montoManual: 0, observaciones: '' };
+    this.mostrandoModalNuevaDeduccion = true;
+  }
+  protected cerrarNuevaDeduccion() { this.mostrandoModalNuevaDeduccion = false; }
+
+  protected onTipoDeduccionChange() {
+    const tipo = this.tiposDeduccion().find(t => t.id === Number(this.formDeduccion.tipoDeduccionId));
+    if (!tipo || !this.pagoSeleccionado) return;
+    if (tipo.porcentaje !== null) {
+      this.formDeduccion.montoManual = Math.round(
+        this.pagoSeleccionado.totalBruto * (tipo.porcentaje / 100) * 100
+      ) / 100;
+    } else if (tipo.montoFijo !== null) {
+      this.formDeduccion.montoManual = tipo.montoFijo;
+    }
+  }
+
+  protected guardarNuevaDeduccion() {
+    if (!this.pagoSeleccionado) return;
+    if (!this.formDeduccion.tipoDeduccionId) {
+      this.notifSvc.mostrar('Seleccioná un tipo de deducción', 'error'); return;
+    }
+    if (!this.formDeduccion.montoManual || this.formDeduccion.montoManual <= 0) {
+      this.notifSvc.mostrar('El monto debe ser mayor a 0', 'error'); return;
+    }
+    const payload = {
+      pagoId:          this.pagoSeleccionado.id,
+      tipoDeduccionId: Number(this.formDeduccion.tipoDeduccionId),
+      monto:           this.formDeduccion.montoManual,
+      observaciones:   this.formDeduccion.observaciones || 'Deducción especial agregada manualmente',
+    };
+    this.http.post(this.apiDeducUrl + 'Create', payload).subscribe({
+      next: () => {
+        this.http.post(this.apiPagoUrl + 'Recalcular', { pagoId: this.pagoSeleccionado!.id }).subscribe({
+          next: () => {
+            this.notifSvc.mostrar('Deducción agregada correctamente');
+            this.cerrarNuevaDeduccion();
+            this.cargarDeduccionesPago(this.pagoSeleccionado!.id);
+            this.loadAll();
+          },
+          error: () => this.notifSvc.mostrar('Deducción guardada pero error al recalcular', 'error'),
+        });
+      },
+      error: () => this.notifSvc.mostrar('Error al guardar la deducción', 'error'),
+    });
+  }
+
+  protected eliminarDeduccion(ded: DeduccionPago) {
+    if (!this.pagoSeleccionado) return;
+    if (!confirm(`¿Eliminar la deducción "${ded.nombre}"?`)) return;
+    this.http.post(this.apiDeducUrl + 'Delete', { id: ded.id }).subscribe({
+      next: () => {
+        this.http.post(this.apiPagoUrl + 'Recalcular', { pagoId: this.pagoSeleccionado!.id }).subscribe({
+          next: () => {
+            this.notifSvc.mostrar('Deducción eliminada');
+            this.cargarDeduccionesPago(this.pagoSeleccionado!.id);
+            this.loadAll();
+          }
+        });
+      },
+      error: () => this.notifSvc.mostrar('Error al eliminar la deducción', 'error'),
+    });
+  }
+
+  // ── Bonificaciones ────────────────────────────────────────────────────
+  protected abrirBonificaciones(pago: Pago) {
+    this.pagoSeleccionadoBonif = pago;
+    this.mostrandoModalBonificaciones = true;
+    this.cargarBonificacionesPago(pago.id);
+  }
+
+  protected cargarBonificacionesPago(pagoId: number) {
+    this.http.get<BonificacionPago[]>(this.apiBonifUrl + `ReadPorPago?pagoId=${pagoId}`).subscribe({
+      next: (d) => this.bonificacionesPago.set(d),
+      error: () => this.notifSvc.mostrar('Error al cargar bonificaciones', 'error'),
+    });
+  }
+
+  protected cerrarModalBonificaciones() {
+    this.mostrandoModalBonificaciones = false;
+    this.pagoSeleccionadoBonif = null;
+    this.bonificacionesPago.set([]);
+    this.mostrandoModalNuevaBonificacion = false;
+  }
+
+  protected abrirNuevaBonificacion() {
+    this.formBonificacion = { tipoBonificacionId: 0, montoManual: 0, observaciones: '' };
+    this.mostrandoModalNuevaBonificacion = true;
+  }
+  protected cerrarNuevaBonificacion() { this.mostrandoModalNuevaBonificacion = false; }
+
+  protected guardarNuevaBonificacion() {
+    if (!this.pagoSeleccionadoBonif) return;
+    if (!this.formBonificacion.tipoBonificacionId) {
+      this.notifSvc.mostrar('Seleccioná un tipo de bonificación', 'error'); return;
+    }
+    if (!this.formBonificacion.montoManual || this.formBonificacion.montoManual <= 0) {
+      this.notifSvc.mostrar('El monto debe ser mayor a 0', 'error'); return;
+    }
+    const payload = {
+      pagoId:             this.pagoSeleccionadoBonif.id,
+      tipoBonificacionId: Number(this.formBonificacion.tipoBonificacionId),
+      monto:              this.formBonificacion.montoManual,
+      observaciones:      this.formBonificacion.observaciones || 'Bonificación especial agregada manualmente',
+    };
+    this.http.post(this.apiBonifUrl + 'Create', payload).subscribe({
+      next: () => {
+        this.http.post(this.apiPagoUrl + 'Recalcular', { pagoId: this.pagoSeleccionadoBonif!.id }).subscribe({
+          next: () => {
+            this.notifSvc.mostrar('Bonificación agregada correctamente');
+            this.cerrarNuevaBonificacion();
+            this.cargarBonificacionesPago(this.pagoSeleccionadoBonif!.id);
+            this.loadAll();
+          },
+          error: () => this.notifSvc.mostrar('Bonificación guardada pero error al recalcular', 'error'),
+        });
+      },
+      error: () => this.notifSvc.mostrar('Error al guardar la bonificación', 'error'),
+    });
+  }
+
+  protected eliminarBonificacion(bon: BonificacionPago) {
+    if (!this.pagoSeleccionadoBonif) return;
+    if (!confirm(`¿Eliminar la bonificación "${bon.nombre}"?`)) return;
+    this.http.post(this.apiBonifUrl + 'Delete', { id: bon.id }).subscribe({
+      next: () => {
+        this.http.post(this.apiPagoUrl + 'Recalcular', { pagoId: this.pagoSeleccionadoBonif!.id }).subscribe({
+          next: () => {
+            this.notifSvc.mostrar('Bonificación eliminada');
+            this.cargarBonificacionesPago(this.pagoSeleccionadoBonif!.id);
+            this.loadAll();
+          }
+        });
+      },
+      error: () => this.notifSvc.mostrar('Error al eliminar la bonificación', 'error'),
+    });
+  }
 
   // ── Historial salarios ────────────────────────────────────────────────
   protected get salarioMaximo(): number {

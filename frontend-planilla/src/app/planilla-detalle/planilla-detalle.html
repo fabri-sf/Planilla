@@ -56,6 +56,10 @@
         <div class="pd-metrica-label">Deducciones</div>
         <div class="pd-metrica-val">{{ fmtMoneda(totalDeducciones) }}</div>
       </div>
+      <div class="pd-metrica pd-metrica--amber">
+        <div class="pd-metrica-label">Bonificaciones</div>
+        <div class="pd-metrica-val">{{ fmtMoneda(totalBonificaciones) }}</div>
+      </div>
       <div class="pd-metrica pd-metrica--green">
         <div class="pd-metrica-label">Total neto</div>
         <div class="pd-metrica-val">{{ fmtMoneda(totalNeto) }}</div>
@@ -74,7 +78,7 @@
           <table class="pd-table">
             <thead><tr>
               <th>Empleado</th><th>Días</th><th>Hrs extra</th>
-              <th>Bruto</th><th>Deducciones</th><th>Neto</th>
+              <th>Bruto</th><th>Deducciones</th><th>Bonificaciones</th><th>Neto</th>
             </tr></thead>
             <tbody>
               @for (p of pagos(); track p.id) {
@@ -84,6 +88,7 @@
                   <td class="pd-centro">{{ p.horasExtras }}</td>
                   <td class="pd-monto">{{ fmtMoneda(p.totalBruto) }}</td>
                   <td class="pd-monto pd-rojo">{{ fmtMoneda(p.totalDeducciones) }}</td>
+                  <td class="pd-monto pd-verde">{{ fmtMoneda(p.totalBonificaciones) }}</td>
                   <td class="pd-monto pd-verde pd-bold">{{ fmtMoneda(p.salarioNeto) }}</td>
                 </tr>
               }
@@ -189,12 +194,12 @@
 
   <!-- Stepper indicador -->
   <div class="pd-stepper">
-    @for (s of ['Seleccionar empleados', 'Calcular asistencia', 'Revisar cálculos', 'Confirmar']; track $index; let i = $index) {
+    @for (s of ['Seleccionar empleados', 'Calcular asistencia', 'Revisar cálculos', 'Confirmar', 'Deducciones y Bonificaciones']; track $index; let i = $index) {
       <div class="pd-step" [class.pd-step--done]="paso > i" [class.pd-step--active]="paso === i">
         <div class="pd-step-num">{{ i + 1 }}</div>
         <div class="pd-step-label">{{ s }}</div>
       </div>
-      @if (i < 3) { <div class="pd-step-line" [class.pd-step-line--done]="paso > i"></div> }
+      @if (i < 4) { <div class="pd-step-line" [class.pd-step-line--done]="paso > i"></div> }
     }
   </div>
 
@@ -329,7 +334,270 @@
     </div>
   }
 
+  <!-- ═══ Paso 4: Deducciones y Bonificaciones post-procesamiento ═══ -->
+  @if (paso === 4) {
+    <div class="pd-card pd-paso-card">
+      <div class="pd-card-title">➖➕ Deducciones y Bonificaciones</div>
+      <div class="pd-card-sub">
+        Los pagos fueron generados. Podés agregar deducciones especiales (multas, préstamos, embargos, etc.)
+        o bonificaciones (bonos, comisiones, etc.) a cada empleado antes de aprobar la planilla.
+      </div>
+
+      <div class="pd-table-wrap">
+        <table class="pd-table">
+          <thead>
+            <tr>
+              <th>Empleado</th>
+              <th>Total bruto</th>
+              <th>Deducciones</th>
+              <th>Bonificaciones</th>
+              <th>Salario neto</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of pagos(); track p.id) {
+              <tr>
+                <td>{{ nombreEmpleado(p.empleadoId) }}</td>
+                <td class="pd-monto">{{ fmtMoneda(p.totalBruto) }}</td>
+                <td class="pd-monto pd-rojo">{{ fmtMoneda(p.totalDeducciones) }}</td>
+                <td class="pd-monto pd-verde">{{ fmtMoneda(p.totalBonificaciones) }}</td>
+                <td class="pd-monto pd-verde pd-bold">{{ fmtMoneda(p.salarioNeto) }}</td>
+                <td style="display:flex; gap:6px; flex-wrap:wrap;">
+                  <button class="pd-btn-ver pd-btn-deduccion" (click)="abrirDeducciones(p)">
+                    ➖ Deducciones
+                  </button>
+                  <button class="pd-btn-ver pd-btn-bonificacion" (click)="abrirBonificaciones(p)">
+                    ➕ Bonificaciones
+                  </button>
+                </td>
+              </tr>
+            }
+            @if (pagos().length === 0) {
+              <tr>
+                <td colspan="6" class="pd-empty-cell">Cargando pagos...</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Totales actualizados -->
+      <div class="pd-totales-grid" style="margin-top: var(--space-lg);">
+        <div class="pd-total-item">
+          <span class="pd-total-label">Total bruto</span>
+          <span class="pd-total-val">{{ fmtMoneda(totalBruto) }}</span>
+        </div>
+        <div class="pd-total-item pd-total-rojo">
+          <span class="pd-total-label">Total deducciones</span>
+          <span class="pd-total-val">{{ fmtMoneda(totalDeducciones) }}</span>
+        </div>
+        <div class="pd-total-item pd-total-verde">
+          <span class="pd-total-label">Total bonificaciones</span>
+          <span class="pd-total-val">{{ fmtMoneda(totalBonificaciones) }}</span>
+        </div>
+        <div class="pd-total-item pd-total-verde">
+          <span class="pd-total-label">Total neto</span>
+          <span class="pd-total-val pd-bold">{{ fmtMoneda(totalNeto) }}</span>
+        </div>
+        <div class="pd-total-item">
+          <span class="pd-total-label">Empleados</span>
+          <span class="pd-total-val">{{ pagos().length }}</span>
+        </div>
+      </div>
+
+      <div class="pd-paso-footer">
+        <button class="pd-btn-primary" (click)="finalizarProcesamiento()">
+          ✅ Ir al resumen
+        </button>
+      </div>
+    </div>
+  }
+
 </div>
+
+<!-- ═══ Modal deducciones — FUERA del tab procesar, al mismo nivel ═══ -->
+@if (mostrandoModalDeducciones && pagoSeleccionado) {
+<div class="modal-confirm-overlay" (click)="cerrarModalDeducciones()">
+  <div class="pd-desglose-modal" (click)="$event.stopPropagation()">
+
+    <div class="pd-desglose-header">
+      <div class="pd-desglose-title">➖ Deducciones del pago</div>
+      <button class="pd-desglose-close" (click)="cerrarModalDeducciones()">✕</button>
+    </div>
+
+    <div class="pd-desglose-body">
+      <div class="pd-desglose-nombre">{{ nombreEmpleado(pagoSeleccionado.empleadoId) }}</div>
+      <div class="pd-desglose-cedula">
+        Bruto: {{ fmtMoneda(pagoSeleccionado.totalBruto) }}
+        &nbsp;·&nbsp;
+        Neto actual: <strong>{{ fmtMoneda(pagoSeleccionado.salarioNeto) }}</strong>
+      </div>
+
+      <div class="pd-desglose-section">Deducciones registradas</div>
+      @if (deduccionesPago().length === 0) {
+        <p style="color: var(--text-muted); font-size: var(--font-size-sm); padding: 8px 0;">
+          No hay deducciones especiales para este pago.
+        </p>
+      }
+      @for (ded of deduccionesPago(); track ded.id) {
+        <div class="pd-desglose-row">
+          <span>{{ ded.nombre ?? 'Deducción' }}
+            @if (ded.observaciones) { — <em style="color: var(--text-muted);">{{ ded.observaciones }}</em> }
+          </span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="pd-rojo" style="font-weight:600;">- {{ fmtMoneda(ded.monto) }}</span>
+            <button class="pd-btn-ver"
+                    style="background:#fef2f2; color:#991b1b; border-color:#fca5a5; padding: 3px 8px;"
+                    title="Eliminar deducción"
+                    (click)="eliminarDeduccion(ded)">🗑️</button>
+          </div>
+        </div>
+      }
+
+      <div class="pd-desglose-row pd-desglose-neto" style="margin-top:12px;">
+        <span>Salario neto</span>
+        <span>{{ fmtMoneda(pagoSeleccionado.salarioNeto) }}</span>
+      </div>
+
+      @if (mostrandoModalNuevaDeduccion) {
+        <div class="pd-desglose-section" style="margin-top: 20px;">Nueva deducción especial</div>
+        <div class="pd-sal-grid">
+          <div class="pd-sal-field pd-sal-full">
+            <label class="pd-sal-label">Tipo <span style="color:red">*</span></label>
+            <select class="pd-sal-input" [(ngModel)]="formDeduccion.tipoDeduccionId"
+                    (change)="onTipoDeduccionChange()">
+              <option [ngValue]="0">Seleccioná un tipo...</option>
+              @for (t of tiposDeduccion(); track t.id) {
+                <option [ngValue]="t.id">
+                  {{ t.nombre }}
+                  @if (t.porcentaje) { ({{ t.porcentaje }}%) }
+                  @if (t.montoFijo)  { ({{ fmtMoneda(t.montoFijo) }} fijo) }
+                </option>
+              }
+            </select>
+          </div>
+          <div class="pd-sal-field">
+            <label class="pd-sal-label">Monto <span style="color:red">*</span></label>
+            <input type="number" class="pd-sal-input" [(ngModel)]="formDeduccion.montoManual"
+                   placeholder="0.00" min="0" step="0.01" />
+            <small style="color: var(--text-muted);">Se calcula solo. Podés ajustarlo.</small>
+          </div>
+          <div class="pd-sal-field">
+            <label class="pd-sal-label">Observaciones</label>
+            <input type="text" class="pd-sal-input" [(ngModel)]="formDeduccion.observaciones"
+                   placeholder="Ej: Cuota préstamo, multa..." />
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
+          <button class="pd-btn-cancel" (click)="cerrarNuevaDeduccion()">Cancelar</button>
+          <button class="pd-btn-primary" (click)="guardarNuevaDeduccion()">Guardar deducción</button>
+        </div>
+      }
+    </div>
+
+    <div style="padding:12px 24px; border-top:1px solid var(--border-default);
+                display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+      @if (!mostrandoModalNuevaDeduccion) {
+        <button class="pd-btn-primary" (click)="abrirNuevaDeduccion()">
+          ➕ Agregar deducción
+        </button>
+      }
+      <button class="pd-btn-cancel" (click)="cerrarModalDeducciones()">Cerrar</button>
+    </div>
+
+  </div>
+</div>
+}
+
+<!-- ═══ Modal bonificaciones — FUERA del tab procesar, al mismo nivel ═══ -->
+@if (mostrandoModalBonificaciones && pagoSeleccionadoBonif) {
+<div class="modal-confirm-overlay" (click)="cerrarModalBonificaciones()">
+  <div class="pd-desglose-modal" (click)="$event.stopPropagation()">
+
+    <div class="pd-desglose-header">
+      <div class="pd-desglose-title">➕ Bonificaciones del pago</div>
+      <button class="pd-desglose-close" (click)="cerrarModalBonificaciones()">✕</button>
+    </div>
+
+    <div class="pd-desglose-body">
+      <div class="pd-desglose-nombre">{{ nombreEmpleado(pagoSeleccionadoBonif.empleadoId) }}</div>
+      <div class="pd-desglose-cedula">
+        Bruto: {{ fmtMoneda(pagoSeleccionadoBonif.totalBruto) }}
+        &nbsp;·&nbsp;
+        Neto actual: <strong>{{ fmtMoneda(pagoSeleccionadoBonif.salarioNeto) }}</strong>
+      </div>
+
+      <div class="pd-desglose-section">Bonificaciones registradas</div>
+      @if (bonificacionesPago().length === 0) {
+        <p style="color: var(--text-muted); font-size: var(--font-size-sm); padding: 8px 0;">
+          No hay bonificaciones especiales para este pago.
+        </p>
+      }
+      @for (bon of bonificacionesPago(); track bon.id) {
+        <div class="pd-desglose-row">
+          <span>{{ bon.nombre ?? 'Bonificación' }}
+            @if (bon.observaciones) { — <em style="color: var(--text-muted);">{{ bon.observaciones }}</em> }
+          </span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="pd-verde" style="font-weight:600;">+ {{ fmtMoneda(bon.monto) }}</span>
+            <button class="pd-btn-ver"
+                    style="background:#fef2f2; color:#991b1b; border-color:#fca5a5; padding: 3px 8px;"
+                    title="Eliminar bonificación"
+                    (click)="eliminarBonificacion(bon)">🗑️</button>
+          </div>
+        </div>
+      }
+
+      <div class="pd-desglose-row pd-desglose-neto" style="margin-top:12px;">
+        <span>Salario neto</span>
+        <span>{{ fmtMoneda(pagoSeleccionadoBonif.salarioNeto) }}</span>
+      </div>
+
+      @if (mostrandoModalNuevaBonificacion) {
+        <div class="pd-desglose-section" style="margin-top: 20px;">Nueva bonificación especial</div>
+        <div class="pd-sal-grid">
+          <div class="pd-sal-field pd-sal-full">
+            <label class="pd-sal-label">Tipo <span style="color:red">*</span></label>
+            <select class="pd-sal-input" [(ngModel)]="formBonificacion.tipoBonificacionId">
+              <option [ngValue]="0">Seleccioná un tipo...</option>
+              @for (t of tiposBonificacion(); track t.id) {
+                <option [ngValue]="t.id">{{ t.nombre }}</option>
+              }
+            </select>
+          </div>
+          <div class="pd-sal-field">
+            <label class="pd-sal-label">Monto <span style="color:red">*</span></label>
+            <input type="number" class="pd-sal-input" [(ngModel)]="formBonificacion.montoManual"
+                   placeholder="0.00" min="0" step="0.01" />
+          </div>
+          <div class="pd-sal-field">
+            <label class="pd-sal-label">Observaciones</label>
+            <input type="text" class="pd-sal-input" [(ngModel)]="formBonificacion.observaciones"
+                   placeholder="Ej: Bono producción, comisión..." />
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
+          <button class="pd-btn-cancel" (click)="cerrarNuevaBonificacion()">Cancelar</button>
+          <button class="pd-btn-primary" (click)="guardarNuevaBonificacion()">Guardar bonificación</button>
+        </div>
+      }
+    </div>
+
+    <div style="padding:12px 24px; border-top:1px solid var(--border-default);
+                display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+      @if (!mostrandoModalNuevaBonificacion) {
+        <button class="pd-btn-primary" (click)="abrirNuevaBonificacion()">
+          ➕ Agregar bonificación
+        </button>
+      }
+      <button class="pd-btn-cancel" (click)="cerrarModalBonificaciones()">Cerrar</button>
+    </div>
+
+  </div>
+</div>
+}
+
 } <!-- end tab procesar -->
 
 <!-- ═══════════════════ TAB: HISTORIAL SALARIOS ═══════════════════ -->
@@ -522,7 +790,7 @@
   </div>
 }
 
-<!-- Print styles en línea para PDF -->
+<!-- Print styles -->
 <style>
   @media print {
     .pd-header-actions, .pd-tabs, .pd-acciones-card,
@@ -530,5 +798,23 @@
     .pd-resumen { display: block !important; }
     .pd-col-right { display: none !important; }
     .pd-col-left { width: 100% !important; }
+  }
+
+  .pd-btn-deduccion {
+    background: #fef9f0 !important;
+    color: #92400e !important;
+    border-color: #fcd34d !important;
+  }
+  .pd-btn-deduccion:hover {
+    background: #fef3c7 !important;
+  }
+
+  .pd-btn-bonificacion {
+    background: #f0fdf4 !important;
+    color: #065f46 !important;
+    border-color: #86efac !important;
+  }
+  .pd-btn-bonificacion:hover {
+    background: #dcfce7 !important;
   }
 </style>

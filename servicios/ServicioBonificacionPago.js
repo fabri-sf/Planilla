@@ -14,6 +14,16 @@ class ServicioBonificacionPago {
     return await ejecutarConsulta("SELECT * FROM BONIFICACION_PAGO");
   }
 
+    async ReadPorPago(pagoId) {
+    return await ejecutarConsulta(
+      `SELECT bp.*, tb.nombre, tb.codigo
+       FROM BONIFICACION_PAGO bp
+       JOIN TIPO_BONIFICACION tb ON bp.tipoBonificacionId = tb.id
+       WHERE bp.pagoId = ?`,
+      [pagoId]
+    );
+  }
+
   async Create(datos) {
     return await ejecutarConsulta(
       "INSERT INTO BONIFICACION_PAGO (pagoId, tipoBonificacionId, monto, observaciones) VALUES (?, ?, ?, ?)",

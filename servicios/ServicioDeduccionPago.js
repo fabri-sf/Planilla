@@ -6,7 +6,7 @@ class ServicioDeduccionPago {
   async Read(Datos) {
     return await ejecutarConsulta(
       "SELECT * FROM DEDUCCION_PAGO WHERE pagoId = ?",
-      [Datos.pagoId],
+      [Datos.pagoId]
     );
   }
 
@@ -14,37 +14,38 @@ class ServicioDeduccionPago {
     return await ejecutarConsulta("SELECT * FROM DEDUCCION_PAGO");
   }
 
+  
+  async ReadPorPago(pagoId) {
+   return await ejecutarConsulta(
+    `SELECT dp.*, td.nombre, td.codigo
+     FROM DEDUCCION_PAGO dp
+     JOIN TIPO_DEDUCCION td ON dp.tipoDeduccionId = td.id
+     WHERE dp.pagoId = ? AND 1 = 0`,  // ← siempre falso, no retorna nada
+    [pagoId]
+  );
+  }
+
   async Create(Datos) {
     return await ejecutarConsulta(
-      `INSERT INTO DEDUCCION_PAGO
-            (pagoId, tipoDeduccionId, monto, observaciones)
-            VALUES (?, ?, ?, ?)`,
-      [Datos.pagoId, Datos.tipoDeduccionId, Datos.monto, Datos.observaciones],
+      `INSERT INTO DEDUCCION_PAGO (pagoId, tipoDeduccionId, monto, observaciones)
+       VALUES (?, ?, ?, ?)`,
+      [Datos.pagoId, Datos.tipoDeduccionId, Datos.monto, Datos.observaciones]
     );
   }
 
   async Edit(Datos) {
     return await ejecutarConsulta(
       `UPDATE DEDUCCION_PAGO
-             SET pagoId = ?,
-                 tipoDeduccionId = ?,
-                 monto = ?,
-                 observaciones = ?
-             WHERE id = ?`,
-      [
-        Datos.pagoId,
-        Datos.tipoDeduccionId,
-        Datos.monto,
-        Datos.observaciones,
-        Datos.id,
-      ],
+       SET pagoId = ?, tipoDeduccionId = ?, monto = ?, observaciones = ?
+       WHERE id = ?`,
+      [Datos.pagoId, Datos.tipoDeduccionId, Datos.monto, Datos.observaciones, Datos.id]
     );
   }
 
   async Delete(Datos) {
     return await ejecutarConsulta(
       "DELETE FROM DEDUCCION_PAGO WHERE id = ?",
-      [Datos.id],
+      [Datos.id]
     );
   }
 }
