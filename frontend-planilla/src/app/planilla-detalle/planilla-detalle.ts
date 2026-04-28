@@ -70,13 +70,10 @@ export class PlanillaDetalle implements OnInit {
   protected readonly empleados = signal<Empleado[]>([]);
   protected readonly historial = signal<HistorialSalario[]>([]);
 
-  // Tabs
   protected tab: Tab = 'resumen';
-
-  // Confirmación eliminar
   protected confirmarEliminar = false;
 
-  // ── Stepper de procesamiento ──────────────────────────────────────────
+  // ── Stepper ───────────────────────────────────────────────────────────
   protected paso = 0;
   protected seleccionados = new Set<number>();
   protected previsualizacion = signal<PrevResult | null>(null);
@@ -111,8 +108,6 @@ export class PlanillaDetalle implements OnInit {
   protected mostrandoModalBonificaciones    = false;
   protected mostrandoModalNuevaBonificacion = false;
   protected formBonificacion = { tipoBonificacionId: 0, montoManual: 0, observaciones: '' };
-
-  // ── pagoSeleccionadoBonif (para no pisar el de deducciones) ──────────
   protected pagoSeleccionadoBonif: Pago | null = null;
 
   ngOnInit() {
@@ -151,7 +146,7 @@ export class PlanillaDetalle implements OnInit {
     });
   }
 
-  // ── Helpers de presentación ───────────────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────────────────
   protected fmtFecha(val: string): string { return val ? val.split('T')[0] : '—'; }
   protected fmtMoneda(val: number): string {
     if (val == null) return '₡0';
@@ -165,13 +160,13 @@ export class PlanillaDetalle implements OnInit {
     return e ? `${e.nombre} ${e.apellido}` : `#${id}`;
   }
 
-  // ── Totales de pagos ──────────────────────────────────────────────────
-  protected get totalBruto(): number       { return this.pagos().reduce((s, p) => s + (parseFloat(String(p.totalBruto)) || 0), 0); }
-  protected get totalDeducciones(): number { return this.pagos().reduce((s, p) => s + (parseFloat(String(p.totalDeducciones)) || 0), 0); }
+  // ── Totales ───────────────────────────────────────────────────────────
+  protected get totalBruto(): number          { return this.pagos().reduce((s, p) => s + (parseFloat(String(p.totalBruto)) || 0), 0); }
+  protected get totalDeducciones(): number    { return this.pagos().reduce((s, p) => s + (parseFloat(String(p.totalDeducciones)) || 0), 0); }
   protected get totalBonificaciones(): number { return this.pagos().reduce((s, p) => s + (parseFloat(String(p.totalBonificaciones)) || 0), 0); }
-  protected get totalNeto(): number        { return this.pagos().reduce((s, p) => s + (parseFloat(String(p.salarioNeto)) || 0), 0); }
+  protected get totalNeto(): number           { return this.pagos().reduce((s, p) => s + (parseFloat(String(p.salarioNeto)) || 0), 0); }
 
-  // ── Timeline de estados ───────────────────────────────────────────────
+  // ── Timeline ──────────────────────────────────────────────────────────
   protected readonly ESTADOS_TIMELINE = ['borrador','procesada','aprobada','pagada','cerrada'];
   protected estadoIndex(est: string): number { return this.ESTADOS_TIMELINE.indexOf(est); }
   protected estadoActualIndex(): number {
@@ -193,14 +188,11 @@ export class PlanillaDetalle implements OnInit {
     return { background: s.bg, color: s.color, border: `1px solid ${s.border}` };
   }
 
-  // ── Acciones de estado ────────────────────────────────────────────────
+  // ── Estado ────────────────────────────────────────────────────────────
   protected cambiarEstado() {
     const p = this.planilla(); if (!p) return;
     this.http.post('http://localhost/ServicioPlanilla/CambiarEstado', { planillaId: p.id }).subscribe({
-      next: (res: any) => {
-        this.loadAll();
-        this.notifSvc.mostrar(`Planilla avanzada a "${res.estadoNuevo}"`);
-      },
+      next: (res: any) => { this.loadAll(); this.notifSvc.mostrar(`Planilla avanzada a "${res.estadoNuevo}"`); },
       error: (e) => this.notifSvc.mostrar(e.error?.error ?? 'Error al cambiar estado', 'error'),
     });
   }
@@ -270,7 +262,6 @@ export class PlanillaDetalle implements OnInit {
         setTimeout(() => { this.paso = 4; }, 500);
       },
       error: (e) => {
-        console.log('Error completo:', e);
         this.procesando = false;
         this.paso = 2;
         this.notifSvc.mostrar(e.error?.error ?? 'Error al procesar', 'error');
@@ -278,11 +269,7 @@ export class PlanillaDetalle implements OnInit {
     });
   }
 
-  protected finalizarProcesamiento() {
-    this.paso = 0;
-    this.tab = 'resumen';
-  }
-
+  protected finalizarProcesamiento() { this.paso = 0; this.tab = 'resumen'; }
   protected verDetalleEmp(emp: PrevEmp) { this.empDetalle = emp; }
   protected cerrarDetalle() { this.empDetalle = null; }
 

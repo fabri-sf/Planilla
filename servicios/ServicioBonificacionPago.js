@@ -36,6 +36,16 @@ class ServicioBonificacionPago {
     );
   }
 
+  async ReadUltimoMontoPorTipo(tipoBonificacionId) {
+  const result = await ejecutarConsulta(
+    `SELECT monto FROM BONIFICACION_PAGO 
+     WHERE tipoBonificacionId = ? 
+     ORDER BY id DESC LIMIT 1`,
+    [tipoBonificacionId]
+  );
+  return result.length > 0 ? result[0] : { monto: 0 };
+}
+
   async Update(datos) {
     return await ejecutarConsulta(
       "UPDATE BONIFICACION_PAGO SET pagoId = ?, tipoBonificacionId = ?, monto = ?, observaciones = ? WHERE id = ?",
