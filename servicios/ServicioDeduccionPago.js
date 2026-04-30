@@ -14,9 +14,7 @@ class ServicioDeduccionPago {
     return await ejecutarConsulta("SELECT * FROM DEDUCCION_PAGO");
   }
 
-  
- 
-   async ReadPorPago(pagoId) {
+  async ReadPorPago(pagoId) {
     return await ejecutarConsulta(
       `SELECT dp.*, td.nombre, td.codigo, td.porcentaje, td.montoFijo, td.obligatorio
        FROM DEDUCCION_PAGO dp
@@ -25,7 +23,6 @@ class ServicioDeduccionPago {
       [pagoId]
     );
   }
-  
 
   async Create(Datos) {
     return await ejecutarConsulta(
