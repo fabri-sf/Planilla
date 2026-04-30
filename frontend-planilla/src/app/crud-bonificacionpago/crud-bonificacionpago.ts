@@ -7,7 +7,6 @@ import { NotificacionService } from '../notificacion.service';
 interface BonificacionPago {
   id: number; pagoId: number; tipoBonificacionId: number; monto: number; observaciones: string;
 }
-
 interface Pago { id: number; empleadoId: number; planillaId: number; }
 interface Empleado { id: number; nombre: string; apellido: string; }
 interface TipoBonificacion { id: number; nombre: string; }
@@ -19,22 +18,19 @@ interface TipoBonificacion { id: number; nombre: string; }
   styleUrl: './crud-bonificacionpago.css',
 })
 export class CrudBonificacionpago implements OnInit {
-  private readonly http = inject(HttpClient);
-  private readonly router = inject(Router);
+  private readonly http     = inject(HttpClient);
+  private readonly router   = inject(Router);
   private readonly notifSvc = inject(NotificacionService);
-  private readonly apiUrl = 'http://localhost/ServicioBonificacionPago/';
+  private readonly apiUrl   = 'http://localhost/ServicioBonificacionPago/';
 
-  protected readonly lista = signal<BonificacionPago[]>([]);
-  protected readonly pagos = signal<Pago[]>([]);
-  protected readonly empleados = signal<Empleado[]>([]);
+  protected readonly lista             = signal<BonificacionPago[]>([]);
+  protected readonly pagos             = signal<Pago[]>([]);
+  protected readonly empleados         = signal<Empleado[]>([]);
   protected readonly tiposBonificacion = signal<TipoBonificacion[]>([]);
-  protected mostrandoModal = false;
-  protected modoEditar = false;
-  protected enviado = false;
-  protected form = this.formVacio();
+
   protected mostrandoConfirmacion = false;
-  protected idAEliminar = 0;
-  protected terminoBusqueda = '';
+  protected idAEliminar           = 0;
+  protected terminoBusqueda       = '';
 
   ngOnInit() {
     this.loadBonificaciones();
@@ -67,17 +63,13 @@ export class CrudBonificacionpago implements OnInit {
     return emp ? `${emp.nombre} ${emp.apellido} — pago #${id}` : `Pago #${id}`;
   }
 
-  protected nombreTipoBonificacion(id: number): string { return this.tiposBonificacion().find(t => t.id === id)?.nombre ?? String(id); }
-
-  protected formVacio() { return { id: 0, pagoId: 0, tipoBonificacionId: 0, monto: 0, observaciones: '' }; }
-  protected formValido(): boolean { return this.form.pagoId > 0 && this.form.tipoBonificacionId > 0 && this.form.monto > 0; }
-
-  protected abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
-  protected abrirEditar(item: BonificacionPago) { this.form = { ...item }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
-  protected cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
+  protected nombreTipoBonificacion(id: number): string {
+    return this.tiposBonificacion().find(t => t.id === id)?.nombre ?? String(id);
+  }
 
   protected confirmarEliminar(id: number) { this.idAEliminar = id; this.mostrandoConfirmacion = true; }
-  protected cerrarConfirmacion() { this.mostrandoConfirmacion = false; this.idAEliminar = 0; }
+  protected cerrarConfirmacion()          { this.mostrandoConfirmacion = false; this.idAEliminar = 0; }
+
   protected ejecutarEliminar() {
     this.http.post(this.apiUrl + 'Delete', { id: this.idAEliminar }).subscribe({
       next: () => { this.loadBonificaciones(); this.cerrarConfirmacion(); this.notifSvc.mostrar('Bonificación eliminada exitosamente'); },
@@ -85,20 +77,5 @@ export class CrudBonificacionpago implements OnInit {
     });
   }
 
-  protected guardar() {
-    this.enviado = true;
-    if (!this.formValido()) return;
-    if (this.modoEditar) {
-      this.http.post(this.apiUrl + 'Update', this.form).subscribe({
-        next: () => { this.loadBonificaciones(); this.cerrarModal(); this.notifSvc.mostrar('Bonificación actualizada exitosamente'); },
-        error: () => this.notifSvc.mostrar('Error al actualizar la bonificación', 'error'),
-      });
-    } else {
-      this.http.post(this.apiUrl + 'Create', this.form).subscribe({
-        next: () => { this.loadBonificaciones(); this.cerrarModal(); this.notifSvc.mostrar('Bonificación creada exitosamente'); },
-        error: () => this.notifSvc.mostrar('Error al crear la bonificación', 'error'),
-      });
-    }
-  }
-  cerrar() { this.router.navigate(["/"]); }
+  cerrar() { this.router.navigate(['/']); }
 }

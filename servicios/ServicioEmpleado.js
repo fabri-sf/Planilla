@@ -4,7 +4,6 @@ const ServicioUsuario = require("./ServicioUsuario.js");
 class ServicioEmpleado {
   constructor() {}
 
-  // ── EMPLEADO ──────────────────────────────────────────────────────────────
 
   async Read(Datos) {
     return await ejecutarConsulta("SELECT * FROM EMPLEADO WHERE cedula = ?", [

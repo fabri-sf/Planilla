@@ -90,7 +90,6 @@ export class CRUDAsistencia implements OnInit {
     return this.form.empleadoId > 0 && !!this.form.horaEntrada;
   }
 
-  // Al abrir crear: fecha y hora de entrada se fijan automáticamente al día de hoy
   protected abrirCrear() {
     this.form = this.formVacio();
     this.form.fecha = this.hoy();

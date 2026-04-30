@@ -26,8 +26,6 @@ function calcularHoras(horaEntrada, horaSalida) {
   };
 }
 
-// ── Clase ─────────────────────────────────────────────────────────────────────
-
 class ServicioAsistencia {
   constructor() {}
 

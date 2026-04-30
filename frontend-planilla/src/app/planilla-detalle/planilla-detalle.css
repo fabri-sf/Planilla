@@ -346,3 +346,30 @@
   .pd-metricas-grid { grid-template-columns: 1fr 1fr; }
   .pd-barra-nombre  { width: 100px; }
 }
+
+
+@media print {
+  .pd-header-actions, .pd-tabs, .pd-acciones-card,
+  .pd-procesar, .pd-historial, header, footer { display: none !important; }
+  .pd-resumen { display: block !important; }
+  .pd-col-right { display: none !important; }
+  .pd-col-left { width: 100% !important; }
+}
+
+.pd-btn-deduccion {
+  background: #fef9f0 !important;
+  color: #92400e !important;
+  border-color: #fcd34d !important;
+}
+.pd-btn-deduccion:hover {
+  background: #fef3c7 !important;
+}
+
+.pd-btn-bonificacion {
+  background: #f0fdf4 !important;
+  color: #065f46 !important;
+  border-color: #86efac !important;
+}
+.pd-btn-bonificacion:hover {
+  background: #dcfce7 !important;
+}

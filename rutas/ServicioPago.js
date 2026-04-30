@@ -83,8 +83,7 @@ Router.post("/Update", async (solicitud, respuesta, next) => {
 });
 
 // ================= RECALCULAR =================
-// Recalcula totales del pago cuando se agrega una deducción/bonificación especial
-// POST /pago/Recalcular  { "pagoId": 1 }
+
 Router.post("/Recalcular", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {

@@ -119,14 +119,12 @@ function calcularMontosPago(emp, asistencias, tiposDeduccion) {
   };
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// CLASE PRINCIPAL
-// ═══════════════════════════════════════════════════════════════════
+
 
 class ServicioPlanilla {
   constructor() {}
 
-  // ── CRUD básico ────────────────────────────────────────────────
+  //  CRUD 
 
   async Read(datos) {
     return await ejecutarConsulta(
@@ -200,7 +198,7 @@ class ServicioPlanilla {
     );
   }
 
-  // ── Cambios de estado ──────────────────────────────────────────
+  // Cambios de estado 
 
   async CambiarEstado(datos) {
     const transiciones = {
@@ -264,7 +262,7 @@ class ServicioPlanilla {
     return { estadoAnterior: planilla.estado, estadoNuevo: "atrasada" };
   }
 
-  // ── Previsualizar ──────────────────────────────────────────────
+  //  Previsualizar
 
   async Previsualizar(planillaId, empleadosIds) {
     const rows = await ejecutarConsulta("SELECT * FROM PLANILLA WHERE id = ?", [planillaId]);
@@ -335,7 +333,7 @@ class ServicioPlanilla {
     };
   }
 
-  // ── Generar pagos ──────────────────────────────────────────────
+  // Generar pagos 
 
   async GenerarPagos(datos) {
     const rows = await ejecutarConsulta("SELECT * FROM PLANILLA WHERE id = ?", [datos.planillaId]);
@@ -443,7 +441,7 @@ class ServicioPlanilla {
     return { mensaje: "Planilla procesada correctamente", pagosGenerados, total: pagosGenerados.length };
   }
 
-  // ── Reportes ───────────────────────────────────────────────────
+  //  Reportes 
 
   async ReportePlanilla(planillaId) {
     const rows = await ejecutarConsulta("SELECT * FROM PLANILLA WHERE id = ?", [planillaId]);
