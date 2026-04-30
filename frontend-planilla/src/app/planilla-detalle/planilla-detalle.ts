@@ -6,9 +6,9 @@ import { TitleCasePipe, NgStyle } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NotificacionService } from '../notificacion.service';
 
-// ═══════════════════════════════════════════════════════════════════
+
 // INTERFACES
-// ═══════════════════════════════════════════════════════════════════
+
 
 interface Planilla {
   id: number; periodo: string; fechaInicio: string; fechaFin: string;
@@ -53,9 +53,9 @@ interface BonificacionPago {
 
 type Tab = 'resumen' | 'procesar' | 'historial';
 
-// ═══════════════════════════════════════════════════════════════════
+
 // COMPONENTE
-// ═══════════════════════════════════════════════════════════════════
+
 
 @Component({
   selector: 'app-planilla-detalle',
@@ -70,26 +70,23 @@ export class PlanillaDetalle implements OnInit {
   private readonly route    = inject(ActivatedRoute);
   private readonly notifSvc = inject(NotificacionService);
 
-  // ── URLs ──────────────────────────────────────────────────────
+
   private readonly apiDeducUrl     = 'http://localhost/ServicioDeduccionPago/';
   private readonly apiTipoUrl      = 'http://localhost/ServicioTipoDeduccion/';
   private readonly apiBonifUrl     = 'http://localhost/ServicioBonificacionPago/';
   private readonly apiTipoBonifUrl = 'http://localhost/ServicioTipoBonificacion/';
   private readonly apiPagoUrl      = 'http://localhost/ServicioPago/';
 
-  // ── Estado general ────────────────────────────────────────────
   protected planillaId = 0;
   protected tab: Tab = 'resumen';
   protected confirmarEliminar = false;
 
-  // ── Signals de datos ──────────────────────────────────────────
   protected readonly planilla  = signal<Planilla | null>(null);
   protected readonly pagos     = signal<Pago[]>([]);
   protected readonly usuarios  = signal<Usuario[]>([]);
   protected readonly empleados = signal<Empleado[]>([]);
   protected readonly historial = signal<HistorialSalario[]>([]);
 
-  // ── Stepper de procesamiento ──────────────────────────────────
   protected readonly paso      = signal(0);
   protected readonly previsualizacion = signal<PrevResult | null>(null);
   protected seleccionados = new Set<number>();
@@ -97,30 +94,28 @@ export class PlanillaDetalle implements OnInit {
   protected empDetalle: PrevEmp | null = null;
   protected setPaso(n: number) { this.paso.set(n); }
 
-  // ── Deducciones ───────────────────────────────────────────────
+
   protected readonly tiposDeduccion  = signal<TipoDeduccion[]>([]);
   protected readonly deduccionesPago = signal<DeduccionPago[]>([]);
   protected mostrandoModalDeducciones    = false;
   protected mostrandoModalNuevaDeduccion = false;
   protected pagoSeleccionado: Pago | null = null;
   protected formDeduccion = { tipoDeduccionId: 0, montoManual: 0, observaciones: '' };
+  protected deduccionAEliminar: DeduccionPago | null = null;
 
-  // ── Bonificaciones ────────────────────────────────────────────
   protected readonly tiposBonificacion  = signal<TipoBonificacion[]>([]);
   protected readonly bonificacionesPago = signal<BonificacionPago[]>([]);
   protected mostrandoModalBonificaciones    = false;
   protected mostrandoModalNuevaBonificacion = false;
   protected pagoSeleccionadoBonif: Pago | null = null;
   protected formBonificacion = { tipoBonificacionId: 0, montoManual: 0, observaciones: '' };
-
-  // ── Historial salarios ────────────────────────────────────────
+  protected bonificacionAEliminar: BonificacionPago | null = null;
+  
   protected mostrarFormSalario = false;
   protected enviandoSalario    = false;
   protected formSalario = { empleadoId: 0, salarioAnterior: 0, salarioNuevo: 0, motivo: '', autorizadoPor: 0 };
 
-  // ═══════════════════════════════════════════════════════════════
-  // INIT
-  // ═══════════════════════════════════════════════════════════════
+ 
 
   ngOnInit() {
     this.planillaId = Number(this.route.snapshot.paramMap.get('id'));
@@ -157,9 +152,7 @@ export class PlanillaDetalle implements OnInit {
     });
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  // HELPERS / FORMATEO
-  // ═══════════════════════════════════════════════════════════════
+ 
 
   protected fmtFecha(val: string): string { return val ? val.split('T')[0] : '—'; }
 
@@ -177,18 +170,14 @@ export class PlanillaDetalle implements OnInit {
     return e ? `${e.nombre} ${e.apellido}` : `#${id}`;
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  // TOTALES
-  // ═══════════════════════════════════════════════════════════════
+  
 
   protected get totalBruto(): number          { return this.pagos().reduce((s, p) => s + (parseFloat(String(p.totalBruto)) || 0), 0); }
   protected get totalDeducciones(): number    { return this.pagos().reduce((s, p) => s + (parseFloat(String(p.totalDeducciones)) || 0), 0); }
   protected get totalBonificaciones(): number { return this.pagos().reduce((s, p) => s + (parseFloat(String(p.totalBonificaciones)) || 0), 0); }
   protected get totalNeto(): number           { return this.pagos().reduce((s, p) => s + (parseFloat(String(p.salarioNeto)) || 0), 0); }
 
-  // ═══════════════════════════════════════════════════════════════
-  // TIMELINE Y BADGES
-  // ═══════════════════════════════════════════════════════════════
+ 
 
   protected readonly ESTADOS_TIMELINE = ['borrador','procesada','aprobada','pagada','cerrada'];
 
@@ -212,9 +201,9 @@ export class PlanillaDetalle implements OnInit {
     return { background: s.bg, color: s.color, border: `1px solid ${s.border}` };
   }
 
-  // ═══════════════════════════════════════════════════════════════
+
   // ACCIONES DE PLANILLA
-  // ═══════════════════════════════════════════════════════════════
+ 
 
   protected cambiarEstado() {
     const p = this.planilla(); if (!p) return;
@@ -236,9 +225,8 @@ export class PlanillaDetalle implements OnInit {
   protected navAtraso() { this.router.navigate(['/planilla', this.planillaId, 'atraso']); }
   protected volver()    { this.router.navigate(['/planilla']); }
 
-  // ═══════════════════════════════════════════════════════════════
+
   // EXPORTAR / IMPRIMIR
-  // ═══════════════════════════════════════════════════════════════
 
   protected exportarCSV() {
     const cabecera = ['Empleado', 'Días', 'Hrs Extra', 'Bruto', 'Deducciones', 'Bonificaciones', 'Neto'];
@@ -458,9 +446,7 @@ export class PlanillaDetalle implements OnInit {
     });
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  // STEPPER
-  // ═══════════════════════════════════════════════════════════════
+  
 
   protected toggleEmp(id: number) {
     if (this.seleccionados.has(id)) this.seleccionados.delete(id);
@@ -510,9 +496,9 @@ export class PlanillaDetalle implements OnInit {
   protected verDetalleEmp(emp: PrevEmp) { this.empDetalle = emp; }
   protected cerrarDetalle() { this.empDetalle = null; }
 
-  // ═══════════════════════════════════════════════════════════════
+
   // DEDUCCIONES
-  // ═══════════════════════════════════════════════════════════════
+
 
   protected abrirDeducciones(pago: Pago) {
     this.pagoSeleccionado = pago;
@@ -568,18 +554,28 @@ export class PlanillaDetalle implements OnInit {
     });
   }
 
-  protected eliminarDeduccion(ded: DeduccionPago) {
-    if (!this.pagoSeleccionado) return;
-    if (!confirm(`¿Eliminar la deducción "${ded.nombre}"?`)) return;
+ protected pedirConfirmarEliminarDeduccion(ded: DeduccionPago) {
+    this.deduccionAEliminar = ded;
+  }
+
+  protected confirmarEliminarDeduccion() {
+    const ded = this.deduccionAEliminar;
+    if (!ded || !this.pagoSeleccionado) return;
+    this.deduccionAEliminar = null;
     this.http.post(this.apiDeducUrl + 'Delete', { id: ded.id }).subscribe({
       next: () => this.recalcularYRecargar(this.pagoSeleccionado!, 'deduccion', 'Deducción eliminada'),
       error: () => this.notifSvc.mostrar('Error al eliminar la deducción', 'error'),
     });
   }
 
-  // ═══════════════════════════════════════════════════════════════
+  protected cancelarEliminarDeduccion() {
+    this.deduccionAEliminar = null;
+  }
+
+
+
   // BONIFICACIONES
-  // ═══════════════════════════════════════════════════════════════
+ 
 
   protected abrirBonificaciones(pago: Pago) {
     this.pagoSeleccionadoBonif = pago;
@@ -625,13 +621,22 @@ export class PlanillaDetalle implements OnInit {
     });
   }
 
-  protected eliminarBonificacion(bon: BonificacionPago) {
-    if (!this.pagoSeleccionadoBonif) return;
-    if (!confirm(`¿Eliminar la bonificación "${bon.nombre}"?`)) return;
+  protected pedirConfirmarEliminarBonificacion(bon: BonificacionPago) {
+    this.bonificacionAEliminar = bon;
+  }
+
+  protected confirmarEliminarBonificacion() {
+    const bon = this.bonificacionAEliminar;
+    if (!bon || !this.pagoSeleccionadoBonif) return;
+    this.bonificacionAEliminar = null;
     this.http.post(this.apiBonifUrl + 'Delete', { id: bon.id }).subscribe({
       next: () => this.recalcularYRecargar(this.pagoSeleccionadoBonif!, 'bonificacion', 'Bonificación eliminada'),
       error: () => this.notifSvc.mostrar('Error al eliminar la bonificación', 'error'),
     });
+  }
+
+  protected cancelarEliminarBonificacion() {
+    this.bonificacionAEliminar = null;
   }
 
   // Recalcula el pago y recarga la lista — evita duplicar este bloque en cada acción
@@ -655,9 +660,7 @@ export class PlanillaDetalle implements OnInit {
     });
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  // HISTORIAL SALARIOS
-  // ═══════════════════════════════════════════════════════════════
+
 
   protected get salarioMaximo(): number {
     const salarios = this.empleados().map(e => e.salarioBase);

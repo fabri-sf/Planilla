@@ -455,7 +455,7 @@
             <button class="pd-btn-ver"
                     style="background:#fef2f2; color:#991b1b; border-color:#fca5a5; padding: 3px 8px;"
                     title="Eliminar deducción"
-                    (click)="eliminarDeduccion(ded)">🗑️</button>
+                   (click)="pedirConfirmarEliminarDeduccion(ded)">🗑️</button>
           </div>
         </div>
       }
@@ -552,7 +552,7 @@
             <button class="pd-btn-ver"
                     style="background:#fef2f2; color:#991b1b; border-color:#fca5a5; padding: 3px 8px;"
                     title="Eliminar bonificación"
-                    (click)="eliminarBonificacion(bon)">🗑️</button>
+                   (click)="pedirConfirmarEliminarBonificacion(bon)">🗑️</button>
           </div>
         </div>
       }
@@ -690,6 +690,47 @@
 </div>
 }
 
+
+<!-- ═══ Modal confirmar eliminar DEDUCCIÓN ═══ -->
+@if (deduccionAEliminar) {
+<div class="modal-confirm-overlay">
+  <div class="modal-confirm">
+    <div class="modal-confirm-icon">🗑️</div>
+    <div class="modal-confirm-title">Eliminar deducción</div>
+    <div class="modal-confirm-msg">
+      ¿Eliminar la deducción
+      <strong>{{ deduccionAEliminar.nombre ?? 'esta deducción' }}</strong>
+      por <strong>{{ fmtMoneda(deduccionAEliminar.monto) }}</strong>?
+      Esta acción no se puede deshacer.
+    </div>
+    <div class="modal-confirm-actions">
+      <button class="btn-cancel-form" (click)="cancelarEliminarDeduccion()">Cancelar</button>
+      <button class="btn-danger"      (click)="confirmarEliminarDeduccion()">Eliminar</button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ═══ Modal confirmar eliminar BONIFICACIÓN ═══ -->
+@if (bonificacionAEliminar) {
+<div class="modal-confirm-overlay">
+  <div class="modal-confirm">
+    <div class="modal-confirm-icon">🗑️</div>
+    <div class="modal-confirm-title">Eliminar bonificación</div>
+    <div class="modal-confirm-msg">
+      ¿Eliminar la bonificación
+      <strong>{{ bonificacionAEliminar.nombre ?? 'esta bonificación' }}</strong>
+      por <strong>{{ fmtMoneda(bonificacionAEliminar.monto) }}</strong>?
+      Esta acción no se puede deshacer.
+    </div>
+    <div class="modal-confirm-actions">
+      <button class="btn-cancel-form" (click)="cancelarEliminarBonificacion()">Cancelar</button>
+      <button class="btn-danger"      (click)="confirmarEliminarBonificacion()">Eliminar</button>
+    </div>
+  </div>
+</div>
+}
+
 <!-- ═══════════════════ MODAL DETALLE PAGO EMPLEADO ═══════════════════ -->
 @if (empDetalle) {
 <div class="modal-confirm-overlay" (click)="cerrarDetalle()">
@@ -797,32 +838,3 @@
     <p>Cargando planilla...</p>
   </div>
 }
-
-<!-- Print styles -->
-<style>
-  @media print {
-    .pd-header-actions, .pd-tabs, .pd-acciones-card,
-    .pd-procesar, .pd-historial, header, footer { display: none !important; }
-    .pd-resumen { display: block !important; }
-    .pd-col-right { display: none !important; }
-    .pd-col-left { width: 100% !important; }
-  }
-
-  .pd-btn-deduccion {
-    background: #fef9f0 !important;
-    color: #92400e !important;
-    border-color: #fcd34d !important;
-  }
-  .pd-btn-deduccion:hover {
-    background: #fef3c7 !important;
-  }
-
-  .pd-btn-bonificacion {
-    background: #f0fdf4 !important;
-    color: #065f46 !important;
-    border-color: #86efac !important;
-  }
-  .pd-btn-bonificacion:hover {
-    background: #dcfce7 !important;
-  }
-</style>

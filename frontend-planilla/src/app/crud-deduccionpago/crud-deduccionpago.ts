@@ -7,7 +7,6 @@ import { NotificacionService } from '../notificacion.service';
 interface DeduccionPago {
   id: number; pagoId: number; tipoDeduccionId: number; monto: number; observaciones: string;
 }
-
 interface Pago { id: number; empleadoId: number; planillaId: number; }
 interface Empleado { id: number; nombre: string; apellido: string; }
 interface TipoDeduccion { id: number; nombre: string; }
@@ -19,22 +18,19 @@ interface TipoDeduccion { id: number; nombre: string; }
   styleUrl: './crud-deduccionpago.css',
 })
 export class CrudDeduccionpago implements OnInit {
-  private readonly http = inject(HttpClient);
-  private readonly router = inject(Router);
+  private readonly http     = inject(HttpClient);
+  private readonly router   = inject(Router);
   private readonly notifSvc = inject(NotificacionService);
-  private readonly apiUrl = 'http://localhost/ServicioDeduccionPago/';
+  private readonly apiUrl   = 'http://localhost/ServicioDeduccionPago/';
 
-  protected readonly lista = signal<DeduccionPago[]>([]);
-  protected readonly pagos = signal<Pago[]>([]);
-  protected readonly empleados = signal<Empleado[]>([]);
+  protected readonly lista            = signal<DeduccionPago[]>([]);
+  protected readonly pagos            = signal<Pago[]>([]);
+  protected readonly empleados        = signal<Empleado[]>([]);
   protected readonly tiposDeducciones = signal<TipoDeduccion[]>([]);
-  protected mostrandoModal = false;
-  protected modoEditar = false;
-  protected enviado = false;
-  protected form = this.formVacio();
+
   protected mostrandoConfirmacion = false;
-  protected idAEliminar = 0;
-  protected terminoBusqueda = '';
+  protected idAEliminar           = 0;
+  protected terminoBusqueda       = '';
 
   ngOnInit() {
     this.loadDeducciones();
@@ -67,17 +63,13 @@ export class CrudDeduccionpago implements OnInit {
     return emp ? `${emp.nombre} ${emp.apellido} — pago #${id}` : `Pago #${id}`;
   }
 
-  protected nombreTipoDeduccion(id: number): string { return this.tiposDeducciones().find(t => t.id === id)?.nombre ?? String(id); }
-
-  protected formVacio() { return { id: 0, pagoId: 0, tipoDeduccionId: 0, monto: 0, observaciones: '' }; }
-  protected formValido(): boolean { return this.form.pagoId > 0 && this.form.tipoDeduccionId > 0 && this.form.monto > 0; }
-
-  protected abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }
-  protected abrirEditar(item: DeduccionPago) { this.form = { ...item }; this.enviado = false; this.modoEditar = true; this.mostrandoModal = true; }
-  protected cerrarModal() { this.mostrandoModal = false; this.enviado = false; }
+  protected nombreTipoDeduccion(id: number): string {
+    return this.tiposDeducciones().find(t => t.id === id)?.nombre ?? String(id);
+  }
 
   protected confirmarEliminar(id: number) { this.idAEliminar = id; this.mostrandoConfirmacion = true; }
-  protected cerrarConfirmacion() { this.mostrandoConfirmacion = false; this.idAEliminar = 0; }
+  protected cerrarConfirmacion()          { this.mostrandoConfirmacion = false; this.idAEliminar = 0; }
+
   protected ejecutarEliminar() {
     this.http.post(this.apiUrl + 'Delete', { id: this.idAEliminar }).subscribe({
       next: () => { this.loadDeducciones(); this.cerrarConfirmacion(); this.notifSvc.mostrar('Deducción eliminada exitosamente'); },
@@ -85,20 +77,5 @@ export class CrudDeduccionpago implements OnInit {
     });
   }
 
-  protected guardar() {
-    this.enviado = true;
-    if (!this.formValido()) return;
-    if (this.modoEditar) {
-      this.http.post(this.apiUrl + 'Update', this.form).subscribe({
-        next: () => { this.loadDeducciones(); this.cerrarModal(); this.notifSvc.mostrar('Deducción actualizada exitosamente'); },
-        error: () => this.notifSvc.mostrar('Error al actualizar la deducción', 'error'),
-      });
-    } else {
-      this.http.post(this.apiUrl + 'Create', this.form).subscribe({
-        next: () => { this.loadDeducciones(); this.cerrarModal(); this.notifSvc.mostrar('Deducción creada exitosamente'); },
-        error: () => this.notifSvc.mostrar('Error al crear la deducción', 'error'),
-      });
-    }
-  }
-  cerrar() { this.router.navigate(["/"]); }
+  cerrar() { this.router.navigate(['/']); }
 }

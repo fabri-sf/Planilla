@@ -8,7 +8,6 @@
     </div>
   </div>
   <div class="page-header-right">
-    <button type="button" class="btn-add" (click)="abrirCrear()">+ Nuevo registro</button>
     <button type="button" class="btn-close" (click)="cerrar()" title="Cerrar">✕</button>
   </div>
 </div>
@@ -39,10 +38,9 @@
         <td>{{ nombrePago(item.pagoId) }}</td>
         <td>{{ nombreTipoBonificacion(item.tipoBonificacionId) }}</td>
         <td>₡{{ item.monto }}</td>
-        <td>{{ item.observaciones }}</td>
+        <td>{{ item.observaciones || '—' }}</td>
         <td>
           <div class="actions">
-            <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
             <button type="button" class="btn-delete" title="Eliminar" (click)="confirmarEliminar(item.id)">🗑️</button>
           </div>
         </td>
@@ -51,63 +49,6 @@
     </tbody>
   </table>
 </div>
-
-<!-- ===== MODAL CREAR / EDITAR ===== -->
-@if (mostrandoModal) {
-<div class="modal-overlay" (click)="cerrarModal()">
-  <div class="modal" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <div class="modal-title-group">
-        <div class="modal-icon">🎁</div>
-        <div>
-          <p class="modal-title">{{ modoEditar ? 'Editar bonificación de pago' : 'Nueva bonificación de pago' }}</p>
-          <p class="modal-subtitle">Gestión de bonificaciones por pago</p>
-        </div>
-      </div>
-      <button type="button" class="modal-close" (click)="cerrarModal()" title="Cerrar">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label" for="pagoId">Empleado / Pago <span class="required-mark">*</span></label>
-          <select id="pagoId" class="form-select" title="Pago" [class.invalid]="enviado && !form.pagoId" [(ngModel)]="form.pagoId">
-            <option [ngValue]="0">Seleccione...</option>
-            @for (p of pagos(); track p.id) {
-              <option [ngValue]="p.id">{{ nombrePago(p.id) }}</option>
-            }
-          </select>
-          @if (enviado && !form.pagoId) { <span class="form-error">Campo obligatorio</span> }
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="tipoBonificacionId">Tipo Bonificación <span class="required-mark">*</span></label>
-          <select id="tipoBonificacionId" class="form-select" title="Tipo Bonificación" [class.invalid]="enviado && !form.tipoBonificacionId" [(ngModel)]="form.tipoBonificacionId">
-            <option [ngValue]="0">Seleccione...</option>
-            @for (t of tiposBonificacion(); track t.id) {
-              <option [ngValue]="t.id">{{ t.nombre }}</option>
-            }
-          </select>
-          @if (enviado && !form.tipoBonificacionId) { <span class="form-error">Campo obligatorio</span> }
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="monto">Monto (₡) <span class="required-mark">*</span></label>
-          <input id="monto" type="number" min="0" class="form-input" [class.invalid]="enviado && !form.monto" [(ngModel)]="form.monto" placeholder="0" />
-          @if (enviado && !form.monto) { <span class="form-error">Campo obligatorio</span> }
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="observaciones">Observaciones</label>
-          <textarea id="observaciones" class="form-textarea" [(ngModel)]="form.observaciones" placeholder="Observaciones de la bonificación"></textarea>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
-      <button type="button" class="btn-save" (click)="guardar()">
-        {{ modoEditar ? 'Guardar cambios' : 'Crear registro' }}
-      </button>
-    </div>
-  </div>
-</div>
-}
 
 <!-- ===== MODAL CONFIRMACIÓN ELIMINAR ===== -->
 @if (mostrandoConfirmacion) {

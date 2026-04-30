@@ -37,8 +37,7 @@ Router.get("/ReadAll", async (solicitud, respuesta, next) => {
 
 
 // ================= READ POR PAGO =================
-// Trae las deducciones de un pago específico con el nombre del tipo
-// GET /deduccionPago/ReadPorPago?pagoId=1
+
 Router.get("/ReadPorPago", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
