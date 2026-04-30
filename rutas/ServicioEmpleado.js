@@ -53,7 +53,7 @@ Router.post("/Create", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
-        await ServicioEmpleado.Create(solicitud.body)
+        await ServicioEmpleado.Create({ ...solicitud.body, token: solicitud.headers.authorization })
       );
     } catch (error) {
       console.error(error);
@@ -73,7 +73,7 @@ Router.post("/Update", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
-        await ServicioEmpleado.Update(solicitud.body)
+        await ServicioEmpleado.Update({ ...solicitud.body, token: solicitud.headers.authorization })
       );
     } catch (error) {
       console.error(error);
@@ -93,7 +93,7 @@ Router.post("/Delete", async (solicitud, respuesta, next) => {
   if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
     try {
       return respuesta.json(
-        await ServicioEmpleado.Delete(solicitud.body)
+        await ServicioEmpleado.Delete({ ...solicitud.body, token: solicitud.headers.authorization })
       );
     } catch (error) {
       console.error(error);

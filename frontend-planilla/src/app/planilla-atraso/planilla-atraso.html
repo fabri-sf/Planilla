@@ -1,0 +1,83 @@
+<!-- ===== HEADER ===== -->
+<div class="pa-header">
+  <button class="pa-btn-back" (click)="volver()">← Volver</button>
+  <div class="pa-header-content">
+    <span class="pa-header-icon">⏰</span>
+    <div>
+      <h1 class="pa-title">Registrar atraso</h1>
+      @if (planilla()) {
+        <p class="pa-sub">Planilla: <strong>{{ planilla()!.periodo }}</strong> · Pago estimado: {{ fmtFecha(planilla()!.fechaPago) }}</p>
+      }
+    </div>
+  </div>
+</div>
+
+<div class="pa-layout">
+
+  @if (planilla()) {
+    <!-- ===== ALERTA INFO ===== -->
+    <div class="pa-alert">
+      <span class="pa-alert-icon">ℹ️</span>
+      <div>
+        <div class="pa-alert-title">¿Qué ocurre al marcar como atrasada?</div>
+        <ul class="pa-alert-list">
+          <li>El estado de la planilla cambia a <strong>Atrasada</strong>.</li>
+          <li>Se registra el motivo y la nueva fecha de pago en la auditoría.</li>
+          <li>Desde el detalle podrá reanudar la planilla en estado <strong>Aprobada</strong>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ===== FORMULARIO ===== -->
+    <div class="pa-card">
+      <div class="pa-card-title">Información del atraso</div>
+
+      <div class="pa-form-grid">
+
+        <div class="pa-field pa-field-full">
+          <label class="pa-label">Motivo del atraso <span class="pa-req">*</span></label>
+          <select class="pa-input" [(ngModel)]="form.motivo"
+                  [class.pa-invalid]="enviado && !form.motivo">
+            <option value="">Seleccione un motivo...</option>
+            @for (m of MOTIVOS; track m) {
+              <option [value]="m">{{ m }}</option>
+            }
+          </select>
+          @if (enviado && !form.motivo) {
+            <span class="pa-error">Seleccione un motivo</span>
+          }
+        </div>
+
+        <div class="pa-field pa-field-full">
+          <label class="pa-label">Nueva fecha estimada de pago <span class="pa-req">*</span></label>
+          <input class="pa-input" type="date" [(ngModel)]="form.nuevaFecha"
+                 [class.pa-invalid]="enviado && !form.nuevaFecha" />
+          @if (enviado && !form.nuevaFecha) {
+            <span class="pa-error">Ingrese la nueva fecha de pago</span>
+          }
+        </div>
+
+        <div class="pa-field pa-field-full">
+          <label class="pa-label">Observaciones adicionales</label>
+          <textarea class="pa-input pa-textarea" [(ngModel)]="form.observaciones"
+                    placeholder="Detalles adicionales del atraso..."></textarea>
+        </div>
+
+      </div>
+
+      <div class="pa-actions">
+        <button class="pa-btn-cancel" (click)="volver()" [disabled]="guardando">Cancelar</button>
+        <button class="pa-btn-danger" (click)="guardar()" [disabled]="guardando">
+          @if (guardando) { Registrando... } @else { ⏰ Marcar como atrasada }
+        </button>
+      </div>
+    </div>
+
+  } @else {
+    <div class="pa-loading">
+      <div class="pa-spinner"></div>
+      <p>Cargando planilla...</p>
+    </div>
+  }
+
+</div>

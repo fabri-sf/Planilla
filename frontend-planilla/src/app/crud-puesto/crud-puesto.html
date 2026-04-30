@@ -9,14 +9,14 @@
   </div>
   <div class="page-header-right">
     <button type="button" class="btn-add" (click)="abrirCrear()">+ Nuevo registro</button>
-    <button type="button" class="btn-close" title="Cerrar">✕</button>
+    <button type="button" class="btn-close" (click)="cerrar()" title="Cerrar">✕</button>
   </div>
 </div>
 
 <!-- ===== BUSCADOR ===== -->
 <div class="search-bar">
   <span class="search-icon">🔍</span>
-  <input type="text" class="search-input" placeholder="Buscar por nombre, id..." />
+  <input type="text" class="search-input" placeholder="Buscar por nombre, id..." [(ngModel)]="terminoBusqueda" />
 </div>
 
 <!-- ===== TABLA ===== -->
@@ -29,20 +29,20 @@
       </tr>
     </thead>
     <tbody>
-      @for (item of lista; track item.id) {
+      @for (item of listaFiltrada; track item.id) {
       <tr>
         <td>{{ item.id }}</td>
         <td>{{ item.codigo }}</td>
         <td>{{ item.nombre }}</td>
         <td>{{ item.descripcion }}</td>
-        <td>₡{{ item.salario_minimo }}</td>
-        <td>₡{{ item.salario_maximo }}</td>
-        <td><span class="badge" [class.badge-activo]="item.estado==='Activo'" [class.badge-inactivo]="item.estado==='Inactivo'">{{ item.estado }}</span></td>
+        <td>₡{{ item.salarioMin }}</td>
+        <td>₡{{ item.salarioMax }}</td>
+        <td><span class="badge" [class.badge-activo]="item.estado==='activo'" [class.badge-inactivo]="item.estado==='inactivo'">{{ item.estado }}</span></td>
         <td>{{ item.creacion }}</td>
         <td>
           <div class="actions">
             <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
-            <button type="button" class="btn-delete" title="Eliminar">🗑️</button>
+            <button type="button" class="btn-delete" title="{{ item.estado === 'activo' ? 'Desactivar' : 'Activar' }}" (click)="confirmarEliminar(item.id, item.estado)">{{ item.estado === 'activo' ? '🔴' : '🟢' }}</button>
           </div>
         </td>
       </tr>
@@ -68,9 +68,12 @@
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-group">
-          <label class="form-label" for="codigo">Código <span class="required-mark">*</span></label>
-          <input id="codigo" class="form-input" [class.invalid]="enviado && !form.codigo" [(ngModel)]="form.codigo" placeholder="Ej: PUE-001" />
-          @if (enviado && !form.codigo) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="codigoSufijo">Código <span class="required-mark">*</span></label>
+          <div class="input-prefix-wrap">
+            <span class="input-prefix">PUE-</span>
+            <input id="codigoSufijo" class="form-input prefix-input" [class.invalid]="enviado && !codigoSufijo" [(ngModel)]="codigoSufijo" placeholder="001" />
+          </div>
+          @if (enviado && !codigoSufijo) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
           <label class="form-label" for="nombre">Nombre <span class="required-mark">*</span></label>
@@ -78,24 +81,23 @@
           @if (enviado && !form.nombre) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="salario_minimo">Salario mínimo <span class="required-mark">*</span></label>
-          <input id="salario_minimo" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salario_minimo" [(ngModel)]="form.salario_minimo" placeholder="0" />
-          @if (enviado && !form.salario_minimo) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="salarioMin">Salario mínimo <span class="required-mark">*</span></label>
+          <input id="salarioMin" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salarioMin" [(ngModel)]="form.salarioMin" placeholder="0" />
+          @if (enviado && !form.salarioMin) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="salario_maximo">Salario máximo <span class="required-mark">*</span></label>
-          <input id="salario_maximo" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salario_maximo" [(ngModel)]="form.salario_maximo" placeholder="0" />
-          @if (enviado && !form.salario_maximo) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="salarioMax">Salario máximo <span class="required-mark">*</span></label>
+          <input id="salarioMax" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salarioMax" [(ngModel)]="form.salarioMax" placeholder="0" />
+          @if (enviado && !form.salarioMax) { <span class="form-error">Campo obligatorio</span> }
         </div>
+        @if (modoEditar) {
         <div class="form-group">
-          <label class="form-label" for="estado">Estado <span class="required-mark">*</span></label>
-          <select id="estado" class="form-select" title="Estado" [class.invalid]="enviado && !form.estado" [(ngModel)]="form.estado">
-            <option value="">Seleccione...</option>
-            <option>Activo</option>
-            <option>Inactivo</option>
+          <label class="form-label" for="estado">Estado</label>
+          <select id="estado" class="form-select" title="Estado" [(ngModel)]="form.estado">
+            <option value="suspendido">suspendido</option>
           </select>
-          @if (enviado && !form.estado) { <span class="form-error">Campo obligatorio</span> }
         </div>
+        }
         <div class="form-group">
           <label class="form-label" for="descripcion">Descripción</label>
           <textarea id="descripcion" class="form-textarea" [(ngModel)]="form.descripcion" placeholder="Descripción del puesto"></textarea>
@@ -105,6 +107,23 @@
     <div class="modal-footer">
       <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
       <button type="button" class="btn-save" (click)="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ===== MODAL CONFIRMACIÓN ===== -->
+@if (mostrandoConfirmacion) {
+<div class="modal-confirm-overlay" (click)="cerrarConfirmacion()">
+  <div class="modal-confirm" (click)="$event.stopPropagation()">
+    <div class="modal-confirm-icon">{{ estadoActual === 'activo' ? '🔴' : '🟢' }}</div>
+    <p class="modal-confirm-title">{{ estadoActual === 'activo' ? '¿Desactivar puesto?' : '¿Activar puesto?' }}</p>
+    <p class="modal-confirm-msg">{{ estadoActual === 'activo' ? 'El puesto quedará inactivo.' : 'El puesto volverá a estar activo.' }}</p>
+    <div class="modal-confirm-actions">
+      <button type="button" class="btn-cancel-form" (click)="cerrarConfirmacion()">Cancelar</button>
+      <button type="button" [class]="estadoActual === 'activo' ? 'btn-danger' : 'btn-save'" (click)="ejecutarEliminar()">
+        {{ estadoActual === 'activo' ? 'Sí, desactivar' : 'Sí, activar' }}
+      </button>
     </div>
   </div>
 </div>

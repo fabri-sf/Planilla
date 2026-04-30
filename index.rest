@@ -388,6 +388,16 @@ Origin: {{ BASE_URL }}
   "observaciones": "Deducción actualizada prueba"
 }
 
+###
+//DELETE
+POST {{ BASE_URL }}/ServicioDeduccionPago/Delete HTTP/1.1
+Authorization: Bearer {{ AUTH_TOKEN }}
+Content-Type: application/json
+Origin: {{ BASE_URL }}
+
+{
+  "id": 1
+}
 
 
 //Puesto
@@ -672,7 +682,7 @@ Authorization: Bearer {{ AUTH_TOKEN }}
 Content-Type: application/json
 Origin: {{ BASE_URL }}
 
-{ "nombreUsuario": "thay2" }
+{ "nombreUsuario": "mrodriguez" }
 
 ###
 //CREATE
@@ -682,11 +692,11 @@ Content-Type: application/json
 Origin: {{ BASE_URL }}
 
 {
-   "nombreUsuario": "thay2",
+  "nombreUsuario": "ajsjasj",
   "contrasena": "123456",
-  "correo": "thaylin.barrueta@empresa2.com",
+  "correo": "jjsjsja.barrueta@empresa2.com",
   "rol": "gerente",
-  "empleadoId": 0,
+  "empleadoId": 1,
   "estado": "activo"
 }
 

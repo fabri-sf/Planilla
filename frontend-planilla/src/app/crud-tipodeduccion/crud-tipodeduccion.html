@@ -9,14 +9,14 @@
   </div>
   <div class="page-header-right">
     <button type="button" class="btn-add" (click)="abrirCrear()">+ Nuevo registro</button>
-    <button type="button" class="btn-close" title="Cerrar">✕</button>
+    <button type="button" class="btn-close" (click)="cerrar()" title="Cerrar">✕</button>
   </div>
 </div>
 
 <!-- ===== BUSCADOR ===== -->
 <div class="search-bar">
   <span class="search-icon">🔍</span>
-  <input type="text" class="search-input" placeholder="Buscar por nombre, id..." />
+  <input type="text" class="search-input" placeholder="Buscar por nombre, id..." [(ngModel)]="terminoBusqueda" />
 </div>
 
 <!-- ===== TABLA ===== -->
@@ -29,20 +29,20 @@
       </tr>
     </thead>
     <tbody>
-      @for (item of lista; track item.id) {
+      @for (item of listaFiltrada; track item.id) {
       <tr>
         <td>{{ item.id }}</td>
         <td>{{ item.codigo }}</td>
         <td>{{ item.nombre }}</td>
         <td>{{ item.porcentaje }}%</td>
-        <td>₡{{ item.monto_fijo }}</td>
+        <td>₡{{ item.montoFijo }}</td>
         <td><span class="badge" [class.badge-activo]="item.obligatorio" [class.badge-inactivo]="!item.obligatorio">{{ item.obligatorio ? 'Sí' : 'No' }}</span></td>
-        <td><span class="badge" [class.badge-activo]="item.estado==='Activo'" [class.badge-inactivo]="item.estado==='Inactivo'">{{ item.estado }}</span></td>
+        <td><span class="badge" [class.badge-activo]="item.estado==='activo'" [class.badge-inactivo]="item.estado==='inactivo'">{{ item.estado }}</span></td>
         <td>{{ item.creacion }}</td>
         <td>
           <div class="actions">
             <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
-            <button type="button" class="btn-delete" title="Eliminar">🗑️</button>
+            <button type="button" class="btn-delete" title="{{ item.estado === 'activo' ? 'Desactivar' : 'Activar' }}" (click)="confirmarEliminar(item.id, item.estado)">{{ item.estado === 'activo' ? '🔴' : '🟢' }}</button>
           </div>
         </td>
       </tr>
@@ -68,9 +68,12 @@
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-group">
-          <label class="form-label" for="codigo">Código <span class="required-mark">*</span></label>
-          <input id="codigo" class="form-input" [class.invalid]="enviado && !form.codigo" [(ngModel)]="form.codigo" placeholder="Ej: DED-001" />
-          @if (enviado && !form.codigo) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="codigoSufijo">Código <span class="required-mark">*</span></label>
+          <div class="input-prefix-wrap">
+            <span class="input-prefix">DED-</span>
+            <input id="codigoSufijo" class="form-input prefix-input" [class.invalid]="enviado && !codigoSufijo" [(ngModel)]="codigoSufijo" placeholder="001" />
+          </div>
+          @if (enviado && !codigoSufijo) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
           <label class="form-label" for="nombre">Nombre <span class="required-mark">*</span></label>
@@ -82,18 +85,17 @@
           <input id="porcentaje" class="form-input" type="number" min="0" max="100" [(ngModel)]="form.porcentaje" placeholder="0" />
         </div>
         <div class="form-group">
-          <label class="form-label" for="monto_fijo">Monto fijo (₡)</label>
-          <input id="monto_fijo" class="form-input" type="number" min="0" [(ngModel)]="form.monto_fijo" placeholder="0" />
+          <label class="form-label" for="montoFijo">Monto fijo (₡)</label>
+          <input id="montoFijo" class="form-input" type="number" min="0" [(ngModel)]="form.montoFijo" placeholder="0" />
         </div>
+        @if (modoEditar) {
         <div class="form-group">
-          <label class="form-label" for="estado">Estado <span class="required-mark">*</span></label>
-          <select id="estado" class="form-select" title="Estado" [class.invalid]="enviado && !form.estado" [(ngModel)]="form.estado">
-            <option value="">Seleccione...</option>
-            <option>Activo</option>
-            <option>Inactivo</option>
+          <label class="form-label" for="estado">Estado</label>
+          <select id="estado" class="form-select" title="Estado" [(ngModel)]="form.estado">
+            <option value="suspendido">suspendido</option>
           </select>
-          @if (enviado && !form.estado) { <span class="form-error">Campo obligatorio</span> }
         </div>
+        }
         <div class="form-group">
           <label class="form-label" for="obligatorio">¿Es obligatorio?</label>
           <select id="obligatorio" class="form-select" title="Obligatorio" [(ngModel)]="form.obligatorio">
@@ -106,6 +108,23 @@
     <div class="modal-footer">
       <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
       <button type="button" class="btn-save" (click)="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ===== MODAL CONFIRMACIÓN ===== -->
+@if (mostrandoConfirmacion) {
+<div class="modal-confirm-overlay" (click)="cerrarConfirmacion()">
+  <div class="modal-confirm" (click)="$event.stopPropagation()">
+    <div class="modal-confirm-icon">{{ estadoActual === 'activo' ? '🔴' : '🟢' }}</div>
+    <p class="modal-confirm-title">{{ estadoActual === 'activo' ? '¿Desactivar tipo de deducción?' : '¿Activar tipo de deducción?' }}</p>
+    <p class="modal-confirm-msg">{{ estadoActual === 'activo' ? 'La deducción quedará inactiva.' : 'La deducción volverá a estar disponible.' }}</p>
+    <div class="modal-confirm-actions">
+      <button type="button" class="btn-cancel-form" (click)="cerrarConfirmacion()">Cancelar</button>
+      <button type="button" [class]="estadoActual === 'activo' ? 'btn-danger' : 'btn-save'" (click)="ejecutarEliminar()">
+        {{ estadoActual === 'activo' ? 'Sí, desactivar' : 'Sí, activar' }}
+      </button>
     </div>
   </div>
 </div>

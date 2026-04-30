@@ -199,6 +199,7 @@
   color: var(--color-danger-text);
 }
 
+
 /* ===== MODAL (Crear / Editar) ===== */
 .modal-overlay {
   position: fixed;
@@ -295,3 +296,271 @@
   font-weight: 600; cursor: pointer; transition: all var(--transition-normal);
 }
 .btn-cancel-form:hover { background: var(--bg-page); border-color: var(--text-hint); }
+
+/*======================================CREATE================================*/
+
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    background: #f0f2f8;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+ 
+  /* ===== OVERLAY ===== */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 18, 40, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 999;
+  }
+ 
+  /* ===== MODAL ===== */
+  .modal {
+    background: #fff;
+    border-radius: 12px;
+    border: 0.5px solid #d1d5e0;
+    width: 100%;
+    max-width: 480px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(10, 18, 40, 0.25);
+  }
+ 
+  /* ===== HEADER ===== */
+  .modal-header {
+    background: #1a2d5a;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .modal-icon {
+    width: 30px;
+    height: 30px;
+    background: rgba(79, 142, 247, 0.2);
+    border: 1px solid rgba(79, 142, 247, 0.3);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .modal-icon svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: #4f8ef7;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .modal-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+  }
+  .modal-subtitle {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 2px 0 0;
+  }
+  .btn-x {
+    background: rgba(255, 255, 255, 0.08);
+    border: 0.5px solid rgba(255, 255, 255, 0.18);
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    line-height: 1;
+    transition: background 0.15s;
+  }
+  .btn-x:hover { background: rgba(255, 255, 255, 0.16); }
+ 
+  /* ===== BODY ===== */
+  .modal-body { padding: 24px; }
+ 
+  .field { margin-bottom: 16px; }
+  .field-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #8a93a8;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    display: block;
+  }
+  .field-input {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 14px;
+    border: 0.5px solid #d1d5e0;
+    border-radius: 8px;
+    background: #f8f9fc;
+    color: #1a2d5a;
+    font-family: inherit;
+    transition: border 0.15s, box-shadow 0.15s;
+  }
+  .field-input:focus {
+    outline: none;
+    border-color: #4f8ef7;
+    box-shadow: 0 0 0 3px rgba(79, 142, 247, 0.12);
+  }
+  textarea.field-input {
+    resize: vertical;
+    min-height: 72px;
+  }
+ 
+  /* ===== ROW ===== */
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 14px;
+  }
+ 
+  /* ===== RADIO ESTADO ===== */
+  .radio-group {
+    display: flex;
+    gap: 10px;
+  }
+  .radio-card {
+    flex: 1;
+    padding: 10px 14px;
+    border: 0.5px solid #d1d5e0;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8f9fc;
+    transition: border 0.15s, background 0.15s;
+  }
+  .radio-card:has(input:checked) {
+    border-color: #4f8ef7;
+    background: rgba(79, 142, 247, 0.06);
+  }
+  .radio-card input {
+    accent-color: #4f8ef7;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+  }
+  .radio-label {
+    font-size: 13px;
+    color: #3a4560;
+    cursor: pointer;
+  }
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-active  { background: #22c55e; }
+  .dot-inactive { background: #94a3b8; }
+ 
+  /* ===== DIVIDER ===== */
+  .divider {
+    height: 0.5px;
+    background: #e8ecf5;
+    margin: 18px 0 16px;
+  }
+ 
+  /* ===== ACCIONES CHECKBOXES ===== */
+  .actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .action-check {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 10px;
+    border: 0.5px solid #e4e7f0;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #f8f9fc;
+    transition: border 0.15s, background 0.15s;
+  }
+  .action-check:has(input:checked) {
+    border-color: #4f8ef7;
+    background: rgba(79, 142, 247, 0.06);
+  }
+  .action-check input {
+    accent-color: #4f8ef7;
+    width: 13px;
+    height: 13px;
+    cursor: pointer;
+  }
+  .action-check-label {
+    font-size: 12px;
+    color: #3a4560;
+    cursor: pointer;
+    user-select: none;
+  }
+ 
+  /* ===== FOOTER ===== */
+  .modal-footer {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 0.5px solid #e8ecf5;
+  }
+  .btn-cancel {
+    padding: 8px 18px;
+    font-size: 13px;
+    background: transparent;
+    border: 0.5px solid #d1d5e0;
+    border-radius: 6px;
+    color: #8a93a8;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .btn-cancel:hover { background: #f4f6fb; }
+  .btn-save {
+    padding: 8px 22px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #1a2d5a;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .btn-save:hover { background: #254080; }
+  .btn-save svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+

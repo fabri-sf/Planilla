@@ -8,7 +8,7 @@ const ServicioUsuario = require('../servicios/ServicioUsuario.js');
 Router.get("/Read", async (solicitud, respuesta, next) => {
   if (await ServicioUsuario.ValidarToken(solicitud.headers.authorization)) {
     try {
-      return respuesta.json(await Provincias.listar());
+      return respuesta.json(await ServicioUsuario.Read(solicitud.body));
     } catch (error) {
       console.error(error);
       return respuesta.status(500).json(error);

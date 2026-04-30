@@ -8,14 +8,14 @@
     </div>
   </div>
   <div class="page-header-right">
-    <button class="btn-close" title="Cerrar">✕</button>
+    <button type="button" class="btn-close" (click)="cerrar()" title="Cerrar">✕</button>
   </div>
 </div>
 
 <!-- ===== BUSCADOR ===== -->
 <div class="search-bar">
   <span class="search-icon">🔍</span>
-  <input type="text" class="search-input" placeholder="Buscar por nombre, ID..." />
+  <input type="text" class="search-input" placeholder="Buscar por tabla, operación..." />
 </div>
 
 <!-- ===== TABLA ===== -->
@@ -24,7 +24,7 @@
     <thead>
       <tr>
         <th>ID</th>
-        <th>Usuario</th>
+        <th>Usuario ID</th>
         <th>Tabla</th>
         <th>Operación</th>
         <th>Registro ID</th>
@@ -36,6 +36,20 @@
       </tr>
     </thead>
     <tbody>
+      @for (item of lista(); track item.id) {
+      <tr>
+        <td>{{ item.id }}</td>
+        <td>{{ item.usuarioId }}</td>
+        <td>{{ item.tabla }}</td>
+        <td>{{ item.operacion }}</td>
+        <td>{{ item.registroId }}</td>
+        <td>{{ item.campoModificado }}</td>
+        <td>{{ item.valorAnterior }}</td>
+        <td>{{ item.valorNuevo }}</td>
+        <td>{{ item.descripcion }}</td>
+        <td>{{ item.fechaOperacion }}</td>
+      </tr>
+      }
     </tbody>
   </table>
 </div>

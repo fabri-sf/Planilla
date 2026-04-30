@@ -43,7 +43,19 @@ Router.get("/ReadAll", async (solicitud, respuesta, next) => {
   return respuesta.status(401).json();
 });
 
-
+Router.get("/ReadPorPago", async (solicitud, respuesta, next) => {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(
+        await ServicioBonificacionPago.ReadPorPago(Number(solicitud.query.pagoId))
+      );
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
+});
 // ================= CREATE =================
 /*Router.post("/Create", async (req, res) => {
   res.json(await ServicioBonificacionPago.Create(req.body));
@@ -74,6 +86,22 @@ Router.post("/Update", async (solicitud, respuesta, next) => {
     try {
       return respuesta.json(
         await ServicioBonificacionPago.Update(solicitud.body)
+      );
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
+});
+
+Router.get("/ReadUltimoMontoPorTipo", async (solicitud, respuesta, next) => {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(
+        await ServicioBonificacionPago.ReadUltimoMontoPorTipo(
+          Number(solicitud.query.tipoBonificacionId)
+        )
       );
     } catch (error) {
       console.error(error);

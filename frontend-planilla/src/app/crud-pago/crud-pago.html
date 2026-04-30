@@ -4,19 +4,30 @@
     <div class="page-icon">💰</div>
     <div>
       <h1 class="page-title">Pagos</h1>
-      <p class="page-subtitle">Gestión de pagos de planilla</p>
+      <p class="page-subtitle">Pagos generados por planilla</p>
     </div>
   </div>
   <div class="page-header-right">
-    <button type="button" class="btn-add" (click)="abrirCrear()">+ Nuevo registro</button>
-    <button type="button" class="btn-close" title="Cerrar">✕</button>
+    <button type="button" class="btn-close" (click)="cerrar()" title="Cerrar">✕</button>
   </div>
 </div>
 
-<!-- ===== BUSCADOR ===== -->
-<div class="search-bar">
-  <span class="search-icon">🔍</span>
-  <input type="text" class="search-input" placeholder="Buscar por empleado, id..." />
+<!-- ===== FILTROS ===== -->
+<div class="filtros-bar">
+  <div class="search-bar search-bar-flex">
+    <span class="search-icon">🔍</span>
+    <input type="text" class="search-input" placeholder="Buscar por empleado, planilla, id..."
+           [(ngModel)]="terminoBusqueda" />
+  </div>
+  <div class="filtro-planilla">
+    <label class="filtro-label">Filtrar por planilla:</label>
+    <select class="form-select" [(ngModel)]="planillaSeleccionada" title="Filtrar por planilla">
+      <option [ngValue]="0">Todas las planillas</option>
+      @for (p of planillas(); track p.id) {
+        <option [ngValue]="p.id">{{ p.periodo }} ({{ p.estado }})</option>
+      }
+    </select>
+  </div>
 </div>
 
 <!-- ===== TABLA ===== -->
@@ -24,111 +35,128 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>ID</th><th>Empleado</th><th>Planilla</th><th>Salario base</th>
-        <th>Días trabajados</th><th>Días esperados</th><th>Horas extra</th>
-        <th>Total bruto</th><th>Total deducciones</th><th>Total bonificaciones</th>
-        <th>Salario neto</th><th>Observaciones</th><th>Fecha</th><th>Acciones</th>
+        <th>ID</th><th>Empleado</th><th>Planilla</th>
+        <th>Salario base</th><th>Días trab.</th><th>Días esp.</th>
+        <th>Hrs. extra</th><th>Total bruto</th><th>Deducciones</th>
+        <th>Bonificaciones</th><th>Salario neto</th><th>Observaciones</th>
+        <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
-      @for (item of lista; track item.id) {
+      @for (item of listaFiltrada; track item.id) {
       <tr>
         <td>{{ item.id }}</td>
-        <td>{{ item.empleado }}</td>
-        <td>{{ item.planilla }}</td>
-        <td>₡{{ item.salario_base }}</td>
-        <td>{{ item.dias_trabajados }}</td>
-        <td>{{ item.dias_esperados }}</td>
-        <td>{{ item.horas_extra }}</td>
-        <td>₡{{ item.total_bruto }}</td>
-        <td>₡{{ item.total_deducciones }}</td>
-        <td>₡{{ item.total_bonificaciones }}</td>
-        <td>₡{{ item.salario_neto }}</td>
-        <td>{{ item.observaciones }}</td>
-        <td>{{ item.fecha }}</td>
+        <td>{{ nombreEmpleado(item.empleadoId) }}</td>
+        <td>{{ nombrePlanilla(item.planillaId) }}</td>
+        <td class="monto">₡{{ fmt(item.salarioBase) }}</td>
+        <td class="centro">{{ item.diasTrabajados }}</td>
+        <td class="centro">{{ item.diasEsperados }}</td>
+        <td class="centro">{{ item.horasExtras }}</td>
+        <td class="monto">₡{{ fmt(item.totalBruto) }}</td>
+        <td class="monto text-danger">₡{{ fmt(item.totalDeducciones) }}</td>
+        <td class="monto text-success">₡{{ fmt(item.totalBonificaciones) }}</td>
+        <td class="monto font-bold">₡{{ fmt(item.salarioNeto) }}</td>
+        <td class="obs">{{ item.observaciones }}</td>
         <td>
           <div class="actions">
-            <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
-            <button type="button" class="btn-delete" title="Eliminar">🗑️</button>
+            <button type="button" class="btn-deduccion" title="Ver deducciones"
+                    (click)="abrirDeducciones(item)">➖</button>
+            <button type="button" class="btn-edit" title="Editar observaciones"
+                    (click)="abrirEditarObs(item)">✏️</button>
           </div>
         </td>
       </tr>
+      }
+      @if (listaFiltrada.length === 0) {
+        <tr>
+          <td colspan="13" class="tabla-vacia">
+            No hay pagos registrados.
+          </td>
+        </tr>
       }
     </tbody>
   </table>
 </div>
 
-<!-- ===== MODAL CREAR / EDITAR ===== -->
+<!-- ===== MODAL EDITAR OBSERVACIONES ===== -->
 @if (mostrandoModal) {
 <div class="modal-overlay" (click)="cerrarModal()">
-  <div class="modal" (click)="$event.stopPropagation()">
+  <div class="modal modal-sm" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <div class="modal-title-group">
-        <div class="modal-icon">💰</div>
+        <div class="modal-icon">✏️</div>
         <div>
-          <p class="modal-title">{{ modoEditar ? 'Editar pago' : 'Nuevo pago' }}</p>
-          <p class="modal-subtitle">Gestión de pagos de planilla</p>
+          <p class="modal-title">Editar observaciones</p>
+          <p class="modal-subtitle">Pago #{{ formObs.id }}</p>
         </div>
       </div>
-      <button type="button" class="modal-close" (click)="cerrarModal()" title="Cerrar">✕</button>
+      <button type="button" class="modal-close" (click)="cerrarModal()">✕</button>
     </div>
     <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label" for="id_empleado">Empleado <span class="required-mark">*</span></label>
-          <input id="id_empleado" class="form-input" [class.invalid]="enviado && !form.id_empleado" [(ngModel)]="form.id_empleado" placeholder="ID o nombre del empleado" />
-          @if (enviado && !form.id_empleado) { <span class="form-error">Campo obligatorio</span> }
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="id_planilla">Planilla <span class="required-mark">*</span></label>
-          <input id="id_planilla" class="form-input" [class.invalid]="enviado && !form.id_planilla" [(ngModel)]="form.id_planilla" placeholder="ID o período de la planilla" />
-          @if (enviado && !form.id_planilla) { <span class="form-error">Campo obligatorio</span> }
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="salario_base">Salario base <span class="required-mark">*</span></label>
-          <input id="salario_base" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salario_base" [(ngModel)]="form.salario_base" placeholder="0" />
-          @if (enviado && !form.salario_base) { <span class="form-error">Campo obligatorio</span> }
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="dias_trabajados">Días trabajados <span class="required-mark">*</span></label>
-          <input id="dias_trabajados" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.dias_trabajados" [(ngModel)]="form.dias_trabajados" placeholder="0" />
-          @if (enviado && !form.dias_trabajados) { <span class="form-error">Campo obligatorio</span> }
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="dias_esperados">Días esperados <span class="required-mark">*</span></label>
-          <input id="dias_esperados" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.dias_esperados" [(ngModel)]="form.dias_esperados" placeholder="0" />
-          @if (enviado && !form.dias_esperados) { <span class="form-error">Campo obligatorio</span> }
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="horas_extra">Horas extra</label>
-          <input id="horas_extra" class="form-input" type="number" min="0" [(ngModel)]="form.horas_extra" placeholder="0" />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="total_bruto">Total bruto</label>
-          <input id="total_bruto" class="form-input" type="number" min="0" [(ngModel)]="form.total_bruto" placeholder="0" />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="total_deducciones">Total deducciones</label>
-          <input id="total_deducciones" class="form-input" type="number" min="0" [(ngModel)]="form.total_deducciones" placeholder="0" />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="total_bonificaciones">Total bonificaciones</label>
-          <input id="total_bonificaciones" class="form-input" type="number" min="0" [(ngModel)]="form.total_bonificaciones" placeholder="0" />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="salario_neto">Salario neto <span class="required-mark">*</span></label>
-          <input id="salario_neto" class="form-input" type="number" min="0" [class.invalid]="enviado && !form.salario_neto" [(ngModel)]="form.salario_neto" placeholder="0" />
-          @if (enviado && !form.salario_neto) { <span class="form-error">Campo obligatorio</span> }
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="observaciones">Observaciones</label>
-          <textarea id="observaciones" class="form-textarea" [(ngModel)]="form.observaciones" placeholder="Observaciones del pago"></textarea>
-        </div>
+      <div class="form-group">
+        <label class="form-label" for="observaciones">Observaciones</label>
+        <textarea id="observaciones" class="form-textarea" [(ngModel)]="formObs.observaciones"
+                  placeholder="Observaciones del pago" rows="4"></textarea>
+        <span class="form-hint">Los valores calculados no son editables.</span>
       </div>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
-      <button type="button" class="btn-save" (click)="guardar()">Guardar</button>
+      <button type="button" class="btn-save" (click)="guardarObs()">Guardar</button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ===== MODAL DEDUCCIONES (SOLO LECTURA) ===== -->
+@if (mostrandoModalDeducciones && pagoSeleccionado) {
+<div class="modal-overlay" (click)="cerrarModalDeducciones()">
+  <div class="modal modal-md" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-group">
+        <div class="modal-icon">➖</div>
+        <div>
+          <p class="modal-title">Deducciones del pago</p>
+          <p class="modal-subtitle">
+            {{ nombreEmpleado(pagoSeleccionado.empleadoId) }} —
+            Bruto: ₡{{ fmt(pagoSeleccionado.totalBruto) }}
+          </p>
+        </div>
+      </div>
+      <button type="button" class="modal-close" (click)="cerrarModalDeducciones()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="deducciones-lista">
+        @if (deduccionesPago().length === 0) {
+          <p class="lista-vacia">No hay deducciones registradas para este pago.</p>
+        }
+        @for (ded of deduccionesPago(); track ded.id) {
+          <div class="deduccion-item">
+            <div class="deduccion-info">
+              <span class="deduccion-nombre">{{ ded.nombre }}</span>
+              <span class="deduccion-obs">{{ ded.observaciones }}</span>
+            </div>
+            <div class="deduccion-monto">
+              <span class="monto text-danger">- ₡{{ fmt(ded.monto) }}</span>
+              <!-- Botón eliminar eliminado -->
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="deduccion-resumen">
+        <span>Total deducciones:</span>
+        <span class="text-danger font-bold">- ₡{{ fmt(pagoSeleccionado.totalDeducciones) }}</span>
+      </div>
+      <div class="deduccion-resumen deduccion-resumen-neto">
+        <span>Salario neto:</span>
+        <span class="font-bold">₡{{ fmt(pagoSeleccionado.salarioNeto) }}</span>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel-form" (click)="cerrarModalDeducciones()">Cerrar</button>
     </div>
   </div>
 </div>

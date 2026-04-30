@@ -4,18 +4,29 @@
     <div class="page-icon">🕐</div>
     <div>
       <h1 class="page-title">Asistencia</h1>
-      <p class="page-subtitle">Gestión de registros de asistencia</p>
+      <p class="page-subtitle">Registros de asistencia</p>
     </div>
   </div>
   <div class="page-header-right">
-    <button class="btn-close" title="Cerrar">✕</button>
+    <button type="button" class="btn-add" (click)="abrirCrear()">+ Marcar entrada</button>
+    <button type="button" class="btn-close" (click)="cerrar()" title="Cerrar">✕</button>
   </div>
 </div>
 
-<!-- ===== BUSCADOR ===== -->
-<div class="search-bar">
-  <span class="search-icon">🔍</span>
-  <input type="text" class="search-input" placeholder="Buscar por empleado, id..." />
+<!-- ===== BUSCADOR + FILTRO FECHA ===== -->
+<div class="filters-row">
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="text" class="search-input" placeholder="Buscar por nombre de empleado..."
+      [(ngModel)]="terminoBusqueda" />
+  </div>
+  <div class="date-filter">
+    <span class="search-icon">📅</span>
+    <input type="date" class="search-input" [(ngModel)]="fechaFiltro" title="Filtrar por fecha" />
+    @if (fechaFiltro) {
+      <button type="button" class="btn-clear-date" (click)="fechaFiltro = ''" title="Limpiar filtro">✕</button>
+    }
+  </div>
 </div>
 
 <!-- ===== TABLA ===== -->
@@ -26,15 +37,93 @@
         <th>ID</th>
         <th>Empleado</th>
         <th>Fecha</th>
-        <th>Hora entrada</th>
-        <th>Hora salida</th>
-        <th>Horas trabajadas</th>
-        <th>Horas extra</th>
+        <th>Hora Entrada</th>
+        <th>Hora Salida</th>
+        <th>Horas Trabajadas</th>
+        <th>Horas Extra</th>
         <th>Observaciones</th>
         <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
+      @for (item of listaFiltrada; track item.id) {
+      <tr>
+        <td>{{ item.id }}</td>
+        <td>{{ nombreEmpleado(item.empleadoId) }}</td>
+        <td>{{ item.fecha }}</td>
+        <td>{{ item.horaEntrada }}</td>
+        <td>{{ item.horaSalida || '—' }}</td>
+        <td>{{ item.horasTrabajadas ?? '—' }}</td>
+        <td>{{ item.horasExtras }}</td>
+        <td>{{ item.observaciones || '—' }}</td>
+        <td>
+          <div class="actions">
+            @if (!item.horaSalida || item.horaSalida === '00:00:00') {
+              <button type="button" class="btn-salida" title="Marcar salida" (click)="marcarSalida(item)">🚪 Salida</button>
+            }
+          </div>
+        </td>
+      </tr>
+      }
     </tbody>
   </table>
 </div>
+
+<!-- ===== MODAL NUEVO REGISTRO ===== -->
+@if (mostrandoModal) {
+<div class="modal-overlay" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-group">
+        <div class="modal-icon">🕐</div>
+        <div>
+          <p class="modal-title">Marcar entrada</p>
+          <p class="modal-subtitle">Registrar entrada del día de hoy</p>
+        </div>
+      </div>
+      <button type="button" class="modal-close" (click)="cerrarModal()" title="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label class="form-label" for="empleadoId">Empleado <span class="required-mark">*</span></label>
+          <select id="empleadoId" class="form-select" title="Empleado"
+            [class.invalid]="enviado && !form.empleadoId"
+            [(ngModel)]="form.empleadoId">
+            <option [ngValue]="0">Seleccione...</option>
+            @for (e of empleados(); track e.id) {
+              <option [ngValue]="e.id">{{ e.nombre }} {{ e.apellido }}</option>
+            }
+          </select>
+          @if (enviado && !form.empleadoId) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="fecha">Fecha</label>
+          <input id="fecha" type="text" class="form-input form-input-readonly" [value]="form.fecha" readonly />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="horaEntrada">Hora Entrada <span class="required-mark">*</span></label>
+          <input id="horaEntrada" type="time" class="form-input"
+            [class.invalid]="enviado && !form.horaEntrada"
+            [(ngModel)]="form.horaEntrada" />
+          @if (enviado && !form.horaEntrada) { <span class="form-error">Campo obligatorio</span> }
+        </div>
+
+        <div class="form-group form-group-full">
+          <label class="form-label" for="observaciones">Observaciones</label>
+          <textarea id="observaciones" class="form-textarea"
+            [(ngModel)]="form.observaciones" placeholder="Observaciones opcionales"></textarea>
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
+      <button type="button" class="btn-save" (click)="guardar()">Registrar entrada</button>
+    </div>
+  </div>
+</div>
+}

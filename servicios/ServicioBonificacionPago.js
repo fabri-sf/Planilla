@@ -14,6 +14,16 @@ class ServicioBonificacionPago {
     return await ejecutarConsulta("SELECT * FROM BONIFICACION_PAGO");
   }
 
+    async ReadPorPago(pagoId) {
+    return await ejecutarConsulta(
+      `SELECT bp.*, tb.nombre, tb.codigo
+       FROM BONIFICACION_PAGO bp
+       JOIN TIPO_BONIFICACION tb ON bp.tipoBonificacionId = tb.id
+       WHERE bp.pagoId = ?`,
+      [pagoId]
+    );
+  }
+
   async Create(datos) {
     return await ejecutarConsulta(
       "INSERT INTO BONIFICACION_PAGO (pagoId, tipoBonificacionId, monto, observaciones) VALUES (?, ?, ?, ?)",
@@ -25,6 +35,16 @@ class ServicioBonificacionPago {
       ],
     );
   }
+
+  async ReadUltimoMontoPorTipo(tipoBonificacionId) {
+  const result = await ejecutarConsulta(
+    `SELECT monto FROM BONIFICACION_PAGO 
+     WHERE tipoBonificacionId = ? 
+     ORDER BY id DESC LIMIT 1`,
+    [tipoBonificacionId]
+  );
+  return result.length > 0 ? result[0] : { monto: 0 };
+}
 
   async Update(datos) {
     return await ejecutarConsulta(
@@ -41,7 +61,7 @@ class ServicioBonificacionPago {
 
   async Delete(datos) {
     return await ejecutarConsulta(
-      "UPDATE BONIFICACION_PAGO SET estado = CASE WHEN estado = 'activo' THEN 'inactivo' ELSE 'activo' END WHERE id = ?",
+      "DELETE FROM BONIFICACION_PAGO WHERE id = ?",
       [datos.id],
     );
   }

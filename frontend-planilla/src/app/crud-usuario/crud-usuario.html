@@ -9,14 +9,14 @@
   </div>
   <div class="page-header-right">
     <button type="button" class="btn-add" (click)="abrirCrear()">+ Nuevo registro</button>
-    <button type="button" class="btn-close" title="Cerrar">✕</button>
+    <button type="button" class="btn-close" (click)="cerrar()" title="Cerrar">✕</button>
   </div>
 </div>
 
 <!-- ===== BUSCADOR ===== -->
 <div class="search-bar">
   <span class="search-icon">🔍</span>
-  <input type="text" class="search-input" placeholder="Buscar por nombre, id..." />
+  <input type="text" class="search-input" placeholder="Buscar por nombre, id..." [(ngModel)]="terminoBusqueda" />
 </div>
 
 <!-- ===== TABLA ===== -->
@@ -29,20 +29,20 @@
       </tr>
     </thead>
     <tbody>
-      @for (item of lista; track item.id) {
+      @for (item of listaFiltrada; track item.id) {
       <tr>
         <td>{{ item.id }}</td>
-        <td>{{ item.nombre_usuario }}</td>
+        <td>{{ item.nombreUsuario }}</td>
         <td>{{ item.correo }}</td>
-        <td><span class="badge" [class.badge-admin]="item.rol==='Administrador'" [class.badge-gerente]="item.rol==='Gerente'" [class.badge-empleado]="item.rol==='Empleado'">{{ item.rol }}</span></td>
-        <td>{{ item.empleado }}</td>
-        <td><span class="badge" [class.badge-activo]="item.estado==='Activo'" [class.badge-inactivo]="item.estado==='Inactivo'">{{ item.estado }}</span></td>
-        <td>{{ item.ultimo_acceso }}</td>
+        <td><span class="badge" [class.badge-admin]="item.rol==='admin'" [class.badge-gerente]="item.rol==='gerente'" [class.badge-empleado]="item.rol==='empleado'">{{ item.rol }}</span></td>
+        <td>{{ nombreEmpleado(item.empleadoId) }}</td>
+        <td><span class="badge" [class.badge-activo]="item.estado==='activo'" [class.badge-inactivo]="item.estado==='inactivo'">{{ item.estado }}</span></td>
+        <td>{{ item.ultimoAcceso }}</td>
         <td>{{ item.creacion }}</td>
         <td>
           <div class="actions">
             <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
-            <button type="button" class="btn-delete" title="Eliminar">🗑️</button>
+            <button type="button" class="btn-delete" title="{{ item.estado === 'activo' ? 'Desactivar' : 'Activar' }}" (click)="confirmarEliminar(item.id, item.estado)">{{ item.estado === 'activo' ? '🔴' : '🟢' }}</button>
           </div>
         </td>
       </tr>
@@ -68,9 +68,9 @@
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-group">
-          <label class="form-label" for="nombre_usuario">Usuario <span class="required-mark">*</span></label>
-          <input id="nombre_usuario" class="form-input" [class.invalid]="enviado && !form.nombre_usuario" [(ngModel)]="form.nombre_usuario" placeholder="Nombre de usuario" />
-          @if (enviado && !form.nombre_usuario) { <span class="form-error">Campo obligatorio</span> }
+          <label class="form-label" for="nombreUsuario">Usuario <span class="required-mark">*</span></label>
+          <input id="nombreUsuario" class="form-input" [class.invalid]="enviado && !form.nombreUsuario" [(ngModel)]="form.nombreUsuario" placeholder="Nombre de usuario" />
+          @if (enviado && !form.nombreUsuario) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
           <label class="form-label" for="correo">Correo <span class="required-mark">*</span></label>
@@ -85,30 +85,51 @@
           <label class="form-label" for="rol">Rol <span class="required-mark">*</span></label>
           <select id="rol" class="form-select" title="Rol" [class.invalid]="enviado && !form.rol" [(ngModel)]="form.rol">
             <option value="">Seleccione...</option>
-            <option>Administrador</option>
-            <option>Gerente</option>
-            <option>Empleado</option>
+            <option value="admin">admin</option>
+            <option value="gerente">gerente</option>
+            <option value="empleado">empleado</option>
           </select>
           @if (enviado && !form.rol) { <span class="form-error">Campo obligatorio</span> }
         </div>
         <div class="form-group">
-          <label class="form-label" for="id_empleado">Empleado</label>
-          <input id="id_empleado" class="form-input" [(ngModel)]="form.id_empleado" placeholder="ID o nombre del empleado" />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="estado">Estado <span class="required-mark">*</span></label>
-          <select id="estado" class="form-select" title="Estado" [class.invalid]="enviado && !form.estado" [(ngModel)]="form.estado">
-            <option value="">Seleccione...</option>
-            <option>Activo</option>
-            <option>Inactivo</option>
+          <label class="form-label" for="empleadoId">Empleado</label>
+          <select id="empleadoId" class="form-select" title="Empleado" [(ngModel)]="form.empleadoId">
+            <option [ngValue]="0">Seleccione...</option>
+            @for (e of empleadosDisponibles(); track e.id) {
+              <option [ngValue]="e.id">{{ e.nombre }} {{ e.apellido }}</option>
+            }
           </select>
-          @if (enviado && !form.estado) { <span class="form-error">Campo obligatorio</span> }
         </div>
+        @if (modoEditar) {
+        <div class="form-group">
+          <label class="form-label" for="estado">Estado</label>
+          <select id="estado" class="form-select" title="Estado" [(ngModel)]="form.estado">
+            <option value="suspendido">suspendido</option>
+          </select>
+        </div>
+        }
       </div>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
       <button type="button" class="btn-save" (click)="guardar()">Guardar</button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ===== MODAL CONFIRMACIÓN ===== -->
+@if (mostrandoConfirmacion) {
+<div class="modal-confirm-overlay" (click)="cerrarConfirmacion()">
+  <div class="modal-confirm" (click)="$event.stopPropagation()">
+    <div class="modal-confirm-icon">{{ estadoActual === 'activo' ? '🔴' : '🟢' }}</div>
+    <p class="modal-confirm-title">{{ estadoActual === 'activo' ? '¿Desactivar usuario?' : '¿Activar usuario?' }}</p>
+    <p class="modal-confirm-msg">{{ estadoActual === 'activo' ? 'El usuario perderá acceso al sistema.' : 'El usuario recuperará acceso al sistema.' }}</p>
+    <div class="modal-confirm-actions">
+      <button type="button" class="btn-cancel-form" (click)="cerrarConfirmacion()">Cancelar</button>
+      <button type="button" [class]="estadoActual === 'activo' ? 'btn-danger' : 'btn-save'" (click)="ejecutarEliminar()">
+        {{ estadoActual === 'activo' ? 'Sí, desactivar' : 'Sí, activar' }}
+      </button>
     </div>
   </div>
 </div>
