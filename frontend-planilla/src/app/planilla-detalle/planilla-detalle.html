@@ -470,8 +470,9 @@
         <div class="pd-sal-grid">
           <div class="pd-sal-field pd-sal-full">
             <label class="pd-sal-label">Tipo <span style="color:red">*</span></label>
-            <select class="pd-sal-input" [(ngModel)]="formDeduccion.tipoDeduccionId"
-                    (change)="onTipoDeduccionChange()">
+            <select class="pd-sal-input"
+                    [ngModel]="formDeduccion.tipoDeduccionId"
+                    (ngModelChange)="formDeduccion.tipoDeduccionId = $event; onTipoDeduccionChange()">
               <option [ngValue]="0">Seleccioná un tipo...</option>
               @for (t of tiposDeduccion(); track t.id) {
                 <option [ngValue]="t.id">

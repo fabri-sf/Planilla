@@ -17,7 +17,8 @@
 <div class="filters-row">
   <div class="search-bar">
     <span class="search-icon">🔍</span>
-    <input type="text" class="search-input" placeholder="Buscar por empleado o id..." [(ngModel)]="terminoBusqueda" />
+    <input type="text" class="search-input" placeholder="Buscar por nombre de empleado..."
+      [(ngModel)]="terminoBusqueda" />
   </div>
   <div class="date-filter">
     <span class="search-icon">📅</span>
@@ -60,8 +61,6 @@
             @if (!item.horaSalida || item.horaSalida === '00:00:00') {
               <button type="button" class="btn-salida" title="Marcar salida" (click)="marcarSalida(item)">🚪 Salida</button>
             }
-            <button type="button" class="btn-edit" title="Editar" (click)="abrirEditar(item)">✏️</button>
-            <button type="button" class="btn-delete" title="Eliminar" (click)="confirmarEliminar(item.id)">🗑️</button>
           </div>
         </td>
       </tr>
@@ -70,7 +69,7 @@
   </table>
 </div>
 
-<!-- ===== MODAL NUEVO / EDITAR REGISTRO ===== -->
+<!-- ===== MODAL NUEVO REGISTRO ===== -->
 @if (mostrandoModal) {
 <div class="modal-overlay" (click)="cerrarModal()">
   <div class="modal" (click)="$event.stopPropagation()">
@@ -78,8 +77,8 @@
       <div class="modal-title-group">
         <div class="modal-icon">🕐</div>
         <div>
-          <p class="modal-title">{{ modoEditar ? 'Editar asistencia' : 'Marcar entrada' }}</p>
-          <p class="modal-subtitle">{{ modoEditar ? 'Editar registro de asistencia' : 'Registrar entrada del día de hoy' }}</p>
+          <p class="modal-title">Marcar entrada</p>
+          <p class="modal-subtitle">Registrar entrada del día de hoy</p>
         </div>
       </div>
       <button type="button" class="modal-close" (click)="cerrarModal()" title="Cerrar">✕</button>
@@ -100,14 +99,9 @@
           @if (enviado && !form.empleadoId) { <span class="form-error">Campo obligatorio</span> }
         </div>
 
-        <!-- Fecha: solo lectura al crear, editable en modo editar -->
         <div class="form-group">
           <label class="form-label" for="fecha">Fecha</label>
-          @if (modoEditar) {
-            <input id="fecha" type="date" class="form-input" [(ngModel)]="form.fecha" />
-          } @else {
-            <input id="fecha" type="text" class="form-input form-input-readonly" [value]="form.fecha" readonly />
-          }
+          <input id="fecha" type="text" class="form-input form-input-readonly" [value]="form.fecha" readonly />
         </div>
 
         <div class="form-group">
@@ -116,23 +110,6 @@
             [class.invalid]="enviado && !form.horaEntrada"
             [(ngModel)]="form.horaEntrada" />
           @if (enviado && !form.horaEntrada) { <span class="form-error">Campo obligatorio</span> }
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="horaSalida">Hora Salida</label>
-          <input id="horaSalida" type="time" class="form-input" [(ngModel)]="form.horaSalida" />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="horasTrabajadas">Horas Trabajadas</label>
-          <input id="horasTrabajadas" type="number" step="0.01" min="0" class="form-input"
-            [(ngModel)]="form.horasTrabajadas" placeholder="Ej: 8.00" />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="horasExtras">Horas Extra</label>
-          <input id="horasExtras" type="number" step="0.01" min="0" class="form-input"
-            [(ngModel)]="form.horasExtras" placeholder="Ej: 0.00" />
         </div>
 
         <div class="form-group form-group-full">
@@ -145,24 +122,7 @@
     </div>
     <div class="modal-footer">
       <button type="button" class="btn-cancel-form" (click)="cerrarModal()">Cancelar</button>
-      <button type="button" class="btn-save" (click)="guardar()">
-        {{ modoEditar ? 'Guardar cambios' : 'Registrar entrada' }}
-      </button>
-    </div>
-  </div>
-</div>
-}
-
-<!-- ===== MODAL CONFIRMACIÓN ELIMINAR ===== -->
-@if (mostrandoConfirmacion) {
-<div class="modal-confirm-overlay" (click)="cerrarConfirmacion()">
-  <div class="modal-confirm" (click)="$event.stopPropagation()">
-    <div class="modal-confirm-icon">🗑️</div>
-    <p class="modal-confirm-title">¿Eliminar registro?</p>
-    <p class="modal-confirm-msg">Esta acción eliminará el registro de asistencia permanentemente. ¿Deseas continuar?</p>
-    <div class="modal-confirm-actions">
-      <button type="button" class="btn-cancel-form" (click)="cerrarConfirmacion()">Cancelar</button>
-      <button type="button" class="btn-danger" (click)="ejecutarEliminar()">Sí, eliminar</button>
+      <button type="button" class="btn-save" (click)="guardar()">Registrar entrada</button>
     </div>
   </div>
 </div>

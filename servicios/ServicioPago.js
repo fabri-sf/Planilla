@@ -3,6 +3,8 @@ const ServicioUsuario = require("./ServicioUsuario.js");
 
 function round2(n) { return Math.round(n * 100) / 100; }
 
+const HORAS_MES = 240; // 30 días × 8 horas
+
 class ServicioPago {
   constructor() {}
 
@@ -30,37 +32,38 @@ class ServicioPago {
   async Create(Datos) {
     const usuarioId = await ServicioUsuario.obtenerUsuarioId(Datos.token);
 
-    const salarioBase    = parseFloat(Datos.salarioBase) || 0;
-    const diasTrabajados = parseInt(Datos.diasTrabajados) || 0;
-    const diasEsperados  = parseInt(Datos.diasEsperados) || 30;
-    const horasExtras    = parseFloat(Datos.horasExtras) || 0;
+    const salarioBase     = parseFloat(Datos.salarioBase) || 0;
+const horasTrabajadas = toHoras(Datos.horasTrabajadas);
+const horasExtras     = toHoras(Datos.horasExtras);
+    const diasTrabajados  = parseInt(Datos.diasTrabajados) || 0;   
 
-    const salarioProporcional = (salarioBase / diasEsperados) * diasTrabajados;
-    const pagoHorasExtras     = (salarioBase / diasEsperados / 8) * 1.5 * horasExtras;
-    const totalBruto          = round2(salarioProporcional + pagoHorasExtras);
-
+    // Valor por hora ordinaria
+    const valorHora = round2(salarioBase / HORAS_MES);
+    const salarioProporcional = round2(valorHora * horasTrabajadas);
+    // Horas extra al 1.5×
+    const pagoHorasExtras = round2(valorHora * 1.5 * horasExtras);
+    const totalBruto = round2(salarioProporcional + pagoHorasExtras);
     const tiposObligatorios = await ejecutarConsulta(
       "SELECT * FROM TIPO_DEDUCCION WHERE obligatorio = TRUE AND estado = 'activo'"
     );
 
     let totalDeducciones = 0;
     const deduccionesAInsertar = [];
-
     for (const tipo of tiposObligatorios) {
-      let monto = 0;
-      if (tipo.porcentaje !== null && tipo.porcentaje !== undefined) {
-        monto = round2(totalBruto * (parseFloat(tipo.porcentaje) / 100));
-      } else if (tipo.montoFijo !== null && tipo.montoFijo !== undefined) {
-        // ✅ Monto fijo solo si el bruto lo puede cubrir
-        const montoFijo = parseFloat(tipo.montoFijo);
-        monto = totalBruto >= montoFijo ? round2(montoFijo) : 0;
-      }
+  let monto = 0;
+  if (tipo.porcentaje !== null && tipo.porcentaje !== undefined) {
+    monto = round2(totalBruto * (parseFloat(tipo.porcentaje) / 100));
+    monto = round2(monto / 2); // quincena
+  } else if (tipo.montoFijo !== null && tipo.montoFijo !== undefined) {
+    const montoFijo = parseFloat(tipo.montoFijo);
+    const montoProporcional = round2((montoFijo / HORAS_MES) * horasTrabajadas);
+    monto = totalBruto >= montoProporcional ? round2(montoProporcional / 2) : 0; // quincena
+  }
       totalDeducciones += monto;
       deduccionesAInsertar.push({ tipoId: tipo.id, nombre: tipo.nombre, monto });
     }
 
     totalDeducciones = round2(totalDeducciones);
-    // ✅ El neto nunca puede ser negativo
     const salarioNeto = round2(Math.max(0, totalBruto - totalDeducciones));
 
     try {
@@ -69,7 +72,7 @@ class ServicioPago {
          VALUES (?, 'PAGO', 'INSERT', 0, 'todos', NULL, ?, ?)`,
         [
           usuarioId ?? null,
-          `empleadoId:${Datos.empleadoId}, planillaId:${Datos.planillaId}, salarioNeto:${salarioNeto}`,
+          `empleadoId:${Datos.empleadoId}, planillaId:${Datos.planillaId}, horas:${horasTrabajadas}, salarioNeto:${salarioNeto}`,
           `Creación pago empleado ID: ${Datos.empleadoId}, planilla ID: ${Datos.planillaId}`,
         ]
       );
@@ -84,9 +87,10 @@ class ServicioPago {
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         Datos.empleadoId, Datos.planillaId, salarioBase,
-        diasTrabajados, diasEsperados, horasExtras,
+        diasTrabajados, 30, horasExtras,
         totalBruto, totalDeducciones, 0,
-        salarioNeto, Datos.observaciones ?? ""
+        salarioNeto,
+        `${horasTrabajadas}h trabajadas — valor hora: ₡${valorHora}`
       ]
     );
 
@@ -104,6 +108,8 @@ class ServicioPago {
 
     return {
       pagoId,
+      horasTrabajadas,
+      valorHora,
       totalBruto,
       totalDeducciones,
       salarioNeto,
@@ -135,7 +141,6 @@ class ServicioPago {
     );
   }
 
-  // ✅ Recalcular corregido — neto nunca negativo
   async Recalcular(pagoId) {
     const deducciones = await ejecutarConsulta(
       "SELECT SUM(monto) AS total FROM DEDUCCION_PAGO WHERE pagoId = ?",
@@ -150,7 +155,6 @@ class ServicioPago {
 
     const totalDeducciones    = round2(parseFloat(deducciones[0].total) || 0);
     const totalBonificaciones = round2(parseFloat(bonificaciones[0].total) || 0);
-    // ✅ Math.max(0, ...) para que el neto nunca sea negativo
     const salarioNeto = round2(
       Math.max(0, pago[0].totalBruto - totalDeducciones + totalBonificaciones)
     );

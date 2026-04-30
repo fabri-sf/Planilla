@@ -95,6 +95,22 @@ Router.post("/Update", async (solicitud, respuesta, next) => {
   return respuesta.status(401).json();
 });
 
+Router.get("/ReadUltimoMontoPorTipo", async (solicitud, respuesta, next) => {
+  if (await Usuarios.ValidarToken(solicitud.headers.authorization)) {
+    try {
+      return respuesta.json(
+        await ServicioBonificacionPago.ReadUltimoMontoPorTipo(
+          Number(solicitud.query.tipoBonificacionId)
+        )
+      );
+    } catch (error) {
+      console.error(error);
+      return respuesta.status(500).json(error);
+    }
+  }
+  return respuesta.status(401).json();
+});
+
 
 // ================= DELETE =================
 /*Router.post("/Delete", async (solicitud, respuesta, next) => {
