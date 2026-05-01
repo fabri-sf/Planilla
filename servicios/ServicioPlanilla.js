@@ -223,27 +223,42 @@ class ServicioPlanilla {
   }
 
   async Atraso(datos) {
-    const rows = await ejecutarConsulta("SELECT * FROM PLANILLA WHERE id = ?", [datos.planillaId]);
-    if (!rows.length) throw new Error("Planilla no encontrada");
-    const planilla = rows[0];
+  if (!datos.planillaId) throw new Error("planillaId es requerido");
+  if (!datos.motivo)     throw new Error("El motivo es requerido");
+  if (!datos.nuevaFechaPago) throw new Error("La nueva fecha de pago es requerida");
 
+  const rows = await ejecutarConsulta("SELECT * FROM PLANILLA WHERE id = ?", [datos.planillaId]);
+  if (!rows.length) throw new Error("Planilla no encontrada");
+  const planilla = rows[0];
+
+  const fechaFormateada = String(datos.nuevaFechaPago).split("T")[0];
+
+  await ejecutarConsulta(
+    "UPDATE PLANILLA SET estado = 'atrasada' WHERE id = ?",
+    [datos.planillaId]
+  );
+
+  await ejecutarConsulta(
+    "UPDATE PLANILLA SET fechaPago = ? WHERE id = ?",
+    [fechaFormateada, datos.planillaId]
+  );
+
+  const usuarioId = await ServicioUsuario.obtenerUsuarioId(datos.token);
+  try {
     await ejecutarConsulta(
-      "UPDATE PLANILLA SET estado = 'atrasada', fechaPago = ? WHERE id = ?",
-      [datos.nuevaFechaPago, datos.planillaId]
+      `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
+       VALUES (?, 'PLANILLA', 'UPDATE', ?, 'estado', ?, 'atrasada', ?)`,
+      [
+        usuarioId ?? null,
+        datos.planillaId,
+        planilla.estado,
+        `Atraso planilla ${datos.planillaId} — Motivo: ${datos.motivo}. Nueva fecha: ${fechaFormateada}. ${datos.observaciones ?? ""}`,
+      ]
     );
+  } catch (e) { console.warn("AUDITORIA Atraso:", e.message); }
 
-    const usuarioId = await ServicioUsuario.obtenerUsuarioId(datos.token);
-    try {
-      await ejecutarConsulta(
-        `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
-         VALUES (?, 'PLANILLA', 'UPDATE', ?, 'estado', ?, 'atrasada', ?)`,
-        [usuarioId ?? null, datos.planillaId, planilla.estado,
-          `Atraso planilla ${datos.planillaId} — Motivo: ${datos.motivo}. Nueva fecha: ${datos.nuevaFechaPago}. ${datos.observaciones ?? ""}`]
-      );
-    } catch (e) { console.warn("AUDITORIA Atraso:", e.message); }
-
-    return { estadoAnterior: planilla.estado, estadoNuevo: "atrasada" };
-  }
+  return { estadoAnterior: planilla.estado, estadoNuevo: "atrasada" };
+}
 
 
 
