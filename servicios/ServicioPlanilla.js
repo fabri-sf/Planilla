@@ -17,7 +17,7 @@ function toHoras(valor) {
 }
 
 async function obtenerAsistencias(empleadoId, fechaInicio, fechaFin) {
-  let asistencias = await ejecutarConsulta(
+  return await ejecutarConsulta(
     "SELECT * FROM ASISTENCIA WHERE empleadoId = ? AND fecha BETWEEN ? AND ?",
     [empleadoId, fechaInicio, fechaFin]
   );
@@ -122,8 +122,26 @@ class ServicioPlanilla {
     return await ejecutarConsulta("SELECT * FROM PLANILLA ORDER BY id DESC");
   }
 
-  async Create(datos) {
+ async Create(datos) {
     const usuarioId = await ServicioUsuario.obtenerUsuarioId(datos.token);
+
+   
+    const solapadas = await ejecutarConsulta(
+  `SELECT id, periodo, fechaInicio, fechaFin FROM PLANILLA 
+   WHERE NOT (fechaFin < ? OR fechaInicio > ?)`,
+  [datos.fechaInicio, datos.fechaFin]
+);
+
+   if (solapadas.length) {
+  const p = solapadas[0];
+  const inicio = p.fechaInicio ? p.fechaInicio.toISOString().split('T')[0] : '—';
+  const fin    = p.fechaFin    ? p.fechaFin.toISOString().split('T')[0]    : '—';
+  throw new Error(
+    `Ya existe la planilla "${p.periodo}" que cubre del ${inicio} al ${fin}. ` +
+    `No podés crear una planilla en ese rango de fechas.`
+  );
+}
+
     try {
       await ejecutarConsulta(
         `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
@@ -279,6 +297,10 @@ class ServicioPlanilla {
 
     for (const emp of empleados) {
       const asistencias = await obtenerAsistencias(emp.id, planilla.fechaInicio, planilla.fechaFin);
+
+      // CORRECCIÓN: si el empleado no tiene asistencias en el período, no se incluye
+      if (!asistencias.length) continue;
+
       const calc = calcularMontosPago(emp, asistencias, tiposDeduccion);
 
       resultado.push({
@@ -353,6 +375,10 @@ class ServicioPlanilla {
 
     for (const emp of empleados) {
       const asistencias = await obtenerAsistencias(emp.id, planilla.fechaInicio, planilla.fechaFin);
+
+      // CORRECCIÓN: si el empleado no trabajó en este período, no se genera pago
+      if (!asistencias.length) continue;
+
       const calc = calcularMontosPago(emp, asistencias, tiposDeduccion);
 
       try {
@@ -411,6 +437,10 @@ class ServicioPlanilla {
         deducciones:      calc.deduccionesCalculadas,
       });
     }
+
+    // Validar que al menos un empleado tuvo asistencias
+    if (!pagosGenerados.length)
+      throw new Error("Ningún empleado tiene asistencias registradas en el período de esta planilla.");
 
     await ejecutarConsulta(
       "UPDATE PLANILLA SET estado = 'procesada' WHERE id = ?",
