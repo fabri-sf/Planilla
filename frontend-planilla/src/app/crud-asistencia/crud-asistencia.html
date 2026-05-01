@@ -50,7 +50,7 @@
       <tr>
         <td>{{ item.id }}</td>
         <td>{{ nombreEmpleado(item.empleadoId) }}</td>
-        <td>{{ item.fecha }}</td>
+        <td>{{ fmtFecha(item.fecha) }}</td>
         <td>{{ item.horaEntrada }}</td>
         <td>{{ item.horaSalida || '—' }}</td>
         <td>{{ item.horasTrabajadas ?? '—' }}</td>

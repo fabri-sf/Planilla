@@ -54,7 +54,6 @@ class ServicioEmpleado {
   async Update(Datos) {
     const usuarioId = await ServicioUsuario.obtenerUsuarioId(Datos.token);
 
-    // Detectar cambio de salario para registrar en historial
     const actual = await ejecutarConsulta(
       "SELECT salarioBase FROM EMPLEADO WHERE id = ?",
       [Datos.id]
