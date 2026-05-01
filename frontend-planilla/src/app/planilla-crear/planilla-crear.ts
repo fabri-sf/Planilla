@@ -72,12 +72,12 @@ export class PlanillaCrear implements OnInit {
     const { fechaInicio, fechaFin, fechaPago } = this.form;
     if (!fechaInicio || !fechaFin || !fechaPago) return null;
     const hoy      = new Date(); hoy.setHours(0, 0, 0, 0);
-    const minFecha = new Date(hoy); minFecha.setDate(hoy.getDate() - 10);
+    const minFecha = new Date(hoy); minFecha.setDate(hoy.getDate() - 30);
     const ini  = new Date(fechaInicio + 'T00:00:00');
     const fin  = new Date(fechaFin    + 'T00:00:00');
     const pago = new Date(fechaPago   + 'T00:00:00');
     if (ini < minFecha)
-      return 'La fecha de inicio no puede ser más de 10 días antes de hoy';
+      return 'La fecha de inicio no puede ser más de 30 días antes de hoy';
     if (fin <= ini)
       return 'La fecha de fin debe ser posterior a la fecha de inicio';
     if (pago <= ini)
