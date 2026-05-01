@@ -4,8 +4,6 @@ const ServicioUsuario = require("./ServicioUsuario.js");
 class ServicioHistorialSalario {
   constructor() {}
 
-  // ── HISTORIAL_SALARIO ─────────────────────────────────────────────────────
-
   async Read(Datos) {
     return await ejecutarConsulta(
       "SELECT * FROM HISTORIAL_SALARIO WHERE empleadoId = ?",
@@ -35,7 +33,6 @@ class ServicioHistorialSalario {
       console.warn("AUDITORIA insert fallido (Create HistorialSalario):", e.message);
     }
 
-    // Insertar en historial
     const resultado = await ejecutarConsulta(
       `INSERT INTO HISTORIAL_SALARIO
             (empleadoId, salarioAnterior, salarioNuevo, motivo, autorizadoPor)
@@ -49,7 +46,6 @@ class ServicioHistorialSalario {
       ],
     );
 
-    // Actualizar salarioBase en EMPLEADO con el salario nuevo
     await ejecutarConsulta(
       "UPDATE EMPLEADO SET salarioBase = ? WHERE id = ?",
       [Datos.salarioNuevo, Datos.empleadoId],

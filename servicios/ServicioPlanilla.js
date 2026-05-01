@@ -1,10 +1,6 @@
 const { ejecutarConsulta } = require("../db.js");
 const ServicioUsuario = require("./ServicioUsuario.js");
 
-// ═══════════════════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════════════════
-
 function round2(n) {
   return Math.round(n * 100) / 100;
 }
@@ -20,24 +16,19 @@ function toHoras(valor) {
   return round2(h + m / 60 + s / 3600);
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// ASISTENCIAS
-// ─ CORRECCIÓN: eliminado el fallback que devolvía todas las
-//   asistencias históricas cuando no había registros en el período.
-//   Ahora retorna arreglo vacío si el empleado no trabajó en ese
-//   rango de fechas, evitando pagos incorrectos.
-// ═══════════════════════════════════════════════════════════════════
-
 async function obtenerAsistencias(empleadoId, fechaInicio, fechaFin) {
   return await ejecutarConsulta(
     "SELECT * FROM ASISTENCIA WHERE empleadoId = ? AND fecha BETWEEN ? AND ?",
     [empleadoId, fechaInicio, fechaFin]
   );
+  if (!asistencias.length) {
+    asistencias = await ejecutarConsulta(
+      "SELECT * FROM ASISTENCIA WHERE empleadoId = ?",
+      [empleadoId]
+    );
+  }
+  return asistencias;
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// CÁLCULO DE MONTOS
-// ═══════════════════════════════════════════════════════════════════
 
 function calcularMontosPago(emp, asistencias, tiposDeduccion) {
   const salarioBase = parseFloat(emp.salarioBase) || 0;
@@ -119,8 +110,6 @@ function calcularMontosPago(emp, asistencias, tiposDeduccion) {
 
 class ServicioPlanilla {
   constructor() {}
-
-  //  CRUD 
 
   async Read(datos) {
     return await ejecutarConsulta(
@@ -212,8 +201,6 @@ class ServicioPlanilla {
     );
   }
 
-  // Cambios de estado 
-
   async CambiarEstado(datos) {
     const transiciones = {
       borrador:  "procesada",
@@ -276,10 +263,7 @@ class ServicioPlanilla {
     return { estadoAnterior: planilla.estado, estadoNuevo: "atrasada" };
   }
 
-  //  Previsualizar
-  // ─ CORRECCIÓN: se agrega `continue` para saltarse empleados sin
-  //   asistencias en el período, evitando que aparezcan en la
-  //   previsualización con montos en cero.
+
 
   async Previsualizar(planillaId, empleadosIds) {
     const rows = await ejecutarConsulta("SELECT * FROM PLANILLA WHERE id = ?", [planillaId]);
@@ -354,9 +338,7 @@ class ServicioPlanilla {
     };
   }
 
-  // Generar pagos
-  // ─ CORRECCIÓN: se agrega `continue` para saltarse empleados sin
-  //   asistencias en el período, evitando generar pagos de ₡0.
+
 
   async GenerarPagos(datos) {
     const rows = await ejecutarConsulta("SELECT * FROM PLANILLA WHERE id = ?", [datos.planillaId]);
@@ -369,7 +351,6 @@ class ServicioPlanilla {
       "SELECT * FROM TIPO_DEDUCCION WHERE obligatorio = TRUE AND estado = 'activo'"
     );
 
-    // Limpiar pagos previos si se regenera
     await ejecutarConsulta(
       "DELETE FROM DEDUCCION_PAGO WHERE pagoId IN (SELECT id FROM PAGO WHERE planillaId = ?)",
       [datos.planillaId]
@@ -400,7 +381,6 @@ class ServicioPlanilla {
 
       const calc = calcularMontosPago(emp, asistencias, tiposDeduccion);
 
-      // Auditoría del pago
       try {
         await ejecutarConsulta(
           `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
@@ -411,7 +391,6 @@ class ServicioPlanilla {
         );
       } catch (e) { console.warn("AUDITORIA GenerarPagos:", e.message); }
 
-      // Insertar pago
       let pagoRes;
       try {
         pagoRes = await ejecutarConsulta(
@@ -434,7 +413,6 @@ class ServicioPlanilla {
       if (!pagoRes || !pagoRes.insertId)
         throw new Error(`INSERT PAGO no retornó insertId para ${emp.nombre} ${emp.apellido}.`);
 
-      // Insertar deducciones del pago
       for (const deduccion of calc.deduccionesCalculadas) {
         if (deduccion.monto > 0) {
           try {
@@ -472,7 +450,7 @@ class ServicioPlanilla {
     return { mensaje: "Planilla procesada correctamente", pagosGenerados, total: pagosGenerados.length };
   }
 
-  //  Reportes 
+
 
   async ReportePlanilla(planillaId) {
     const rows = await ejecutarConsulta("SELECT * FROM PLANILLA WHERE id = ?", [planillaId]);

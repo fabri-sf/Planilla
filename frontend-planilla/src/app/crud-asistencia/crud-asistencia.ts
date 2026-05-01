@@ -82,6 +82,8 @@ export class CRUDAsistencia implements OnInit {
     return e ? `${e.nombre} ${e.apellido}` : String(id);
   }
 
+  protected fmtFecha(val: string): string { return val ? val.split('T')[0] : '—'; }
+
   protected formVacio() {
     return { id: 0, empleadoId: 0, fecha: '', horaEntrada: '', horaSalida: '', horasTrabajadas: 0, horasExtras: 0, observaciones: '' };
   }
