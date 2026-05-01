@@ -25,7 +25,7 @@ class ServicioHistorialSalario {
         `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
            VALUES (?, 'HISTORIAL_SALARIO', 'INSERT', 0, 'salario', ?, ?, ?)`,
         [
-          usuarioId ?? 0,
+          usuarioId ?? null,
           String(Datos.salarioAnterior),
           String(Datos.salarioNuevo),
           `Cambio salario empleado ID: ${Datos.empleadoId} - Motivo: ${Datos.motivo}`,
@@ -66,7 +66,7 @@ class ServicioHistorialSalario {
         `INSERT INTO AUDITORIA (usuarioId, tabla, operacion, registroId, campoModificado, valorAnterior, valorNuevo, descripcion)
            VALUES (?, 'HISTORIAL_SALARIO', 'UPDATE', ?, 'salario', ?, ?, ?)`,
         [
-          usuarioId ?? 0,
+          usuarioId ?? null,
           Datos.id,
           String(Datos.salarioAnterior),
           String(Datos.salarioNuevo),
@@ -77,7 +77,7 @@ class ServicioHistorialSalario {
       console.warn("AUDITORIA insert fallido (Update HistorialSalario):", e.message);
     }
 
-    return await ejecutarConsulta(
+    const resultado = await ejecutarConsulta(
       `UPDATE HISTORIAL_SALARIO SET empleadoId = ?, salarioAnterior = ?, salarioNuevo = ?, motivo = ?, autorizadoPor = ? WHERE id = ?`,
       [
         Datos.empleadoId,
@@ -88,6 +88,13 @@ class ServicioHistorialSalario {
         Datos.id,
       ],
     );
+
+    await ejecutarConsulta(
+      "UPDATE EMPLEADO SET salarioBase = ? WHERE id = ?",
+      [Datos.salarioNuevo, Datos.empleadoId],
+    );
+
+    return resultado;
   }
 }
 

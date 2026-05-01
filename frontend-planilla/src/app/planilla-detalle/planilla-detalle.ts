@@ -662,6 +662,23 @@ export class PlanillaDetalle implements OnInit {
 
 
 
+  protected get historialCompleto(): HistorialSalario[] {
+    const registros = this.historial();
+    const empConHistorial = new Set(registros.map(h => h.empleadoId));
+    const sinHistorial: HistorialSalario[] = this.empleados()
+      .filter(e => !empConHistorial.has(e.id))
+      .map(e => ({
+        id: 0,
+        empleadoId: e.id,
+        salarioAnterior: 0,
+        salarioNuevo: e.salarioBase,
+        fechaCambio: '',
+        motivo: 'Salario base inicial',
+        autorizadoPor: 0,
+      }));
+    return [...registros, ...sinHistorial];
+  }
+
   protected get salarioMaximo(): number {
     const salarios = this.empleados().map(e => e.salarioBase);
     return salarios.length ? Math.max(...salarios) : 1;

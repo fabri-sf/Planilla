@@ -85,7 +85,7 @@ export class CrudEmpleado implements OnInit {
   }
 
   protected formValido(): boolean {
-    return this.form.cedula !== '' && this.form.nombre !== '' && this.form.apellido !== '' && this.form.email !== '' && this.form.fechaIngreso !== '' && this.form.salarioBase > 0 && this.form.estado !== '';
+    return this.form.cedula.length === 9 && this.form.nombre !== '' && this.form.apellido !== '' && this.form.email !== '' && this.form.fechaIngreso !== '' && this.form.salarioBase > 0 && this.form.estado !== '';
   }
 
   protected abrirCrear() { this.form = this.formVacio(); this.enviado = false; this.modoEditar = false; this.mostrandoModal = true; }

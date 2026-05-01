@@ -40,7 +40,7 @@
         <td>{{ nombreEmpleado(item.empleadoId) }}</td>
         <td>₡{{ item.salarioAnterior }}</td>
         <td>₡{{ item.salarioNuevo }}</td>
-        <td>{{ item.fechaCambio }}</td>
+        <td>{{ fmtFecha(item.fechaCambio) }}</td>
         <td>{{ item.motivo }}</td>
         <td>{{ nombreUsuario(item.autorizadoPor) }}</td>
       </tr>

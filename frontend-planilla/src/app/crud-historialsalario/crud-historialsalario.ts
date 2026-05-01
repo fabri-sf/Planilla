@@ -55,6 +55,8 @@ export class CrudHistorialsalario implements OnInit {
     );
   }
 
+  protected fmtFecha(val: string): string { return val ? val.split('T')[0] : '—'; }
+
   protected get usuariosAutorizadores(): Usuario[] {
     return this.usuarios().filter(u => u.rol === 'admin' || u.rol === 'gerente');
   }

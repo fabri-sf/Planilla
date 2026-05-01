@@ -76,8 +76,9 @@
       <div class="form-grid">
         <div class="form-group">
           <label class="form-label" for="cedula">Cédula <span class="required-mark">*</span></label>
-          <input id="cedula" class="form-input" maxlength="11" [class.invalid]="enviado && !form.cedula" [(ngModel)]="form.cedula" placeholder="Ej: 1-1234-5678" />
+          <input id="cedula" class="form-input" maxlength="9" [class.invalid]="enviado && (!form.cedula || form.cedula.length !== 9)" [(ngModel)]="form.cedula" placeholder="Ej: 123456789" />
           @if (enviado && !form.cedula) { <span class="form-error">Campo obligatorio</span> }
+          @if (enviado && form.cedula && form.cedula.length !== 9) { <span class="form-error">La cédula debe tener exactamente 9 dígitos</span> }
         </div>
         <div class="form-group">
           <label class="form-label" for="nombre">Nombre <span class="required-mark">*</span></label>
