@@ -625,19 +625,23 @@
           <th>Variación</th><th>Fecha</th><th>Motivo</th><th>Autorizado por</th><th></th>
         </tr></thead>
         <tbody>
-          @for (h of historial(); track h.id) {
+          @for (h of historialCompleto; track h.id + '_' + h.empleadoId) {
             <tr>
               <td>{{ nombreEmpHistorial(h.empleadoId) }}</td>
               <td class="pd-monto">{{ fmtMoneda(h.salarioAnterior) }}</td>
               <td class="pd-monto pd-bold">{{ fmtMoneda(h.salarioNuevo) }}</td>
               <td class="pd-centro">
-                <span [class]="h.salarioNuevo >= h.salarioAnterior ? 'pd-chip-verde' : 'pd-chip-rojo'">
-                  {{ incremento(h.salarioAnterior, h.salarioNuevo) }}
-                </span>
+                @if (h.salarioAnterior > 0) {
+                  <span [class]="h.salarioNuevo >= h.salarioAnterior ? 'pd-chip-verde' : 'pd-chip-rojo'">
+                    {{ incremento(h.salarioAnterior, h.salarioNuevo) }}
+                  </span>
+                } @else {
+                  <span class="pd-muted">—</span>
+                }
               </td>
-              <td>{{ fmtFecha(h.fechaCambio) }}</td>
+              <td>{{ h.fechaCambio ? fmtFecha(h.fechaCambio) : '—' }}</td>
               <td>{{ h.motivo }}</td>
-              <td>{{ nombreUsuario(h.autorizadoPor) }}</td>
+              <td>{{ h.autorizadoPor ? nombreUsuario(h.autorizadoPor) : '—' }}</td>
               <td>
                 <button class="pd-btn-ver" (click)="abrirFormSalario(empleados().find(e => e.id === h.empleadoId))">
                   Ajustar
@@ -645,8 +649,8 @@
               </td>
             </tr>
           }
-          @if (historial().length === 0) {
-            <tr><td colspan="8" class="pd-empty-cell">Sin registros de cambios salariales</td></tr>
+          @if (historialCompleto.length === 0) {
+            <tr><td colspan="8" class="pd-empty-cell">Sin empleados activos</td></tr>
           }
         </tbody>
       </table>

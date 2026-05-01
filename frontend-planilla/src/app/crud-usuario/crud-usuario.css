@@ -271,8 +271,7 @@
 .form-input::placeholder, .form-textarea::placeholder { color: var(--text-hint); }
 .form-input.invalid, .form-select.invalid, .form-textarea.invalid {
   border-color: var(--color-danger); background: rgba(239, 68, 68, 0.04);
-}
-.form-textarea { resize: vertical; min-height: 84px; }
+}.form-textarea { resize: vertical; min-height: 84px; }
 .form-error { font-size: 11px; color: var(--color-danger-text); }
 .modal-footer {
   display: flex; justify-content: flex-end; gap: var(--space-sm);

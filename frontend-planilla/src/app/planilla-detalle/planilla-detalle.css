@@ -70,6 +70,7 @@
 }
 .pd-metrica--blue  { border-top: 3px solid #3b82f6; }
 .pd-metrica--red   { border-top: 3px solid #ef4444; }
+.pd-metrica--amber { border-top: 3px solid #f59e0b; }
 .pd-metrica--green { border-top: 3px solid #22c55e; }
 .pd-metrica-label  { font-size: var(--font-size-xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: var(--space-xs); }
 .pd-metrica-val    { font-size: var(--font-size-lg); font-weight: 700; color: var(--text-primary); }

@@ -32,6 +32,9 @@ export class App {
     this.menuOpen = !this.menuOpen;
   }
 
+  irAPlanilla() { this.router.navigate(['/planilla']); }
+  irAEmpleados() { this.router.navigate(['/empleado']); }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
